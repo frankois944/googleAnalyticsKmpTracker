@@ -152,8 +152,8 @@ mavenPublishing {
         url = "https://github.com/frankois944/matomoKMPTracker"
         licenses {
             license {
-                name = "Apache-2.0"
-                url = "https://opensource.org/licenses/Apache-2.0"
+                name = "MIT"
+                url = "https://opensource.org/licenses/MIT"
             }
         }
         developers {
