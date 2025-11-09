@@ -27,29 +27,10 @@ A lightweight, Kotlin Multiplatform (KMP) client tracker for [Matomo](https://ma
 
 - A running Matomo instance and a site configured with a `siteId`
 - The Matomo tracking endpoint URL that ends with `matomo.php`, e.g. `https://your.matomo.tld/matomo.php`
-- Internet access from the host application
-- Android only: you must provide an Android `Context` when creating the tracker
-
-Optional
-- A `token_auth` if you want to authenticate API requests for protected features
-- A custom action host if you want to control the base URL used to build action URLs
-
 
 ## Installation
 
-Add the Maven Central repository and the dependency to your KMP project.
-
-Gradle (Kotlin DSL):
-
-```kotlin
-// settings.gradle.kts
-dependencyResolutionManagement {
-    repositories {
-        google()
-        mavenCentral()
-    }
-}
-```
+Add the dependency to your KMP project.
 
 ```kotlin
 // build.gradle.kts (module)
@@ -292,25 +273,6 @@ val tracker = Tracker.create(
 )
 ```
 
-
-## How it works (dispatching & storage)
-
-- Events are queued locally using SQLDelight and persisted between launches
-- A background timer checks every ~5 seconds for pending events
-- Events are sent in batches (up to 20 at a time)
-- On errors, events remain in the queue and are retried later
-- Heartbeat pings use Matomo’s `ping=1` to avoid counting another action
-
-You don’t need to flush manually — dispatching is automatic.
-
-
-## Platform notes
-
-- Android: an `android.content.Context` is mandatory when creating the tracker; otherwise an exception is thrown
-- Desktop (JVM): set `customActionHostUrl` to a meaningful value for cleaner action URLs
-- JavaScript/WASM: the library uses a SQL.js worker under the hood for persistence. Ensure your bundler can load worker files (the library declares the necessary npm dependencies). If your setup blocks workers, consider providing a custom in‑memory `Queue`.
-
-
 ## Logging
 
 You can customize logging. The default logger is verbose for development.
@@ -323,19 +285,6 @@ import io.github.frankois944.matomoKMPTracker.LogLevel
 val tracker = Tracker.create(url = "https://…/matomo.php", siteId = 1)
 tracker.logger = DefaultMatomoTrackerLogger(minLevel = LogLevel.Info)
 ```
-
-
-## Troubleshooting / FAQ
-
-- The URL must end with `matomo.php` — the tracker will `require` this and throw otherwise
-- Nothing shows up in Matomo:
-  - Verify `siteId`
-  - Check network calls to your Matomo endpoint
-  - Ensure your app has internet permission (Android)
-  - Give it some time: events are batched and sent periodically
-- Android crash when creating tracker: pass a proper `Context`
-- I need to flush immediately: dispatching is automatic by design; if you need a custom policy, plug your own `Queue`/`Dispatcher`
-- Count of unique visitors looks off: set a `userId` if you have authenticated users
 
 
 ## License
