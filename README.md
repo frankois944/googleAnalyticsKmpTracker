@@ -1,7 +1,7 @@
 # Matomo KMP Tracker
 
-![Maven Central Version](https://img.shields.io/maven-central/v/io.github.frankois944/matomoKMPTracker)
-![GitHub License](https://img.shields.io/github/license/frankois944/matomoKMPTracker)
+[![Maven Central Version](https://img.shields.io/maven-central/v/io.github.frankois944/matomoKMPTracker)](https://central.sonatype.com/artifact/io.github.frankois944/matomoKMPTracker)
+[![GitHub License](https://img.shields.io/github/license/frankois944/matomoKMPTracker)](https://github.com/frankois944/matomoKMPTracker?tab=MIT-1-ov-file#readme)
 
 
 A lightweight, Kotlin Multiplatform (KMP) client tracker for [Matomo](https://matomo.org/). It lets you track page views, events, goals, on‑site search, content interactions, and e‑commerce across Android, iOS, tvOS, watchOS, macOS, Desktop (JVM), JavaScript, and WASM from one shared Kotlin codebase.
@@ -58,7 +58,7 @@ dependencies {
 }
 ```
 
-Replace `<latest-version>` with the latest version published on Maven Central.
+Replace `<latest-version>` with the latest version published on Maven Central (![Maven Central Version](https://img.shields.io/maven-central/v/io.github.frankois944/matomoKMPTracker)).
 
 
 ## Quick start
