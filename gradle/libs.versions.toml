@@ -1,13 +1,51 @@
 [versions]
-agp = "8.5.2"
-kotlin = "2.1.10"
+agp = "8.12.3"
+core = "1.7.0"
+kotlin = "2.2.21"
 android-minSdk = "24"
-android-compileSdk = "34"
+kotlinxDatetime = "0.7.1"
+android-compileSdk = "36"
+kotlinxSerialization = "1.9.0"
+ktor = "3.3.1"
+coroutines = "1.10.2"
+robolectric = "4.16"
+mockitoCore = "5.20.0"
+sqlDelight = "2.1.0"
+okio = "3.16.2"
+oshiCore = "6.9.1"
+mavenPublish = "0.34.0"
 
 [libraries]
+core = { module = "androidx.test:core", version.ref = "core" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
+kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutines" }
+kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinxDatetime" }
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
+kotlinx-serialization-cbor = { module = "org.jetbrains.kotlinx:kotlinx-serialization-cbor", version.ref = "kotlinxSerialization" }
+ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
+ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktor" }
+ktor-client-darwin = { module = "io.ktor:ktor-client-darwin", version.ref = "ktor" }
+ktor-client-java = { module = "io.ktor:ktor-client-java", version.ref = "ktor" }
+ktor-client-js = { module = "io.ktor:ktor-client-js", version.ref = "ktor" }
+ktor-content-negotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktor" }
+ktor-content-encoding = { module = "io.ktor:ktor-client-encoding", version.ref = "ktor" }
+ktor-logging = { module = "io.ktor:ktor-client-logging", version.ref = "ktor" }
+kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
+kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "coroutines" }
+android-driver = { module = "app.cash.sqldelight:android-driver", version.ref = "sqlDelight" }
+ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
+mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockitoCore" }
+native-driver = { module = "app.cash.sqldelight:native-driver", version.ref = "sqlDelight" }
+okio = { module = "com.squareup.okio:okio", version.ref = "okio" }
+oshi-core = { module = "com.github.oshi:oshi-core", version.ref = "oshiCore" }
+robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
+sqlite-driver = { module = "app.cash.sqldelight:sqlite-driver", version.ref = "sqlDelight" }
+web-worker-driver = { module = "app.cash.sqldelight:web-worker-driver", version.ref = "sqlDelight" }
+web-worker-driver-wasm-js = { module = "app.cash.sqldelight:web-worker-driver-wasm-js", version.ref = "sqlDelight" }
 
 [plugins]
 androidLibrary = { id = "com.android.library", version.ref = "agp" }
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
-vanniktech-mavenPublish = { id = "com.vanniktech.maven.publish", version = "0.29.0" }
+vanniktech-mavenPublish = { id = "com.vanniktech.maven.publish", version.ref = "mavenPublish" }
+kotlinx-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+sqlDelight = { id = "app.cash.sqldelight", version.ref = "sqlDelight" }

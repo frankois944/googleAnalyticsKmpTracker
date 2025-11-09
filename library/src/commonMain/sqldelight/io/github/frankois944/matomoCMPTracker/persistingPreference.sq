@@ -1,0 +1,26 @@
+CREATE TABLE persistingPreference (
+  key TEXT PRIMARY KEY NOT NULL,
+  scope TEXT NOT NULL,
+  value TEXT
+);
+
+CREATE INDEX persistingPreference_key ON persistingPreference(key);
+
+insertPreference:
+INSERT OR REPLACE INTO persistingPreference (key, value, scope)
+VALUES (?, ?, ?);
+
+deletePreference:
+DELETE FROM persistingPreference WHERE key = ? AND scope = ?;
+
+selectPreference:
+SELECT value FROM persistingPreference WHERE key = ? AND scope = ?;
+
+selectAllPreferences:
+SELECT * FROM persistingPreference WHERE scope = ?;
+
+deleteAllPreferences:
+DELETE FROM persistingPreference WHERE scope = ?;
+
+deleteAllPreferencesWithScope:
+DELETE FROM persistingPreference WHERE scope = ?;

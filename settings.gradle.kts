@@ -13,5 +13,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "multiplatform-library-template"
+rootProject.name = "matomo-kmp-tracker"
 include(":library")

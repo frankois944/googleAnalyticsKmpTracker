@@ -1,0 +1,20 @@
+@file:Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
+
+package io.github.frankois944.matomoKMPTracker.database
+
+import app.cash.sqldelight.async.coroutines.awaitCreate
+import app.cash.sqldelight.db.SqlDriver
+import app.cash.sqldelight.driver.worker.WebWorkerDriver
+import app.cash.sqldelight.driver.worker.expected.Worker
+import io.github.frankois944.matomoKMPTracker.CacheDatabase
+
+internal actual class DriverFactory actual constructor() {
+    actual suspend fun createDriver(): SqlDriver =
+        WebWorkerDriver(
+            Worker(
+                js("""new URL("@cashapp/sqldelight-sqljs-worker/sqljs.worker.js", import.meta.url)"""),
+            ),
+        ).also {
+            CacheDatabase.Schema.awaitCreate(it)
+        }
+}

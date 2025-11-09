@@ -1,49 +1,132 @@
-import com.vanniktech.maven.publish.SonatypeHost
-import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.targets.native.tasks.KotlinNativeSimulatorTest
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.vanniktech.mavenPublish)
+    alias(libs.plugins.kotlinx.serialization)
+    alias(libs.plugins.sqlDelight)
 }
 
-group = "io.github.kotlin"
-version = "1.0.0"
+group = "io.github.frankois944"
+version = "0.1.0"
 
 kotlin {
-    jvm()
+    explicitApi()
+    jvm("desktop")
     androidTarget {
-        publishLibraryVariants("release")
-        @OptIn(ExperimentalKotlinGradlePluginApi::class)
         compilerOptions {
             jvmTarget.set(JvmTarget.JVM_11)
         }
+        publishLibraryVariants("release", "debug")
     }
     iosX64()
     iosArm64()
     iosSimulatorArm64()
-    linuxX64()
+    tvosX64()
+    tvosArm64()
+    tvosSimulatorArm64()
+    macosX64()
+    macosArm64()
+    watchosX64()
+    watchosArm64()
+    watchosSimulatorArm64()
 
-    sourceSets {
-        val commonMain by getting {
-            dependencies {
-                //put your multiplatform dependencies here
+    @OptIn(ExperimentalWasmDsl::class)
+    wasmJs {
+        outputModuleName = "matomoKMPTracker"
+        browser {
+            testTask {
+                useKarma {
+                    useChrome()
+                }
             }
         }
-        val commonTest by getting {
-            dependencies {
-                implementation(libs.kotlin.test)
+        binaries.executable()
+    }
+
+    js {
+        browser {
+            testTask {
+                useKarma {
+                    useChrome()
+                }
             }
+        }
+        binaries.executable()
+    }
+
+    sourceSets {
+        commonMain.dependencies {
+            implementation(libs.ktor.client.core)
+            implementation(libs.ktor.content.negotiation)
+            implementation(libs.ktor.content.encoding)
+            implementation(libs.ktor.serialization.kotlinx.json)
+            implementation(libs.ktor.logging)
+            implementation(libs.kotlinx.coroutines.core)
+            implementation(libs.kotlinx.serialization.json)
+            implementation(libs.kotlinx.serialization.cbor)
+            implementation(libs.kotlinx.datetime)
+        }
+        commonTest.dependencies {
+            implementation(libs.kotlin.test)
+            implementation(libs.kotlinx.coroutines.test)
+        }
+        appleMain.dependencies {
+            implementation(libs.ktor.client.darwin)
+            implementation(libs.native.driver)
+        }
+        androidMain.dependencies {
+            implementation(libs.ktor.client.okhttp)
+            implementation(libs.kotlinx.coroutines.android)
+            implementation(libs.android.driver)
+        }
+        androidUnitTest.dependencies {
+            implementation(libs.robolectric)
+            implementation(libs.mockito.core)
+            implementation(libs.core)
+        }
+        val desktopMain by getting {
+            dependencies {
+                implementation(libs.ktor.client.java)
+                implementation(libs.sqlite.driver)
+                implementation(libs.oshi.core)
+                implementation(libs.okio)
+            }
+        }
+        wasmJsMain.dependencies {
+            implementation(libs.ktor.client.js)
+            implementation(libs.web.worker.driver.wasm.js)
+            implementation(npm("@cashapp/sqldelight-sqljs-worker", "2.1.0"))
+            implementation(devNpm("copy-webpack-plugin", "9.1.0"))
+            implementation(npm("sql.js", "1.8.0"))
+            implementation(npm("@js-joda/timezone", "2.22.0"))
+        }
+
+        jsMain.dependencies {
+            implementation(libs.ktor.client.js)
+            implementation(npm("@cashapp/sqldelight-sqljs-worker", "2.1.0"))
+            implementation(libs.web.worker.driver)
+            implementation(devNpm("copy-webpack-plugin", "9.1.0"))
+            implementation(npm("sql.js", "1.8.0"))
+            implementation(npm("@js-joda/timezone", "2.22.0"))
         }
     }
 }
 
 android {
-    namespace = "org.jetbrains.kotlinx.multiplatform.library.template"
-    compileSdk = libs.versions.android.compileSdk.get().toInt()
+    namespace = "io.github.frankois944.matomoKMPTracker"
+    compileSdk =
+        libs.versions.android.compileSdk
+            .get()
+            .toInt()
     defaultConfig {
-        minSdk = libs.versions.android.minSdk.get().toInt()
+        minSdk =
+            libs.versions.android.minSdk
+                .get()
+                .toInt()
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
@@ -52,35 +135,65 @@ android {
 }
 
 mavenPublishing {
-    publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
+    publishToMavenCentral()
 
     signAllPublications()
 
-    coordinates(group.toString(), "library", version.toString())
+    coordinates(
+        group.toString(),
+        "matomoKMPTracker",
+        version.toString(),
+    )
 
     pom {
-        name = "My library"
-        description = "A library."
-        inceptionYear = "2024"
-        url = "https://github.com/kotlin/multiplatform-library-template/"
+        name = "Matomo KMP Tracker"
+        description = "A Matomo client tracker for Kotlin Multiplatform"
+        inceptionYear = "2025"
+        url = "https://github.com/frankois944/matomoKMPTracker"
         licenses {
             license {
-                name = "XXX"
-                url = "YYY"
-                distribution = "ZZZ"
+                name = "Apache-2.0"
+                url = "https://opensource.org/licenses/Apache-2.0"
             }
         }
         developers {
             developer {
-                id = "XXX"
-                name = "YYY"
-                url = "ZZZ"
+                id = "frankois944"
+                name = "François Dabonot"
+                email = "dabonot.francois@gmail.com"
             }
         }
         scm {
-            url = "XXX"
-            connection = "YYY"
-            developerConnection = "ZZZ"
+            url = "https://github.com/frankois944/matomoKMPTracker"
         }
     }
+}
+
+sqldelight {
+    databases {
+        create("CacheDatabase") {
+            packageName = "io.github.frankois944.matomoKMPTracker"
+            generateAsync = true
+        }
+    }
+}
+
+val deviceName = project.findProperty("device") as? String ?: "testing"
+
+tasks.register<Exec>("bootIOSSimulator") {
+    isIgnoreExitValue = true
+    commandLine("xcrun", "simctl", "boot", deviceName)
+
+    doLast {
+        val result = executionResult.get()
+        if (result.exitValue != 148 && result.exitValue != 149) { // ignoring device already booted errors
+            result.assertNormalExitValue()
+        }
+    }
+}
+
+tasks.withType<KotlinNativeSimulatorTest>().configureEach {
+    dependsOn("bootIOSSimulator")
+    standalone.set(false)
+    device.set(deviceName)
 }
