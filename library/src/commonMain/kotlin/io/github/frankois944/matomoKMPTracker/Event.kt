@@ -130,7 +130,6 @@ public class Event internal constructor(
                     set("h", localTime.hour)
                     set("m", localTime.minute)
                     set("s", localTime.second)
-                    set("ua", Device.create().language)
                     // set("uadata", UserAgentProvider.getClientHint().encodeURLParameter(false))
                     set("cdt", date)
                     if (isPing) {
