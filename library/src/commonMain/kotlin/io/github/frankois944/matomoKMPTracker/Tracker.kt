@@ -20,6 +20,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withContext
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
@@ -80,28 +81,28 @@ public class Tracker private constructor(
     }
 
     internal suspend fun build(): Tracker {
-        val prefix = "${siteId}_${siteUrl.host}"
-        // Dispatcher
-        dispatcher =
-            customDispatcher ?: HttpClientDispatcher(
-                baseURL = url,
-                userAgent = customUserAgent,
-                onPrintLog = { message ->
-                    logger.log(message = message, LogLevel.Debug)
-                },
-                tokenAuth = tokenAuth,
-            )
-        // Database
-        val database = createDatabase(DriverFactory())
+            val prefix = "${siteId}_${siteUrl.host}"
+            // Dispatcher
+            dispatcher =
+                customDispatcher ?: HttpClientDispatcher(
+                    baseURL = url,
+                    userAgent = customUserAgent,
+                    onPrintLog = { message ->
+                        logger.log(message = message, LogLevel.Debug)
+                    },
+                    tokenAuth = tokenAuth,
+                )
+            // Database
+            val database = createDatabase(DriverFactory())
         this.queue = customQueue ?: DatabaseQueue(database, prefix)
         this.userPreferences = UserPreferences(database, prefix)
 
-        // Startup
-        startNewSession()
-        startDispatchEvents()
-        if (userPreferences?.isHeartbeatEnabled() == true) {
-            heartbeat.start()
-        }
+            // Startup
+            startNewSession()
+            startDispatchEvents()
+            if (userPreferences?.isHeartbeatEnabled() == true) {
+                heartbeat.start()
+            }
         return this
     }
 
@@ -142,7 +143,7 @@ public class Tracker private constructor(
             return true
         } catch (e: IllegalArgumentException) {
             queue?.remove(items)
-            logger.log("Error while dispatching events, remove from cache: $e", LogLevel.Error)
+            logger.log("Invalid request data, remove from cache: $e", LogLevel.Error)
         } catch (e: Exception) {
             logger.log("Error while dispatching events: $e", LogLevel.Error)
         }
@@ -487,8 +488,6 @@ public class Tracker private constructor(
     /**
      * Set a permanent custom dimension by value and index.
      *
-     * This is a convenience alternative to set(dimension:) and calls the exact same functionality. Also, it is accessible from Objective-C.
-     *
      * @param value The value for the new Custom Dimension
      * @param forIndex The index of the new Custom Dimension
      */
@@ -505,8 +504,6 @@ public class Tracker private constructor(
     /**
      * Removes a previously set custom dimension.
      *
-     * Use this method to remove a dimension that was set using the `set(value: String, forDimension index: Int)` method.
-     *
      * @param removeDimension The index of the dimension.
      */
     public fun removeDimension(atIndex: Int) {
@@ -521,8 +518,8 @@ public class Tracker private constructor(
     /**
      * Starts a new Session
      *
-     * Use this function to manually start a new Session. A new Session will be automatically created only on app start.
-     * You can use the AppDelegates `applicationWillEnterForeground` to start a new visit whenever the app enters foreground.
+     * Use this function to manually start a new Session. A new Session will be automatically
+     * created only on init of the tracker.
      */
     public fun startNewSession() {
         logger.log("start New Session", LogLevel.Info)
