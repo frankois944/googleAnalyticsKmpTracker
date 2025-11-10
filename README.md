@@ -78,8 +78,6 @@ val tracker = Tracker.create(
 
 ## Usage
 
-Below are common tracking calls. These examples are adapted from the test suite in `library/src/commonTest` and `library/src/androidUnitTest`.
-
 ### Page views
 ```kotlin
 tracker.startNewSession() // optional: begin a new visit
