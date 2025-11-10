@@ -1,8 +1,12 @@
+@file:OptIn(ExperimentalUuidApi::class)
+
 package io.github.frankois944.matomoKMPTracker.dispatcher
 
 import io.github.frankois944.matomoKMPTracker.Event
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 @Serializable
 internal data class BulkRequest(
@@ -29,11 +33,14 @@ internal data class BulkRequest(
                             append("?")
                             append(
                                 buildList {
-                                    event.queryItems.forEach { item ->
-                                        if (item.value != null) {
-                                            add("${item.key}=${item.value}")
+                                    event.queryItems
+                                        .filter { it.value != null }
+                                        .forEach { item ->
+                                            item.value?.let { value ->
+                                                add("${item.key}=$value")
+                                            }
                                         }
-                                    }
+                                    add("rand=${Uuid.random().toHexString()}")
                                 }.joinToString("&"),
                             )
                         }
