@@ -3,6 +3,7 @@
 
 package io.github.frankois944.matomoKMPTracker
 
+import io.ktor.http.encodeURLParameter
 import kotlinx.cinterop.ExperimentalForeignApi
 
 internal actual object UserAgentProvider {
@@ -10,4 +11,13 @@ internal actual object UserAgentProvider {
         val device = Device.create()
         return "Darwin/${device.softwareId} (Macintosh; ${device.model}; Mac OS X ${device.osVersion})"
     }
+
+    actual fun getClientHint(): String =
+        (
+            "{" +
+                "\"versionNum\": \"42\"" +
+                "," +
+                "\"versionBuild\": \"1\"" +
+                "}"
+        )
 }

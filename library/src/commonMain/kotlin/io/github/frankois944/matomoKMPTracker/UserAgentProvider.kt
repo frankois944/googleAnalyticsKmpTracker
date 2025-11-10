@@ -4,4 +4,6 @@ package io.github.frankois944.matomoKMPTracker
 
 internal expect object UserAgentProvider {
     fun getUserAgent(): String
+
+    fun getClientHint(): String
 }

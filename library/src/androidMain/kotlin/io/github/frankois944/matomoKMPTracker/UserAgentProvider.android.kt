@@ -5,6 +5,7 @@ package io.github.frankois944.matomoKMPTracker
 import android.os.Build
 import android.webkit.WebSettings
 import io.github.frankois944.matomoKMPTracker.context.ContextObject
+import io.ktor.http.encodeURLParameter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
@@ -48,4 +49,13 @@ internal actual object UserAgentProvider {
         }
         return httpAgent
     }
+
+    actual fun getClientHint(): String =
+        (
+            "{" +
+                "\"versionNum\": \"42\"" +
+                "," +
+                "\"versionBuild\": \"1\"" +
+                "}"
+        )
 }

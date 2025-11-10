@@ -120,16 +120,18 @@ public class Event internal constructor(
         get() {
             val items =
                 buildMap<String, Any?> {
-                    set("idsite", siteId.toString())
+                    set("idsite", siteId)
                     set("apiv", "1")
                     set("rec", "1")
                     set("_id", visitor?.id)
                     set("uid", visitor?.userId)
                     set("url", url)
                     val localTime = Instant.fromEpochSeconds(date).toLocalDateTime(TimeZone.currentSystemDefault())
-                    set("h", localTime.hour.toString())
-                    set("m", localTime.minute.toString())
-                    set("s", localTime.second.toString())
+                    set("h", localTime.hour)
+                    set("m", localTime.minute)
+                    set("s", localTime.second)
+                    set("ua", Device.create().language)
+                    // set("uadata", UserAgentProvider.getClientHint().encodeURLParameter(false))
                     set("cdt", date)
                     if (isPing) {
                         set("ping", "1")
@@ -185,6 +187,6 @@ public class Event internal constructor(
         orderItems.forEach {
             items.add("[\"${it.sku}\",\"${it.name}\",\"${it.category}\",${it.price},${it.quantity}]")
         }
-        return "[${items.joinToString(",")}]".encodeURLParameter(true)
+        return "[${items.joinToString(",")}]".encodeURLParameter(false)
     }
 }

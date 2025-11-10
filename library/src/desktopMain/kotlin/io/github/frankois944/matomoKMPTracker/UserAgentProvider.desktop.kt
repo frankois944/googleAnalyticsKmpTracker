@@ -2,6 +2,7 @@
 
 package io.github.frankois944.matomoKMPTracker
 
+import io.ktor.http.encodeURLParameter
 import oshi.SystemInfo
 import oshi.software.os.OperatingSystem
 import java.util.Locale
@@ -37,4 +38,13 @@ internal actual object UserAgentProvider {
             }
         }
     }
+
+    actual fun getClientHint(): String =
+        (
+            "{" +
+                "\"versionNum\": \"42\"" +
+                "," +
+                "\"versionBuild\": \"1\"" +
+                "}"
+        )
 }
