@@ -9,7 +9,7 @@ import io.github.frankois944.matomoKMPTracker.CacheDatabase
 import io.github.frankois944.matomoKMPTracker.context.ContextObject.context
 
 internal actual class DriverFactory {
-    actual suspend fun createDriver(): SqlDriver {
+    actual suspend fun createDriver(dbName: String): SqlDriver {
         val context = context?.get()
         requireNotNull(context) {
             "Context can't be null"
@@ -17,7 +17,7 @@ internal actual class DriverFactory {
         return AndroidSqliteDriver(
             CacheDatabase.Schema.synchronous(),
             context,
-            "matomo-kmp-tracker.db",
+            "$dbName-matomo-kmp-tracker.db",
         )
     }
 }

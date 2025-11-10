@@ -82,7 +82,7 @@ public class Tracker private constructor(
 
     internal suspend fun build(): Tracker {
         withContext(Dispatchers.Default) {
-            val prefix = "${siteId}_${siteUrl.host}"
+            val scope = "${siteId}_${siteUrl.host}"
             // Dispatcher
             dispatcher =
                 customDispatcher ?: HttpClientDispatcher(
@@ -94,9 +94,13 @@ public class Tracker private constructor(
                     tokenAuth = tokenAuth,
                 )
             // Database
-            val database = createDatabase(DriverFactory())
-            this@Tracker.queue = customQueue ?: DatabaseQueue(database, prefix)
-            this@Tracker.userPreferences = UserPreferences(database, prefix)
+            val database =
+                createDatabase(
+                    driverFactory = DriverFactory(),
+                    dbName = scope.hashCode().toString(),
+                )
+            this@Tracker.queue = customQueue ?: DatabaseQueue(database, scope)
+            this@Tracker.userPreferences = UserPreferences(database, scope)
 
             // Startup
             startNewSession()

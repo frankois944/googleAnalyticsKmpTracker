@@ -8,7 +8,7 @@ import app.cash.sqldelight.driver.worker.createDefaultWebWorkerDriver
 import io.github.frankois944.matomoKMPTracker.CacheDatabase
 
 internal actual class DriverFactory {
-    actual suspend fun createDriver(): SqlDriver {
+    actual suspend fun createDriver(dbName: String): SqlDriver {
         val driver = createDefaultWebWorkerDriver()
         CacheDatabase.Schema.awaitCreate(driver)
         return driver

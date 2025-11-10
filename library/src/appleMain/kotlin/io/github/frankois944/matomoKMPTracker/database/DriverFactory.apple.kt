@@ -8,9 +8,9 @@ import app.cash.sqldelight.driver.native.NativeSqliteDriver
 import io.github.frankois944.matomoKMPTracker.CacheDatabase
 
 internal actual class DriverFactory {
-    actual suspend fun createDriver(): SqlDriver =
+    actual suspend fun createDriver(dbName: String): SqlDriver =
         NativeSqliteDriver(
             CacheDatabase.Schema.synchronous(),
-            "matomo-kmp-tracker.db",
+            "$dbName-matomo-kmp-tracker.db",
         )
 }

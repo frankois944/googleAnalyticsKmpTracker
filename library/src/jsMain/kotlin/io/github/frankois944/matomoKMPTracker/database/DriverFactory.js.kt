@@ -9,7 +9,7 @@ import app.cash.sqldelight.driver.worker.expected.Worker
 import io.github.frankois944.matomoKMPTracker.CacheDatabase
 
 internal actual class DriverFactory actual constructor() {
-    actual suspend fun createDriver(): SqlDriver =
+    actual suspend fun createDriver(dbName: String): SqlDriver =
         WebWorkerDriver(
             Worker(
                 js("""new URL("@cashapp/sqldelight-sqljs-worker/sqljs.worker.js", import.meta.url)"""),

@@ -2,17 +2,18 @@
 
 package io.github.frankois944.matomoKMPTracker.database
 
-import app.cash.sqldelight.db.QueryResult
 import app.cash.sqldelight.db.SqlDriver
-import app.cash.sqldelight.db.SqlSchema
 import io.github.frankois944.matomoKMPTracker.CacheDatabase
 
 internal expect class DriverFactory() {
-    suspend fun createDriver(): SqlDriver
+    suspend fun createDriver(dbName: String): SqlDriver
 }
 
-internal suspend fun createDatabase(driverFactory: DriverFactory): CacheDatabase {
-    val driver = driverFactory.createDriver()
+internal suspend fun createDatabase(
+    driverFactory: DriverFactory,
+    dbName: String,
+): CacheDatabase {
+    val driver = driverFactory.createDriver(dbName)
     val database = CacheDatabase(driver)
     return database
 }

@@ -10,9 +10,9 @@ import okio.FileSystem
 import java.util.Properties
 
 internal actual class DriverFactory {
-    actual suspend fun createDriver(): SqlDriver =
+    actual suspend fun createDriver(dbName: String): SqlDriver =
         JdbcSqliteDriver(
-            "jdbc:sqlite:${FileSystem.SYSTEM_TEMPORARY_DIRECTORY}/matomo-kmp-tracker.db",
+            "jdbc:sqlite:${FileSystem.SYSTEM_TEMPORARY_DIRECTORY}/$dbName-matomo-kmp-tracker.db",
             Properties(),
             CacheDatabase.Schema.synchronous(),
         )
