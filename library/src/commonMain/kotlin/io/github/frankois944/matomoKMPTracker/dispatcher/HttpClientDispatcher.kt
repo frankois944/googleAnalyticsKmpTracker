@@ -8,6 +8,7 @@ import io.ktor.client.plugins.HttpRequestRetry
 import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.ServerResponseException
 import io.ktor.client.plugins.UserAgent
+import io.ktor.client.plugins.compression.ContentEncoding
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.plugins.logging.Logging
@@ -36,6 +37,11 @@ internal class HttpClientDispatcher(
                 json()
             }
             install(DefaultRequest)
+            install(ContentEncoding) {
+                deflate()
+                gzip()
+                identity()
+            }
             defaultRequest {
                 url(baseURL)
                 header(HttpHeaders.ContentType, ContentType.Application.Json)
