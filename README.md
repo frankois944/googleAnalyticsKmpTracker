@@ -46,7 +46,39 @@ The Apple platform requires **sqlite** to be linked to your application
 
 ### WASM / JS targets
 
-Some additional configuration need to be done, follow the [SQLDelight setup documentation](https://sqldelight.github.io/sqldelight/2.1.0/js_sqlite/multiplatform/)
+Some additional configuration need to be done : 
+
+```kotlin
+// {project}/build.gradle.kts
+wasmJsMain.dependencies {
+    implementation(devNpm("copy-webpack-plugin", "9.1.0"))
+}
+// OR
+jsMain.dependencies {
+    implementation(devNpm("copy-webpack-plugin", "9.1.0"))
+}
+```
+
+```js
+// {project}/webpack.config.d/sqljs.js
+config.resolve = {
+    fallback: {
+        fs: false,
+        path: false,
+        crypto: false,
+    }
+};
+
+const CopyWebpackPlugin = require('copy-webpack-plugin');
+config.plugins.push(
+    new CopyWebpackPlugin({
+        patterns: [
+            '../../node_modules/sql.js/dist/sql-wasm.wasm'
+        ]
+    })
+);
+```
+
 
 ### Sample
 
