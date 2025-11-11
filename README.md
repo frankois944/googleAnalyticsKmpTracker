@@ -24,7 +24,7 @@ A lightweight, Kotlin Multiplatform (KMP) client tracker for [Matomo](https://ma
 
 ## Requirements
 
-- At leasr Kotlin 2.2.0 
+- At least Kotlin 2.2.0 
 - A running Matomo instance (cloud/self-hosted) and a site configured with a `siteId`
 
 ## Installation
