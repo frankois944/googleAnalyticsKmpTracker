@@ -5,7 +5,7 @@ package io.github.frankois944.matomoKMPTracker
 
 import io.github.frankois944.matomoKMPTracker.core.Size
 
-internal actual class Device {
+internal actual object Device {
     actual val model: String
         get() = "jsBrowser"
     actual val operatingSystem: String = userAgent
@@ -22,8 +22,4 @@ internal actual class Device {
             .toString()
 
     actual val actionUrl: String? = hostname
-
-    actual companion object Builder {
-        actual fun create(): Device = Device()
-    }
 }

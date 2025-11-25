@@ -22,7 +22,7 @@ import platform.posix.size_tVar
 import platform.posix.uname
 import platform.posix.utsname
 
-internal actual class Device {
+internal actual object Device {
     actual val model: String = getPlatform()
     actual val operatingSystem: String = "Mac OS X"
     actual val osVersion: String =
@@ -54,10 +54,6 @@ internal actual class Device {
             }
             return null
         }
-
-    actual companion object Builder {
-        actual fun create(): Device = Device()
-    }
 
     private fun getPlatform(): String {
         memScoped {

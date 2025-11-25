@@ -44,7 +44,7 @@ class HardwareInfoAndroidTest {
 
     @Test
     fun testLanguage() {
-        assertContains(Device.create().language!!, "-")
-        println(Device.create().language)
+        assertContains(Device.language!!, "-")
+        println(Device.language)
     }
 }

@@ -11,30 +11,19 @@ import io.github.frankois944.matomoKMPTracker.context.ContextObject.context
 import io.github.frankois944.matomoKMPTracker.core.Size
 import java.util.Locale
 
-internal actual class Device {
+internal actual object Device {
     actual val model: String = "Android"
-    actual val operatingSystem: String
-        get() = Build.MODEL ?: "Android"
-    actual val osVersion: String
-        get() = Build.VERSION.RELEASE ?: "0"
-    actual val screenSize: Size
-        get() =
-            getResolution()?.let {
-                Size(it[0].toLong(), it[1].toLong())
-            } ?: Size(0, 0)
-    actual val nativeScreenSize: Size?
-        get() = null
-    actual val softwareId: String?
-        get() = null
-    actual val language: String?
-        get() = Locale.getDefault().language + "-" + Locale.getDefault().country
+    actual val operatingSystem: String = Build.MODEL ?: "Android"
+    actual val osVersion: String = Build.VERSION.RELEASE ?: "0"
+    actual val screenSize: Size =
+        getResolution()?.let {
+            Size(it[0].toLong(), it[1].toLong())
+        } ?: Size(0, 0)
+    actual val nativeScreenSize: Size? = null
+    actual val softwareId: String? = null
+    actual val language: String? = Locale.getDefault().language + "-" + Locale.getDefault().country
 
-    actual val actionUrl: String?
-        get() = context?.get()?.packageName
-
-    actual companion object Builder {
-        actual fun create(): Device = Device()
-    }
+    actual val actionUrl: String? = context?.get()?.packageName
 
     fun getResolution(): IntArray? {
         context?.get()?.apply {

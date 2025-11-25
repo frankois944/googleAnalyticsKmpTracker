@@ -23,7 +23,7 @@ import platform.posix.size_tVar
 import platform.posix.uname
 import platform.posix.utsname
 
-internal actual class Device {
+internal actual object Device {
     actual val model: String = getPlatform()
     actual val operatingSystem: String = "watchOS"
     actual val osVersion: String = WKInterfaceDevice.currentDevice().systemVersion
@@ -61,10 +61,6 @@ internal actual class Device {
     actual val language: String? = NSLocale.preferredLanguages.firstOrNull() as? String
 
     actual val actionUrl: String? = NSBundle.mainBundle.bundleIdentifier
-
-    actual companion object Builder {
-        actual fun create(): Device = Device()
-    }
 
     private fun getPlatform(): String {
         return NSProcessInfo().environment["SIMULATOR_MODEL_IDENTIFIER"]?.toString() ?: memScoped {

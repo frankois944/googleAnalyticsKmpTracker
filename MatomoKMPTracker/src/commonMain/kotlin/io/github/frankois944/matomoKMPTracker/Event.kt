@@ -87,9 +87,9 @@ internal fun Event.Companion.create(
         isPing = isPing,
         date = Clock.System.now().toEpochMilliseconds(),
         visitor = visitor,
-        language = Device.create().language,
+        language = Device.language,
         isNewSession = isNewSession,
-        screenResolution = Device.create().screenSize,
+        screenResolution = Device.screenSize,
     )
 
 internal val Event.queryItems: Map<String, Any?>

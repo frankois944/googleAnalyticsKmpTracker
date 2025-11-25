@@ -20,6 +20,10 @@ import io.github.frankois944.matomoKMPTracker.utils.startTimer
 import io.ktor.http.Url
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -47,7 +51,6 @@ public class Tracker private constructor(
     internal var campaignName: String? = null
     internal var campaignKeyword: String? = null
     internal var siteUrl: Url = Url(url)
-    internal val device: Device = Device.create()
     private val numberOfEventsDispatchedAtOnce = 20L
     internal val coroutine = CoroutineScope(Dispatchers.Default)
     internal val dispatchInterval: Duration = 5.seconds
@@ -67,15 +70,15 @@ public class Tracker private constructor(
             "The url must end with 'matomo.php'"
         }
 
-        require(!(device.model == "Android" && context == null)) {
+        require(!(Device.model == "Android" && context == null)) {
             "An Android context must be set"
         }
         storeContext(context)
         contentBase =
             if (!customActionHostUrl.isNullOrEmpty()) {
                 "http://$customActionHostUrl/"
-            } else if (!device.actionUrl.isNullOrEmpty()) {
-                "http://${device.actionUrl}/"
+            } else if (!Device.actionUrl.isNullOrEmpty()) {
+                "http://${Device.actionUrl}/"
             } else {
                 "http://unknown/"
             }

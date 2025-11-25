@@ -8,7 +8,7 @@ import java.awt.GraphicsDevice
 import java.awt.GraphicsEnvironment
 import java.util.Locale
 
-internal actual class Device {
+internal actual object Device {
     private val si = SystemInfo()
     var ge: GraphicsEnvironment = GraphicsEnvironment.getLocalGraphicsEnvironment()
     var devices: GraphicsDevice? = ge.defaultScreenDevice
@@ -28,8 +28,4 @@ internal actual class Device {
     actual val language: String? = Locale.getDefault().language + "-" + Locale.getDefault().country
 
     actual val actionUrl: String? = null
-
-    actual companion object Builder {
-        actual fun create(): Device = Device()
-    }
 }

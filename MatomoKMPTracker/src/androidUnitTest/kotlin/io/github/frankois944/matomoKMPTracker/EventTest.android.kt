@@ -15,6 +15,8 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
+import kotlin.test.assertEquals
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
 actual fun isAndroid(): Boolean = true
@@ -33,6 +35,24 @@ class EventTestAndroid {
     @AfterTest
     fun tearDown() {
         Dispatchers.resetMain()
+    }
+
+    suspend fun waitAllEventSent(tracker: Tracker) {
+        val maxSeconds = 20
+        var currentSecond = 0
+        delay(1.seconds)
+        while (tracker.queue!!.first(10).isNotEmpty()) {
+            delay(1.seconds)
+            val currentEvent = tracker.queue!!.first(10)
+            if (currentSecond > maxSeconds && currentEvent.isNotEmpty()) {
+                assertEquals(
+                    emptyList(),
+                    currentEvent,
+                    "The queue is not empty after $maxSeconds seconds",
+                )
+            }
+            currentSecond++
+        }
     }
 
     @kotlin.test.Test
@@ -72,20 +92,21 @@ class EventTestAndroid {
                 val nbVisit = 3
                 for (i in 1..nbVisit) {
                     tracker.startNewSession()
-                    delay(1.seconds)
+                    println("Session send $i")
                     tracker.trackView(listOf("index1"))
-                    delay(1.seconds)
+                    delay(50.milliseconds)
                     tracker.trackView(listOf("index2"))
-                    delay(1.seconds)
+                    delay(50.milliseconds)
                     tracker.trackView(listOf("index3"))
-                    delay(1.seconds)
+                    delay(50.milliseconds)
                     tracker.trackView(listOf("index4"))
-                    delay(1.seconds)
+                    delay(50.milliseconds)
                     tracker.trackView(listOf("index5"))
-                    delay(1.seconds)
+                    delay(50.milliseconds)
                     tracker.trackView(listOf("index6"))
                     delay(1.seconds)
                 }
+                waitAllEventSent(tracker)
                 /*queuedEvents.forEach {
                     println("---")
                     println("DATE = ${it.date}")
@@ -93,7 +114,6 @@ class EventTestAndroid {
                     println("isPing = ${it.isPing}")
                 }
                 println("---")*/
-                delay(5.seconds)
             }
         }
 }

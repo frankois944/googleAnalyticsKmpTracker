@@ -4,7 +4,7 @@ package io.github.frankois944.matomoKMPTracker
 
 import io.github.frankois944.matomoKMPTracker.core.Size
 
-internal expect class Device {
+internal expect object Device {
     val model: String
 
     val operatingSystem: String
@@ -20,8 +20,4 @@ internal expect class Device {
     val language: String?
 
     val actionUrl: String?
-
-    companion object Builder {
-        fun create(): Device
-    }
 }

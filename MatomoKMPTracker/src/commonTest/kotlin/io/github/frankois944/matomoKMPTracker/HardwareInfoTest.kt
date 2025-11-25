@@ -27,7 +27,7 @@ class HardwareInfoTest {
         if (isAndroid()) {
             return
         }
-        assertContains(Device.create().language!!, "-")
-        println(Device.create().language)
+        assertContains(Device.language!!, "-")
+        println(Device.language)
     }
 }
