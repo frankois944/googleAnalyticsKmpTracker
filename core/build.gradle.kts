@@ -5,9 +5,11 @@ plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.kotlinx.serialization)
+    alias(libs.plugins.vanniktech.mavenPublish)
 }
 
 group = "io.github.frankois944.matomoKMPTracker"
+version = libs.versions.libaryVersion.get()
 val productName = "core"
 
 kotlin {
@@ -61,5 +63,39 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
+    }
+}
+
+mavenPublishing {
+    publishToMavenCentral(true)
+    signAllPublications()
+
+    coordinates(
+        group.toString(),
+        productName, // unique artifact name
+        version.toString(),
+    )
+
+    pom {
+        name = "Matomo KMP Tracker Core"
+        description = "A Matomo client tracker for Kotlin Multiplatform"
+        inceptionYear = "2025"
+        url = "https://github.com/frankois944/matomoKMPTracker"
+        licenses {
+            license {
+                name = "MIT"
+                url = "https://opensource.org/licenses/MIT"
+            }
+        }
+        developers {
+            developer {
+                id = "frankois944"
+                name = "François Dabonot"
+                email = "dabonot.francois@gmail.com"
+            }
+        }
+        scm {
+            url = "https://github.com/frankois944/matomoKMPTracker"
+        }
     }
 }

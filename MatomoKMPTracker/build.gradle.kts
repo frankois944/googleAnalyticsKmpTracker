@@ -13,7 +13,7 @@ plugins {
 
 group = "io.github.frankois944"
 val productName = "matomoKMPTracker"
-version = "0.3.0"
+version = "${libs.versions.libaryVersion.get()}"
 
 kotlin {
 
