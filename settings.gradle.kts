@@ -13,5 +13,7 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "multiplatform-library-template"
-include(":library")
+rootProject.name = "GoogleAnalytics-kmp-tracker"
+include(":GoogleAnalyticsKMPTracker")
+include(":database")
+include(":core")
