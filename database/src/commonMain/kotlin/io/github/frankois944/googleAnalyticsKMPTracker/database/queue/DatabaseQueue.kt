@@ -5,10 +5,10 @@ package io.github.frankois944.googleAnalyticsKMPTracker.database.queue
 import app.cash.sqldelight.async.coroutines.awaitAsList
 import app.cash.sqldelight.async.coroutines.awaitAsOne
 import io.github.frankois944.googleAnalyticsKMPTracker.database.serializer.eventFromTrackingCache
-import io.github.frankois944.matomoKMPTracker.core.Event
-import io.github.frankois944.matomoKMPTracker.core.queue.Queue
+import io.github.frankois944.googleAnalyticsKMPTracker.core.Event
+import io.github.frankois944.googleAnalyticsKMPTracker.core.queue.Queue
 import io.github.frankois944.googleAnalyticsKMPTracker.database.serializer.toSerializedString
-import io.github.frankois944.matomoKMPTracker.schema.CacheDatabase
+import io.github.frankois944.googleAnalyticsKMPTracker.schema.CacheDatabase
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.ExperimentalSerializationApi

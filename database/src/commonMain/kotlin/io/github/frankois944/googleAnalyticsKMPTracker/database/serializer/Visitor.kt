@@ -1,6 +1,6 @@
 package io.github.frankois944.googleAnalyticsKMPTracker.database.serializer
 
-import io.github.frankois944.matomoKMPTracker.core.Visitor
+import io.github.frankois944.googleAnalyticsKMPTracker.core.Visitor
 
 internal fun Visitor.toSerializedString(): String = id + ";" + (userId ?: "")
 

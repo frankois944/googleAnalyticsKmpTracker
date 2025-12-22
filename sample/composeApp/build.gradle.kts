@@ -74,11 +74,11 @@ kotlin {
 }
 
 android {
-    namespace = "io.github.frankois944.matomokmptracker.sample"
+    namespace = "io.github.frankois944.googleAnalyticsKMPTracker.sample"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
 
     defaultConfig {
-        applicationId = "io.github.frankois944.matomokmptracker.sample"
+        applicationId = "io.github.frankois944.googleAnalyticsKMPTracker.sample"
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
         versionCode = 1
@@ -106,11 +106,11 @@ dependencies {
 
 compose.desktop {
     application {
-        mainClass = "io.github.frankois944.matomokmptracker.sample.MainKt"
+        mainClass = "io.github.frankois944.googleAnalyticsKMPTracker.sample.MainKt"
 
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-            packageName = "io.github.frankois944.matomokmptracker.sample"
+            packageName = "io.github.frankois944.googleAnalyticsKMPTracker.sample"
             packageVersion = "1.0.0"
         }
     }

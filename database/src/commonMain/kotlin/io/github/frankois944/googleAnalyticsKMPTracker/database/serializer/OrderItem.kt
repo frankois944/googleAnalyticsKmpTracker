@@ -1,6 +1,6 @@
 package io.github.frankois944.googleAnalyticsKMPTracker.database.serializer
 
-import io.github.frankois944.matomoKMPTracker.core.OrderItem
+import io.github.frankois944.googleAnalyticsKMPTracker.core.OrderItem
 
 internal fun OrderItem.toSerializedString(): String {
     // To avoid delimiter collision, escape any '|' with '\|'

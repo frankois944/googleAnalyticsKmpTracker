@@ -3,7 +3,7 @@
 package io.github.frankois944.googleAnalyticsKMPTracker.database.factory
 
 import app.cash.sqldelight.db.SqlDriver
-import io.github.frankois944.matomoKMPTracker.schema.CacheDatabase
+import io.github.frankois944.googleAnalyticsKMPTracker.schema.CacheDatabase
 
 public expect class DriverFactory() {
     public suspend fun createDriver(

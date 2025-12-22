@@ -1,4 +1,4 @@
-package io.github.frankois944.matomokmptracker.sample
+package io.github.frankois944.googleAnalyticsKMPTracker.sample
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image

@@ -1,4 +1,4 @@
-package io.github.frankois944.matomokmptracker.sample
+package io.github.frankois944.googleAnalyticsKMPTracker.sample
 
 class JsPlatform: Platform {
     override val name: String = "Web with Kotlin/JS"

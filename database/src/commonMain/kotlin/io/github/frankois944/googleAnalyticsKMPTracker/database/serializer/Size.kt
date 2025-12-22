@@ -1,6 +1,6 @@
 package io.github.frankois944.googleAnalyticsKMPTracker.database.serializer
 
-import io.github.frankois944.matomoKMPTracker.core.Size
+import io.github.frankois944.googleAnalyticsKMPTracker.core.Size
 
 // Kotlin
 internal fun Size.toSerializedString(): String = "$width|$height"

@@ -1,4 +1,4 @@
-package io.github.frankois944.matomokmptracker.sample
+package io.github.frankois944.googleAnalyticsKMPTracker.sample
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity

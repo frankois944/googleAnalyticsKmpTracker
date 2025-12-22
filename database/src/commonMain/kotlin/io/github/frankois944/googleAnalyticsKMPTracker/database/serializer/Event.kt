@@ -2,8 +2,8 @@
 
 package io.github.frankois944.googleAnalyticsKMPTracker.database.serializer
 
-import io.github.frankois944.matomoKMPTracker.core.Event
-import io.github.frankois944.matomoKMPTracker.schema.TrackingCache
+import io.github.frankois944.googleAnalyticsKMPTracker.core.Event
+import io.github.frankois944.googleAnalyticsKMPTracker.schema.TrackingCache
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.cbor.Cbor
 import kotlinx.serialization.decodeFromByteArray

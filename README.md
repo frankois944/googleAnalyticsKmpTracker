@@ -89,7 +89,7 @@ config.plugins.push(
 Create a `Tracker` and send a few page views. The tracker automatically batches and dispatches events in the background.
 
 ```kotlin
-import io.github.frankois944.matomoKMPTracker.Tracker
+import io.github.frankois944.googleAnalyticsKMPTracker.Tracker
 
 suspend fun setupAndTrack() {
     val tracker = Tracker.create(
@@ -186,7 +186,7 @@ tracker.trackContentInteraction(
 
 ### E‑commerce
 ```kotlin
-import io.github.frankois944.matomoKMPTracker.OrderItem
+import io.github.frankois944.googleAnalyticsKMPTracker.OrderItem
 
 val items = listOf(
     OrderItem(
@@ -230,7 +230,7 @@ tracker.removeDimension(atIndex = 2)
 
 Provide per‑event dimensions:
 ```kotlin
-import io.github.frankois944.matomoKMPTracker.CustomDimension
+import io.github.frankois944.googleAnalyticsKMPTracker.CustomDimension
 
 tracker.trackView(
     view = listOf("Catalog"),
@@ -302,8 +302,8 @@ val tracker = Tracker.create(
 Provide your own HTTP dispatcher or queue implementation if you need custom transport or storage.
 
 ```kotlin
-import io.github.frankois944.matomoKMPTracker.dispatcher.Dispatcher
-import io.github.frankois944.matomoKMPTracker.queue.Queue
+import io.github.frankois944.googleAnalyticsKMPTracker.dispatcher.Dispatcher
+import io.github.frankois944.googleAnalyticsKMPTracker.queue.Queue
 
 val tracker = Tracker.create(
     url = "https://your.matomo.tld/matomo.php",
@@ -318,9 +318,9 @@ val tracker = Tracker.create(
 You can customize logging. The default logger is verbose for development.
 
 ```kotlin
-import io.github.frankois944.matomoKMPTracker.MatomoTrackerLogger
-import io.github.frankois944.matomoKMPTracker.DefaultMatomoTrackerLogger
-import io.github.frankois944.matomoKMPTracker.LogLevel
+import io.github.frankois944.googleAnalyticsKMPTracker.MatomoTrackerLogger
+import io.github.frankois944.googleAnalyticsKMPTracker.DefaultMatomoTrackerLogger
+import io.github.frankois944.googleAnalyticsKMPTracker.LogLevel
 
 val tracker = Tracker.create(url = "https://…/matomo.php", siteId = 1)
 tracker.logger = DefaultMatomoTrackerLogger(minLevel = LogLevel.Info)

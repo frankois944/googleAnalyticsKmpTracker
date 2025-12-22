@@ -1,6 +1,6 @@
 package io.github.frankois944.googleAnalyticsKMPTracker.database.serializer
 
-import io.github.frankois944.matomoKMPTracker.core.CustomDimension
+import io.github.frankois944.googleAnalyticsKMPTracker.core.CustomDimension
 
 // Kotlin
 internal fun CustomDimension.toSerializedString(): String {

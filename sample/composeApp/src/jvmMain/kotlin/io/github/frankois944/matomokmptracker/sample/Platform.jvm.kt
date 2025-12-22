@@ -1,4 +1,4 @@
-package io.github.frankois944.matomokmptracker.sample
+package io.github.frankois944.googleAnalyticsKMPTracker.sample
 
 class JVMPlatform: Platform {
     override val name: String = "Java ${System.getProperty("java.version")}"

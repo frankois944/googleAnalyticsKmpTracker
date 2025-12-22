@@ -6,7 +6,7 @@ import app.cash.sqldelight.async.coroutines.awaitCreate
 import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.driver.worker.WebWorkerDriver
 import app.cash.sqldelight.driver.worker.expected.Worker
-import io.github.frankois944.matomoKMPTracker.schema.CacheDatabase
+import io.github.frankois944.googleAnalyticsKMPTracker.schema.CacheDatabase
 
 public actual class DriverFactory actual constructor() {
     public actual suspend fun createDriver(

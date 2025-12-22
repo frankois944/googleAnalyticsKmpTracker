@@ -5,7 +5,7 @@ package io.github.frankois944.googleAnalyticsKMPTracker.database.factory
 import app.cash.sqldelight.async.coroutines.synchronous
 import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
-import io.github.frankois944.matomoKMPTracker.schema.CacheDatabase
+import io.github.frankois944.googleAnalyticsKMPTracker.schema.CacheDatabase
 import okio.FileSystem
 import java.util.Properties
 

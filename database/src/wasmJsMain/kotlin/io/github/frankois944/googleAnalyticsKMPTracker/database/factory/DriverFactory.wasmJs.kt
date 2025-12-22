@@ -5,7 +5,7 @@ package io.github.frankois944.googleAnalyticsKMPTracker.database.factory
 import app.cash.sqldelight.async.coroutines.awaitCreate
 import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.driver.worker.createDefaultWebWorkerDriver
-import io.github.frankois944.matomoKMPTracker.schema.CacheDatabase
+import io.github.frankois944.googleAnalyticsKMPTracker.schema.CacheDatabase
 
 public actual class DriverFactory {
     public actual suspend fun createDriver(
