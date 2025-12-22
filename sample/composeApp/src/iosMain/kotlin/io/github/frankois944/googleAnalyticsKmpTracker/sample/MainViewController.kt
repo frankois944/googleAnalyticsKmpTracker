@@ -1,7 +1,7 @@
-package io.github.frankois944.googleAnalyticsKMPTracker.sample
+package io.github.frankois944.googleAnalyticsKmpTracker.sample
 
 import androidx.compose.ui.window.ComposeUIViewController
-import io.github.frankois944.googleAnalyticsKMPTracker.Tracker
+import io.github.frankois944.googleAnalyticsKmpTracker.Tracker
 import kotlinx.coroutines.runBlocking
 import platform.UIKit.UIViewController
 

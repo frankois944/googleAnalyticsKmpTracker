@@ -1,4 +1,4 @@
-package io.github.frankois944.googleAnalyticsKMPTracker.sample
+package io.github.frankois944.googleAnalyticsKmpTracker.sample
 
 class Greeting {
     private val platform = getPlatform()

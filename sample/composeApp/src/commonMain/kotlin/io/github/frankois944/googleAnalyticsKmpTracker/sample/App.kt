@@ -1,4 +1,4 @@
-package io.github.frankois944.googleAnalyticsKMPTracker.sample
+package io.github.frankois944.googleAnalyticsKmpTracker.sample
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
@@ -15,9 +15,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
-
-import matomokmptrackersample.composeapp.generated.resources.Res
-import matomokmptrackersample.composeapp.generated.resources.compose_multiplatform
+import googleanalyticskmptrackersample.composeapp.generated.resources.Res
+import googleanalyticskmptrackersample.composeapp.generated.resources.compose_multiplatform
 
 @Composable
 @Preview

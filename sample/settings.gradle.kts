@@ -1,4 +1,4 @@
-rootProject.name = "MatomoKmpTrackerSample"
+rootProject.name = "GoogleAnalyticsKmpTrackerSample"
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 pluginManagement {

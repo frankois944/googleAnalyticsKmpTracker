@@ -15,7 +15,7 @@ public actual class DriverFactory {
         dbVersion: Int,
     ): SqlDriver =
         JdbcSqliteDriver(
-            "jdbc:sqlite:${FileSystem.SYSTEM_TEMPORARY_DIRECTORY}/$dbName-matomo-kmp-tracker-$dbVersion.db",
+            "jdbc:sqlite:${FileSystem.SYSTEM_TEMPORARY_DIRECTORY}/$dbName-googleAnalytics-kmp-tracker-$dbVersion.db",
             Properties(),
             CacheDatabase.Schema.synchronous(),
         )

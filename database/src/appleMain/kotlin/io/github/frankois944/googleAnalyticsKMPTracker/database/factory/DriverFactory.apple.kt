@@ -14,6 +14,6 @@ public actual class DriverFactory {
     ): SqlDriver =
         NativeSqliteDriver(
             CacheDatabase.Schema.synchronous(),
-            "$dbName-matomo-kmp-tracker-$dbVersion.db",
+            "$dbName-googleAnalytics-kmp-tracker-$dbVersion.db",
         )
 }

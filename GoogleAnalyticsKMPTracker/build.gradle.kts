@@ -53,6 +53,12 @@ kotlin {
         watchosArm64(),
         watchosSimulatorArm64(),
     ).forEach {
+        it.binaries.getTest("debug").apply {
+            linkerOpts +=
+                listOf(
+                    "-lsqlite3",
+                )
+        }
         it.binaries.framework {
             baseName =
                 productName.replaceFirstChar { name ->

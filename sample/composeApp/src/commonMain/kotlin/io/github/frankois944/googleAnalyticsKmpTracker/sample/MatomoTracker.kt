@@ -1,8 +1,8 @@
-package io.github.frankois944.googleAnalyticsKMPTracker.sample
+package io.github.frankois944.googleAnalyticsKmpTracker.sample
 
-import io.github.frankois944.googleAnalyticsKMPTracker.DefaultMatomoTrackerLogger
-import io.github.frankois944.googleAnalyticsKMPTracker.LogLevel
-import io.github.frankois944.googleAnalyticsKMPTracker.Tracker
+import io.github.frankois944.matomoKMPTracker.DefaultMatomoTrackerLogger
+import io.github.frankois944.matomoKMPTracker.LogLevel
+import io.github.frankois944.matomoKMPTracker.Tracker
 
 object MatomoTracker {
 

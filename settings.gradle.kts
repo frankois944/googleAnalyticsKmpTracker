@@ -14,6 +14,6 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "GoogleAnalytics-kmp-tracker"
-include(":googleAnalyticsKmpTracker")
+include(":GoogleAnalyticsKMPTracker")
 include(":database")
 include(":core")
