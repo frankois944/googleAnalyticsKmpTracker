@@ -11,7 +11,7 @@ plugins {
     alias(libs.plugins.vanniktech.mavenPublish)
 }
 
-group = "io.github.frankois944.matomoKMPTracker"
+group = "io.github.frankois944.googleAnalyticsKMPTracker"
 version = libs.versions.libaryVersion.get()
 val productName = "core"
 

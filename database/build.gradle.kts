@@ -12,7 +12,7 @@ plugins {
     alias(libs.plugins.vanniktech.mavenPublish)
 }
 
-group = "io.github.frankois944.matomoKMPTracker"
+group = "io.github.frankois944.googleAnalyticsKMPTracker"
 val productName = "database"
 version = libs.versions.libaryVersion.get()
 
@@ -98,7 +98,7 @@ kotlin {
 sqldelight {
     databases {
         create("CacheDatabase") {
-            packageName = "io.github.frankois944.matomoKMPTracker.schema"
+            packageName = "io.github.frankois944.googleAnalyticsKMPTracker.schema"
             generateAsync = true
         }
     }

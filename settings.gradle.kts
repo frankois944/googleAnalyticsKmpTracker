@@ -13,7 +13,7 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "matomo-kmp-tracker"
-include(":MatomoKMPTracker")
+rootProject.name = "GoogleAnalytics-kmp-tracker"
+include(":googleAnalyticsKmpTracker")
 include(":database")
 include(":core")
