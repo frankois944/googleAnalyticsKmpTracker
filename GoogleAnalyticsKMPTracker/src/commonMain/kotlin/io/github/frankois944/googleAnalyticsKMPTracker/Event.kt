@@ -6,9 +6,13 @@ import io.github.frankois944.googleAnalyticsKMPTracker.core.CustomDimension
 import io.github.frankois944.googleAnalyticsKMPTracker.core.Event
 import io.github.frankois944.googleAnalyticsKMPTracker.core.OrderItem
 import io.github.frankois944.googleAnalyticsKMPTracker.core.Visitor
+import io.github.frankois944.googleAnalyticsKMPTracker.model.GoogleAnalyticsEventParameterRequest
+import io.github.frankois944.googleAnalyticsKMPTracker.model.GoogleAnalyticsEventRequest
+import io.github.frankois944.googleAnalyticsKMPTracker.model.GoogleAnalyticsRequest
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import kotlinx.serialization.json.Json
+import kotlin.random.Random
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
@@ -18,6 +22,7 @@ import kotlin.uuid.Uuid
 internal fun Event.Companion.create(
     tracker: Tracker,
     action: List<String> = emptyList(),
+    visitor: Visitor = tracker.visitor,
     url: String? = null,
     referer: String? = null,
     eventCategory: String? = null,
@@ -45,7 +50,6 @@ internal fun Event.Companion.create(
     isCustomAction: Boolean,
     isPing: Boolean = false,
     isNewSession: Boolean = false,
-    visitor: Visitor? = null,
 ): Event =
     Event(
         dateCreatedInSecond = Clock.System.now().epochSeconds,
@@ -54,10 +58,9 @@ internal fun Event.Companion.create(
                 .now()
                 .nanosecondsOfSecond
                 .toLong(),
-        siteId = tracker.siteId,
         isCustomAction = isCustomAction,
         uuid = Uuid.random().toHexString(),
-        url = url ?: (tracker.contentBase + action.joinToString("/")),
+        url = url,
         actionName = action,
         referer = referer,
         eventCategory = eventCategory,
@@ -90,25 +93,54 @@ internal fun Event.Companion.create(
         language = Device.language,
         isNewSession = isNewSession,
         screenResolution = Device.screenSize,
+        firebaseAppId = tracker.firebaseAppId,
+        sessionId = tracker.sessionId
     )
 
+internal val Event.GARequest: GoogleAnalyticsRequest
+    get() {
+        // TODO: build a valid request from event from Event Class
+        // https://developers.google.com/analytics/devguides/collection/protocol/ga4/reference?client_type=firebase
+        // the original implementation come from matomo
+        // https://developer.matomo.org/api-reference/tracking-api
+       return GoogleAnalyticsRequest(
+            appInstanceId = this.visitor.appInstanceId,
+            events = buildList {
+                add(
+                    GoogleAnalyticsEventRequest(
+                        name = "search",
+                        params = GoogleAnalyticsEventParameterRequest(
+                            sessionId = this@GARequest.sessionId,
+                            debugMode = true,
+                            engagementTimeMsec = 1200,
+                            searchTerm = "I want to search",
+                        )
+                    )
+                )
+            }
+        )
+    }
+
+// TODO: To be removed when migration done
 internal val Event.queryItems: Map<String, Any?>
     get() {
+        // TODO: replace with proper implementation of GA
+        // https://developers.google.com/analytics/devguides/collection/protocol/ga4/reference?client_type=firebase
+        // the original implementation come from matomo
+        // https://developer.matomo.org/api-reference/tracking-api
         val currentInstant = Instant.fromEpochMilliseconds(date)
         val items =
             buildMap<String, Any?> {
-                set("idsite", siteId)
                 set("apiv", "1")
                 set("rec", "1")
-                set("_id", visitor?.id)
-                set("uid", visitor?.userId)
+                set("_id", visitor.appInstanceId)
+                set("uid", visitor.userId)
                 set("cdt", currentInstant.toString())
                 val localTime = currentInstant.toLocalDateTime(TimeZone.currentSystemDefault())
                 set("h", localTime.hour)
                 set("m", localTime.minute)
                 set("s", localTime.second)
                 set("send_image", 0)
-                // set("uadata", UserAgentProvider.getClientHint().encodeURLParameter(false))
                 if (isPing) {
                     set("ping", "1")
                 } else {

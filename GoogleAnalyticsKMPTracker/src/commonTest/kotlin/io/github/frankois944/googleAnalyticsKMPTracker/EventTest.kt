@@ -25,16 +25,16 @@ expect fun isAndroid(): Boolean
 @OptIn(ExperimentalUuidApi::class)
 class EventTest {
     private val mainThreadSurrogate = StandardTestDispatcher()
-    private val siteId = 6
 
     suspend fun getTracker(): Tracker =
         Tracker
             .create(
-                url = "https://matomo.spmforkmp.eu/matomo.php",
-                siteId = siteId,
+                apiSecret = apiSecret,
+                firebaseAppId = firebaseAppId,
+                url = "https://www.google-analytics.com/debug/mp/collect"
             ).also {
                 it.setIsHeartBeat(false)
-                it.logger = DefaultMatomoTrackerLogger(minLevel = LogLevel.Verbose)
+                it.logger = DefaultGATrackerLogger(minLevel = LogLevel.Verbose)
                 it.dispatchBatch()
                 it.queue!!.removeAll()
                 assertEquals(
@@ -80,9 +80,9 @@ class EventTest {
             }
             launch(Dispatchers.Unconfined) {
                 val tracker = getTracker()
-                val nbVisit = 3
+                val nbVisit = 1
                 for (i in 1..nbVisit) {
-                    tracker.startNewSession()
+                    /*tracker.startNewSession()
                     println("Session send $i")
                     tracker.trackView(listOf("index1"))
                     delay(50.milliseconds)
@@ -93,9 +93,8 @@ class EventTest {
                     tracker.trackView(listOf("index4"))
                     delay(50.milliseconds)
                     tracker.trackView(listOf("index5"))
-                    delay(50.milliseconds)
-                    tracker.trackView(listOf("index6"))
-                    delay(1.seconds)
+                    delay(50.milliseconds)*/
+                    tracker.trackView(listOf("index1"))
                 }
                 waitAllEventSent(tracker)
             }

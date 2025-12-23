@@ -1,10 +1,9 @@
 CREATE TABLE trackingCache (
     uuid TEXT PRIMARY KEY NOT NULL,
-    scope TEXT NOT NULL,
     timestamp INTEGER NOT NULL,
     nanosecond INTEGER NOT NULL,
-    siteId INTEGER NOT NULL,
-    visitor TEXT,
+    firebaseAppId TEXT NOT NULL,
+    visitor TEXT NOT NULL,
     isCustomAction INTEGER NOT NULL,
     date INTEGER NOT NULL,
     url TEXT,
@@ -37,30 +36,30 @@ CREATE TABLE trackingCache (
     orderTax REAL,
     orderShippingCost REAL,
     orderDiscount REAL,
-    isPing INTEGER NOT NULL
+    isPing INTEGER NOT NULL,
+    sessionId INTEGER NOT NULL
 );
 
 CREATE INDEX trackingCache_key ON trackingCache(uuid);
 
 insertUuid:
-INSERT OR REPLACE INTO trackingCache (uuid, scope, timestamp, nanosecond, siteId, visitor, isCustomAction, date, url, actionName, language, isNewSession, referer, screenResolution, eventCategory, eventAction, eventName, eventValue, campaignName, campaignKeyword, searchQuery, searchCategory, searchResultsCount, dimensions, customTrackingParameters, contentName, contentPiece, contentTarget, contentInteraction, goalId, revenue, orderId, orderItems, orderRevenue, orderSubTotal, orderTax, orderShippingCost, orderDiscount, isPing)
-VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+INSERT OR REPLACE INTO trackingCache (uuid, timestamp, nanosecond, firebaseAppId, visitor, isCustomAction, date, url, actionName, language, isNewSession, referer, screenResolution, eventCategory, eventAction, eventName, eventValue, campaignName, campaignKeyword, searchQuery, searchCategory, searchResultsCount, dimensions, customTrackingParameters, contentName, contentPiece, contentTarget, contentInteraction, goalId, revenue, orderId, orderItems, orderRevenue, orderSubTotal, orderTax, orderShippingCost, orderDiscount, isPing, sessionId)
+VALUES (?, ?, ?,  ?, ?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
 
 deleteUuid:
 DELETE FROM trackingCache WHERE uuid = ?;
 
 deleteUuids:
-DELETE FROM trackingCache WHERE uuid IN ? AND scope = ?;
+DELETE FROM trackingCache WHERE uuid IN ?;
 
 deleteAll:
-DELETE FROM trackingCache WHERE scope = ?;
+DELETE FROM trackingCache;
 
 selectUuid:
-SELECT * FROM trackingCache WHERE uuid = ? AND scope = ?;
+SELECT * FROM trackingCache WHERE uuid = ?;
 
 selectWithLimit:
 SELECT * FROM trackingCache
-WHERE scope = ?
 ORDER BY timestamp, nanosecond ASC
 LIMIT ?;
 
@@ -71,6 +70,5 @@ selectAll:
 SELECT * FROM trackingCache;
 
 count:
-SELECT COUNT(*) FROM trackingCache
-WHERE scope = ?;
+SELECT COUNT(*) FROM trackingCache;
 

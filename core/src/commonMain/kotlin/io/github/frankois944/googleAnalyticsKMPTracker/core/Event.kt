@@ -9,8 +9,7 @@ public class Event(
     public val dateCreatedInSecond: Long,
     public val dateCreatedOfNanoSecond: Long,
     public val uuid: String,
-    public val siteId: Int,
-    public var visitor: Visitor?,
+    public var visitor: Visitor,
     public val isCustomAction: Boolean,
     public val date: Long,
     public val url: String?,
@@ -44,15 +43,15 @@ public class Event(
     public val orderShippingCost: Double?,
     public val orderDiscount: Double?,
     public val isPing: Boolean,
-) {
+    public val firebaseAppId: String,
+    public val sessionId: Long
+    ) {
     override fun toString(): String =
         """Event(
             |  uuid='$uuid',
-            |  siteId=$siteId,
             |  dateCreatedInSecond=$dateCreatedInSecond,
             |  dateCreatedOfNanoSecond=$dateCreatedOfNanoSecond,
             |  date=$date,
-            |  url=$url,
             |  actionName=$actionName,
             |  visitor=$visitor,
             |  isCustomAction=$isCustomAction,
@@ -85,6 +84,8 @@ public class Event(
             |  orderShippingCost=$orderShippingCost,
             |  orderDiscount=$orderDiscount,
             |  isPing=$isPing
+            |  firebaseAppId=$firebaseAppId,
+            |  sessionId=$sessionId
             |)
         """.trimMargin()
 
@@ -93,49 +94,48 @@ public class Event(
         if (other !is Event) return false
 
         return dateCreatedInSecond == other.dateCreatedInSecond &&
-            dateCreatedOfNanoSecond == other.dateCreatedOfNanoSecond &&
-            uuid == other.uuid &&
-            siteId == other.siteId &&
-            visitor == other.visitor &&
-            isCustomAction == other.isCustomAction &&
-            date == other.date &&
-            url == other.url &&
-            actionName == other.actionName &&
-            language == other.language &&
-            isNewSession == other.isNewSession &&
-            referer == other.referer &&
-            screenResolution == other.screenResolution &&
-            eventCategory == other.eventCategory &&
-            eventAction == other.eventAction &&
-            eventName == other.eventName &&
-            eventValue == other.eventValue &&
-            campaignName == other.campaignName &&
-            campaignKeyword == other.campaignKeyword &&
-            searchQuery == other.searchQuery &&
-            searchCategory == other.searchCategory &&
-            searchResultsCount == other.searchResultsCount &&
-            dimensions == other.dimensions &&
-            customTrackingParameters == other.customTrackingParameters &&
-            contentName == other.contentName &&
-            contentPiece == other.contentPiece &&
-            contentTarget == other.contentTarget &&
-            contentInteraction == other.contentInteraction &&
-            goalId == other.goalId &&
-            revenue == other.revenue &&
-            orderId == other.orderId &&
-            orderItems == other.orderItems &&
-            orderRevenue == other.orderRevenue &&
-            orderSubTotal == other.orderSubTotal &&
-            orderTax == other.orderTax &&
-            orderShippingCost == other.orderShippingCost &&
-            orderDiscount == other.orderDiscount &&
-            isPing == other.isPing
+                dateCreatedOfNanoSecond == other.dateCreatedOfNanoSecond &&
+                uuid == other.uuid &&
+                visitor == other.visitor &&
+                isCustomAction == other.isCustomAction &&
+                date == other.date &&
+                actionName == other.actionName &&
+                language == other.language &&
+                isNewSession == other.isNewSession &&
+                referer == other.referer &&
+                screenResolution == other.screenResolution &&
+                eventCategory == other.eventCategory &&
+                eventAction == other.eventAction &&
+                eventName == other.eventName &&
+                eventValue == other.eventValue &&
+                campaignName == other.campaignName &&
+                campaignKeyword == other.campaignKeyword &&
+                searchQuery == other.searchQuery &&
+                searchCategory == other.searchCategory &&
+                searchResultsCount == other.searchResultsCount &&
+                dimensions == other.dimensions &&
+                customTrackingParameters == other.customTrackingParameters &&
+                contentName == other.contentName &&
+                contentPiece == other.contentPiece &&
+                contentTarget == other.contentTarget &&
+                contentInteraction == other.contentInteraction &&
+                goalId == other.goalId &&
+                revenue == other.revenue &&
+                orderId == other.orderId &&
+                orderItems == other.orderItems &&
+                orderRevenue == other.orderRevenue &&
+                orderSubTotal == other.orderSubTotal &&
+                orderTax == other.orderTax &&
+                orderShippingCost == other.orderShippingCost &&
+                orderDiscount == other.orderDiscount &&
+                isPing == other.isPing &&
+                firebaseAppId == other.firebaseAppId &&
+                sessionId == other.sessionId
     }
 
     override fun hashCode(): Int {
         var result = dateCreatedInSecond.hashCode()
         result = 31 * result + dateCreatedOfNanoSecond.hashCode()
-        result = 31 * result + siteId
         result = 31 * result + isCustomAction.hashCode()
         result = 31 * result + date.hashCode()
         result = 31 * result + isNewSession.hashCode()
@@ -151,7 +151,6 @@ public class Event(
         result = 31 * result + isPing.hashCode()
         result = 31 * result + uuid.hashCode()
         result = 31 * result + (visitor?.hashCode() ?: 0)
-        result = 31 * result + (url?.hashCode() ?: 0)
         result = 31 * result + actionName.hashCode()
         result = 31 * result + (language?.hashCode() ?: 0)
         result = 31 * result + (referer?.hashCode() ?: 0)
@@ -171,6 +170,8 @@ public class Event(
         result = 31 * result + (contentInteraction?.hashCode() ?: 0)
         result = 31 * result + (orderId?.hashCode() ?: 0)
         result = 31 * result + orderItems.hashCode()
+        result = 31 * result + firebaseAppId.hashCode()
+        result = 31 * result + sessionId.hashCode()
         return result
     }
 

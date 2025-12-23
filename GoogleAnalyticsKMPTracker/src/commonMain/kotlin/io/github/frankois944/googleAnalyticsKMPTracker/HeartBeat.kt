@@ -1,6 +1,7 @@
 package io.github.frankois944.googleAnalyticsKMPTracker
 
 import io.github.frankois944.googleAnalyticsKMPTracker.core.Event
+import io.github.frankois944.googleAnalyticsKMPTracker.core.Visitor
 import io.github.frankois944.googleAnalyticsKMPTracker.utils.startTimer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -29,6 +30,7 @@ internal class HeartBeat(
                                     tracker = tracker,
                                     isCustomAction = false,
                                     isPing = true,
+                                    visitor = Visitor.current(tracker.userPreferences!!),
                                 ),
                         )
                     } catch (ex: Exception) {

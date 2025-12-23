@@ -5,7 +5,7 @@ import io.github.frankois944.googleAnalyticsKMPTracker.core.Event
 public interface Dispatcher {
     public val baseURL: String
 
-    public val userAgent: String?
+    public val apiSecret: String
 
     @Throws(Throwable::class, IllegalArgumentException::class)
     public suspend fun sendBulkEvent(events: List<Event>)

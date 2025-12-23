@@ -1,4 +1,5 @@
 @file:Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
+@file:OptIn(ExperimentalUuidApi::class)
 
 package io.github.frankois944.googleAnalyticsKMPTracker
 
@@ -25,74 +26,62 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import kotlin.coroutines.cancellation.CancellationException
+import kotlin.random.Random
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 public class Tracker private constructor(
     internal val url: String,
-    internal val siteId: Int,
-    internal val tokenAuth: String? = null,
+    internal val apiSecret: String,
+    internal val firebaseAppId: String,
     internal val customDispatcher: Dispatcher? = null,
-    internal val customUserAgent: String? = null,
     internal val customQueue: Queue? = null,
-    internal val customActionHostUrl: String? = null,
     context: Any?,
 ) {
     internal var queue: Queue? = null
-    internal var userPreferences: UserPreferences? = null
+    internal lateinit var userPreferences: UserPreferences
     internal lateinit var dispatcher: Dispatcher
     internal var dimensions: ConcurrentMutableList<CustomDimension> = ConcurrentMutableList()
-    internal val contentBase: String
     internal var nextEventStartsANewSession = true
     internal var campaignName: String? = null
     internal var campaignKeyword: String? = null
-    internal var siteUrl: Url = Url(url)
-    private val numberOfEventsDispatchedAtOnce = 20L
+    private val numberOfEventsDispatchedAtOnce = 5L
     internal val coroutine = CoroutineScope(Dispatchers.Default)
     internal val dispatchInterval: Duration = 5.seconds
     private var isDispatching: Boolean = false
     private val mutex: Mutex = Mutex()
     private val heartbeat: HeartBeat
+    internal var sessionId: Long = Random.nextLong(from = 1, until = Long.MAX_VALUE)
+    internal lateinit var visitor: Visitor
 
     /**
      * This logger is used to perform logging of all sorts of Matomo related information.
      * Per default it is a `DefaultLogger` with a `minLevel` of `LogLevel.warning`.
      * You can set your own Logger with a custom `minLevel` or a complete custom logging mechanism.
      */
-    public var logger: MatomoTrackerLogger = DefaultMatomoTrackerLogger(minLevel = LogLevel.Warning)
+    public var logger: GATrackerLogger = DefaultGATrackerLogger(minLevel = LogLevel.Warning)
 
     init {
-        require(url.endsWith("matomo.php")) {
-            "The url must end with 'matomo.php'"
-        }
-
         require(!(Device.model == "Android" && context == null)) {
             "An Android context must be set"
         }
         storeContext(context)
-        contentBase =
-            if (!customActionHostUrl.isNullOrEmpty()) {
-                "http://$customActionHostUrl/"
-            } else if (!Device.actionUrl.isNullOrEmpty()) {
-                "http://${Device.actionUrl}/"
-            } else {
-                "http://unknown/"
-            }
         heartbeat = HeartBeat(this)
     }
 
     internal suspend fun build(): Tracker {
         withContext(Dispatchers.Default) {
-            val scope = "${siteId}_${siteUrl.host}"
+            val scope = firebaseAppId
             // Dispatcher
             dispatcher =
                 customDispatcher ?: HttpClientDispatcher(
                     baseURL = url,
-                    userAgent = customUserAgent,
                     onPrintLog = { message ->
                         logger.log(message = message, LogLevel.Debug)
                     },
-                    tokenAuth = tokenAuth,
+                    apiSecret = apiSecret,
                 )
             // Database
             val database =
@@ -102,11 +91,11 @@ public class Tracker private constructor(
                 )
             this@Tracker.queue = customQueue ?: DatabaseQueue(database, scope)
             this@Tracker.userPreferences = UserPreferences(database, scope)
-
+            this@Tracker.visitor = Visitor.current(userPreferences)
             // Startup
             startNewSession()
             startDispatchEvents()
-            if (userPreferences?.isHeartbeatEnabled() == true) {
+            if (userPreferences.isHeartbeatEnabled()) {
                 heartbeat.start()
             }
         }
@@ -140,7 +129,7 @@ public class Tracker private constructor(
     internal suspend fun dispatchBatch() {
         logger.log("Start Dispatch events", LogLevel.Debug)
         val items = queue?.first(numberOfEventsDispatchedAtOnce)
-        if (items == null || items.isEmpty()) {
+        if (items.isNullOrEmpty()) {
             logger.log("No events to dispatch", LogLevel.Verbose)
         } else {
             items.forEach { item ->
@@ -162,38 +151,29 @@ public class Tracker private constructor(
 
     public companion object {
         /**
-         * @param url The url of the matomo API endpoint
-         * @param siteId The ID of the website we're tracking a visit/action for.
-         * @param tokenAuth 32 character authorization key used to authenticate the API request
-         * @param customActionHostUrl Used to build the url of an Event, it will then have the format `http://customActionHostUrl/actions`.
-         * - On Apple and Android targets, by default, it's the applicationId/packageName.
-         * - On the wasm target, by default, it's the current hostname of the browser.
-         * - On Desktop, by default, it's null, but it's RECOMMENDED to set a value by yourself.
+         * @param apiSecret The API Secret from the Google Analytics UI.
+         * @param firebaseAppId Firebase App ID. The identifier for a Firebase app.
+         * @param url The url of the Google Analytics API endpoint, use `https://region1.google-analytics.com/mp/collect` for europe
          * @param context (MANDATORY for Android target) A valid Android Context for content retrieval
-         * @param customUserAgent Set a custom userAgent for every request
          * @param customDispatcher
          * @param customQueue
          */
         @Throws(IllegalArgumentException::class, CancellationException::class)
         public suspend fun create(
-            url: String,
-            siteId: Int,
-            tokenAuth: String? = null,
-            customActionHostUrl: String? = null,
+            apiSecret: String,
+            firebaseAppId: String,
+            url: String = "https://www.google-analytics.com/mp/collect",
             context: Any? = null,
-            customUserAgent: String? = null,
             customDispatcher: Dispatcher? = null,
             customQueue: Queue? = null,
         ): Tracker =
             Tracker(
                 url = url,
-                siteId = siteId,
+                apiSecret = apiSecret,
                 context = context,
-                tokenAuth = tokenAuth,
+                firebaseAppId = firebaseAppId,
                 customDispatcher = customDispatcher,
-                customUserAgent = customUserAgent,
                 customQueue = customQueue,
-                customActionHostUrl = customActionHostUrl,
             ).build()
     }
 
@@ -202,9 +182,8 @@ public class Tracker private constructor(
         nextEventStartsANewSession: Boolean,
     ) {
         coroutine.launch(Dispatchers.Default) {
-            userPreferences?.let { userPreferences ->
+            userPreferences.let { userPreferences ->
                 if (isOptedOut()) return@launch
-                event.visitor = Visitor.current(userPreferences)
                 event.isNewSession = nextEventStartsANewSession
                 logger.log("Queued event: ${event.uuid}", LogLevel.Verbose)
                 this@Tracker.queue?.enqueue(event)
@@ -216,18 +195,18 @@ public class Tracker private constructor(
      * Defines if the user opted out of tracking. When set to true, every event
      * will be discarded immediately. This property is persisted between app launches.
      */
-    public suspend fun isOptedOut(): Boolean = userPreferences?.optOut() ?: false
+    public suspend fun isOptedOut(): Boolean = userPreferences.optOut() ?: false
 
     /**
      * Defines if the user opted out of tracking. When set to true, every event
      * will be discarded immediately. This property is persisted between app launches.
      */
-    public suspend fun setOptOut(value: Boolean): Unit? = userPreferences?.setOptOut(value)
+    public suspend fun setOptOut(value: Boolean): Unit = userPreferences.setOptOut(value)
 
     /**
      * Get the heartbeat tracking state for the user.
      */
-    public suspend fun isHeartBeatEnabled(): Boolean = userPreferences?.isHeartbeatEnabled() ?: true
+    public suspend fun isHeartBeatEnabled(): Boolean = userPreferences.isHeartbeatEnabled() ?: true
 
     /**
      * Updates the heartbeat tracking state for the user.
@@ -236,8 +215,8 @@ public class Tracker private constructor(
      * @param value A boolean value indicating whether to enable (true) or disable (false) the heartbeat tracking.
      */
     public suspend fun setIsHeartBeat(value: Boolean): Unit =
-        userPreferences?.setEnableHeartbeat(value).let { isEnabled ->
-            if (isEnabled == true) {
+        userPreferences.setEnableHeartbeat(value).let { isEnabled ->
+            if (isEnabled) {
                 heartbeat.start()
             } else {
                 heartbeat.stop()
@@ -248,14 +227,15 @@ public class Tracker private constructor(
      * Will be used to associate all future events with a given visitorId / cid. This property
      * is persisted between app launches.
      */
-    public suspend fun userId(): String? = userPreferences?.userId()
+    public suspend fun userId(): String? = userPreferences.userId()
 
     /**
      * User ID is any non-empty unique string identifying the user (such as an email address or a username)
      */
     public suspend fun setUserId(value: String?) {
         logger.log("Setting the userId to $value", LogLevel.Debug)
-        userPreferences?.setUserId(value)
+        userPreferences.setUserId(value)
+        visitor = Visitor.current(userPreferences)
     }
 
     /**
@@ -526,6 +506,7 @@ public class Tracker private constructor(
      */
     public fun startNewSession() {
         logger.log("start New Session", LogLevel.Info)
+        sessionId = Random.nextLong(from = 1, until = Long.MAX_VALUE)
         nextEventStartsANewSession = true
     }
 
@@ -536,7 +517,7 @@ public class Tracker private constructor(
      */
     public fun reset() {
         coroutine.launch {
-            logger.log("Reset Session siteId: $siteId", LogLevel.Debug)
+            logger.log("Reset Session firebaseAppId: $firebaseAppId", LogLevel.Debug)
             userPreferences?.reset()
             dimensions.removeAll { true }
             campaignName = null

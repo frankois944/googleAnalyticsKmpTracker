@@ -12,19 +12,17 @@ import kotlin.uuid.ExperimentalUuidApi
 internal data class BulkRequest(
     @SerialName("requests")
     val requests: List<String>,
-    @SerialName("token_auth")
-    val tokenAuth: String?,
 ) {
     companion object {
         fun create(
             requests: List<Event>,
-            tokenAuth: String?,
         ): BulkRequest =
             BulkRequest(
                 requests = buildRequest(requests),
-                tokenAuth = tokenAuth,
             )
 
+        // example :
+        // https://developers.google.com/analytics/devguides/collection/protocol/ga4/sending-events?client_type=firebase
         private fun buildRequest(events: List<Event>): List<String> =
             buildList {
                 events.forEach { event ->

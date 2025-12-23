@@ -13,11 +13,9 @@ internal fun eventFromTrackingCache(item: TrackingCache): Event =
         dateCreatedInSecond = item.timestamp,
         dateCreatedOfNanoSecond = item.nanosecond,
         uuid = item.uuid,
-        siteId = item.siteId.toInt(),
-        visitor = item.visitor?.let { visitorFromSerializedString(it) },
+        visitor = visitorFromSerializedString(item.visitor),
         isCustomAction = item.isCustomAction != 0L,
         date = item.date,
-        url = item.url,
         actionName = Cbor.decodeFromByteArray(item.actionName),
         language = item.language,
         isNewSession = item.isNewSession != 0L,
@@ -54,4 +52,7 @@ internal fun eventFromTrackingCache(item: TrackingCache): Event =
         orderShippingCost = item.orderShippingCost,
         orderDiscount = item.orderDiscount,
         isPing = item.isPing != 0L,
+        firebaseAppId = item.firebaseAppId,
+        url = null,
+        sessionId = item.sessionId
     )

@@ -87,7 +87,7 @@ class EventTestAndroid {
                             context = ApplicationProvider.getApplicationContext(),
                             //   customQueue = queue,
                         ).also {
-                            it.logger = DefaultMatomoTrackerLogger(minLevel = LogLevel.Verbose)
+                            it.logger = DefaultGATrackerLogger(minLevel = LogLevel.Verbose)
                         }
                 val nbVisit = 3
                 for (i in 1..nbVisit) {

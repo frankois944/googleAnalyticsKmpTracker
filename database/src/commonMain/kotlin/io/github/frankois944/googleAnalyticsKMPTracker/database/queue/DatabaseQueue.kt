@@ -22,18 +22,16 @@ public class DatabaseQueue(
 ) : Queue {
     private val mutex = Mutex()
 
-    override suspend fun eventCount(): Long = database.trackingCacheQueries.count(scope).awaitAsOne()
+    override suspend fun eventCount(): Long = database.trackingCacheQueries.count().awaitAsOne()
 
     override suspend fun enqueue(events: List<Event>): Unit =
         mutex.withLock {
             events.forEach { event ->
                 database.trackingCacheQueries.insertUuid(
                     uuid = event.uuid,
-                    scope = scope,
                     timestamp = event.dateCreatedInSecond,
                     nanosecond = event.dateCreatedOfNanoSecond,
-                    siteId = event.siteId.toLong(),
-                    visitor = event.visitor?.toSerializedString(),
+                    visitor = event.visitor.toSerializedString(),
                     isCustomAction = if (event.isCustomAction) 1L else 0L,
                     date = event.date,
                     url = event.url,
@@ -67,6 +65,8 @@ public class DatabaseQueue(
                     orderShippingCost = event.orderShippingCost,
                     orderDiscount = event.orderDiscount,
                     isPing = if (event.isPing) 1L else 0L,
+                    firebaseAppId = event.firebaseAppId,
+                    sessionId = event.sessionId
                 )
             }
         }
@@ -74,7 +74,7 @@ public class DatabaseQueue(
     override suspend fun first(limit: Long): List<Event> =
         mutex.withLock {
             database.trackingCacheQueries
-                .selectWithLimit(scope, limit)
+                .selectWithLimit(limit)
                 .awaitAsList()
                 .map { item ->
                     eventFromTrackingCache(item)
@@ -89,7 +89,6 @@ public class DatabaseQueue(
                         events.map {
                             it.uuid
                         },
-                    scope = scope,
                 )
         }
     }
@@ -97,9 +96,7 @@ public class DatabaseQueue(
     override suspend fun removeAll() {
         mutex.withLock {
             database.trackingCacheQueries
-                .deleteAll(
-                    scope = scope,
-                )
+                .deleteAll()
         }
     }
 }
