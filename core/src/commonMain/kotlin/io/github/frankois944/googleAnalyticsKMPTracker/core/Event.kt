@@ -15,7 +15,6 @@ public class Event(
     public val url: String?,
     public val actionName: List<String>,
     public val language: String?,
-    public var isNewSession: Boolean,
     public val referer: String?,
     public val screenResolution: Size,
     public val eventCategory: String?,
@@ -55,7 +54,6 @@ public class Event(
             |  actionName=$actionName,
             |  visitor=$visitor,
             |  isCustomAction=$isCustomAction,
-            |  isNewSession=$isNewSession,
             |  language=$language,
             |  referer=$referer,
             |  screenResolution=$screenResolution,
@@ -101,7 +99,6 @@ public class Event(
                 date == other.date &&
                 actionName == other.actionName &&
                 language == other.language &&
-                isNewSession == other.isNewSession &&
                 referer == other.referer &&
                 screenResolution == other.screenResolution &&
                 eventCategory == other.eventCategory &&
@@ -138,7 +135,6 @@ public class Event(
         result = 31 * result + dateCreatedOfNanoSecond.hashCode()
         result = 31 * result + isCustomAction.hashCode()
         result = 31 * result + date.hashCode()
-        result = 31 * result + isNewSession.hashCode()
         result = 31 * result + (eventValue?.hashCode() ?: 0)
         result = 31 * result + (searchResultsCount ?: 0)
         result = 31 * result + (goalId ?: 0)

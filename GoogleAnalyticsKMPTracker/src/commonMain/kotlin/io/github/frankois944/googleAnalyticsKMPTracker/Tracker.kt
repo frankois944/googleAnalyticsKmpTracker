@@ -26,10 +26,14 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.random.Random
+import kotlin.time.Clock
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
+import kotlin.time.ExperimentalTime
+import kotlin.time.Instant
 import kotlin.uuid.ExperimentalUuidApi
 
+@OptIn(ExperimentalTime::class)
 public class Tracker private constructor(
     internal val url: String,
     internal val apiSecret: String,
@@ -42,7 +46,6 @@ public class Tracker private constructor(
     internal lateinit var userPreferences: UserPreferences
     internal lateinit var dispatcher: Dispatcher
     internal var dimensions: ConcurrentMutableList<CustomDimension> = ConcurrentMutableList()
-    internal var nextEventStartsANewSession = true
     internal var campaignName: String? = null
     internal var campaignKeyword: String? = null
     private val numberOfEventsDispatchedAtOnce = 5L
@@ -51,7 +54,7 @@ public class Tracker private constructor(
     private var isDispatching: Boolean = false
     private val mutex: Mutex = Mutex()
     // private val heartbeat: HeartBeat
-    internal var sessionId: Long = Random.nextLong(from = 1, until = Long.MAX_VALUE)
+    internal var sessionId: Long = Clock.System.now().epochSeconds
     internal lateinit var visitor: Visitor
 
     /**
@@ -177,11 +180,9 @@ public class Tracker private constructor(
 
     internal fun queue(
         event: Event,
-        nextEventStartsANewSession: Boolean,
     ) {
         coroutine.launch(Dispatchers.Default) {
             if (isOptedOut()) return@launch
-            event.isNewSession = nextEventStartsANewSession
             logger.log("Queued event: ${event.uuid}", LogLevel.Verbose)
             this@Tracker.queue?.enqueue(event)
         }
@@ -240,8 +241,7 @@ public class Tracker private constructor(
      * @param event The event that should be tracked.
      */
     public fun track(event: Event) {
-        queue(event, nextEventStartsANewSession)
-        nextEventStartsANewSession = false
+        queue(event)
         if (event.campaignName == campaignName &&
             event.campaignKeyword == campaignKeyword
         ) {
@@ -308,6 +308,7 @@ public class Tracker private constructor(
             Event.create(
                 tracker = this,
                 contentInteraction = interaction,
+                eventName = "select_content",
                 contentName = name,
                 contentPiece = piece,
                 contentTarget = target,
@@ -335,6 +336,7 @@ public class Tracker private constructor(
         track(
             Event.create(
                 tracker = this,
+                eventName = "page_view",
                 action = view,
                 url = url,
                 dimensions = dimensions,
@@ -451,6 +453,7 @@ public class Tracker private constructor(
             Event.create(
                 tracker = this,
                 action = emptyList(),
+                eventName = "search",
                 url = url,
                 searchQuery = query,
                 searchCategory = category,
@@ -502,8 +505,7 @@ public class Tracker private constructor(
      */
     public fun startNewSession() {
         logger.log("start New Session", LogLevel.Info)
-        sessionId = Random.nextLong(from = 1, until = Long.MAX_VALUE)
-        nextEventStartsANewSession = true
+        sessionId = Clock.System.now().epochSeconds
     }
 
     /**

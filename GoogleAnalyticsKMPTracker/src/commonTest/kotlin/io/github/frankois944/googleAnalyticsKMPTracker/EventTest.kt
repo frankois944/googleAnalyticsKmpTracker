@@ -86,16 +86,16 @@ class EventTest {
                 val nbVisit = 1
                 for (i in 1..nbVisit) {
                     println("Session send $i")
-                    tracker.trackView(listOf("index11"))
+                    /*tracker.trackView(listOf("index11"))
                     delay(50.milliseconds)
                     tracker.trackView(listOf("index1", "index21"))
                     delay(50.milliseconds)
                     tracker.trackView(listOf("index1", "index2", "index31"))
                     delay(50.milliseconds)
                     tracker.trackView(listOf("index1", "index2", "index3", "index41"))
-                    delay(50.milliseconds)
+                    delay(50.milliseconds)*/
                     tracker.trackView(listOf("index1", "index2", "index3", "index4", "index51"))
-                    delay(50.milliseconds)
+                        //delay(50.milliseconds)
                 }
                 waitAllEventSent(tracker)
             }
@@ -227,9 +227,9 @@ class EventTest {
             launch(Dispatchers.Default) {
                 val tracker = getTracker()
                 tracker.trackEventWithCategory(
-                    category = "event cat1",
-                    action = "event action1",
-                    name = "event name1",
+                    category = "event_cat1",
+                    action = "event_action1",
+                    name = "event_name1",
                     value = 1.0,
                 )
                 waitAllEventSent(tracker)

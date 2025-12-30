@@ -90,7 +90,6 @@ internal fun Event.Companion.create(
         date = Clock.System.now().toEpochMilliseconds(),
         visitor = visitor,
         language = Device.language,
-        isNewSession = isNewSession,
         screenResolution = Device.screenSize,
         measurementId = tracker.measurementId,
         sessionId = tracker.sessionId
@@ -104,39 +103,49 @@ internal val Event.getGABody: JsonObject
         // https://developer.matomo.org/api-reference/tracking-api
         return buildJsonObject {
             put("client_id", visitor.clientId)
-            if (!visitor.userId.isNullOrEmpty()) {
+           /* if (!visitor.userId.isNullOrEmpty()) {
                 put("user_id", visitor.userId)
             }
             Device.currentUserAgent?.let { userAgent ->
                 put("user_agent", userAgent)
             } ?: run {
                 put("device", getGADeviceObject(language, screenResolution))
-            }
-
-            put("user_properties", buildJsonObject {
-
-            })
-
-            /*
-            "user_properties": {
-        "customer_tier": {
-          "value": "CUSTOMER_TIER
-
-"
-        }
-      },
-             */
+            }*/
 
             put("events", buildJsonObject {
-                put("name", "page_view")
+                put("name", eventName)
+                put("timestamp_micros", date * 1000)
                 put("params", buildJsonObject {
+                    // You must include the engagement_time_msec and session_id parameters in order for user activity
+                    // to display in reports like Realtime.
                     put("session_id", sessionId)
-                    put("page_title", actionName.last())
-                    put("page_location", actionName.joinToString("/"))
+                    put("engagement_time_msec", 2000)
+                    when (eventName) {
+                        "page_view" -> {
+                            put("page_title", actionName.last())
+                            put("page_location", actionName.joinToString("/"))
+                        }
+                        "search" -> {
+                            put("search_term", searchQuery)
+                            searchCategory?.let {  put("search_category", searchCategory) }
+                            searchResultsCount?.let {  put("search_results_count", searchResultsCount) }
+                        }
+                        "select_content" -> {
+                            put("content_type", contentInteraction)
+                            put("content_id", contentName)
+                            contentPiece?.let { put("content_piece", contentPiece) }
+                            contentTarget?.let { put("content_target", contentTarget) }
+                        }
+                        else -> {
+                            eventValue?.let {  put("event_value", eventValue) }
+                            eventAction?.let { put("event_action", eventAction) }
+                            eventCategory?.let { put("event_category", eventCategory) }
+                        }
+                    }
                 })
             })
             // TODO: remove when debug is over
-            // put("validation_behavior", "ENFORCE_RECOMMENDATIONS")
+          //   put("validation_behavior", "ENFORCE_RECOMMENDATIONS")
         }
     }
 
@@ -170,9 +179,6 @@ internal val Event.queryItems: Map<String, Any?>
                     set("action_name", actionName.joinToString("/"))
                     set("lang", language)
                     set("urlref", referer)
-                    if (isNewSession) {
-                        set("new_visit", 1)
-                    }
                     set("res", "${screenResolution.width}x${screenResolution.height}")
                     set("e_c", eventCategory)
                     set("e_a", eventAction)

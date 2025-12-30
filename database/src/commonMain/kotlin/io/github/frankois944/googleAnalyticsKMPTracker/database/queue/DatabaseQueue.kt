@@ -37,7 +37,6 @@ public class DatabaseQueue(
                     url = event.url,
                     actionName = Cbor.encodeToByteArray(event.actionName),
                     language = event.language,
-                    isNewSession = if (event.isNewSession) 1L else 0L,
                     referer = event.referer,
                     screenResolution = event.screenResolution.toSerializedString(),
                     eventCategory = event.eventCategory,
@@ -66,6 +65,7 @@ public class DatabaseQueue(
                     orderDiscount = event.orderDiscount,
                     isPing = if (event.isPing) 1L else 0L,
                     firebaseAppId = event.measurementId,
+                    isNewSession = 0,
                     sessionId = event.sessionId
                 )
             }

@@ -18,7 +18,6 @@ internal fun eventFromTrackingCache(item: TrackingCache): Event =
         date = item.date,
         actionName = Cbor.decodeFromByteArray(item.actionName),
         language = item.language,
-        isNewSession = item.isNewSession != 0L,
         referer = item.referer,
         screenResolution = sizeFromSerializedString(item.screenResolution),
         eventCategory = item.eventCategory,
