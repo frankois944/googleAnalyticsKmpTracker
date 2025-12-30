@@ -24,7 +24,7 @@ import platform.posix.utsname
 
 internal actual object Device {
     actual val model: String = getPlatform()
-    actual val operatingSystem: String = "Mac OS X"
+    actual val operatingSystem: String = "MacOS"
     actual val osVersion: String =
         NSProcessInfo.processInfo.operatingSystemVersion.useContents {
             "$majorVersion.$minorVersion.$patchVersion"
@@ -42,7 +42,7 @@ internal actual object Device {
 
     actual val language: String? = NSLocale.preferredLanguages.firstOrNull() as? String
 
-    actual val actionUrl: String? = NSBundle.mainBundle.bundleIdentifier
+    actual val identifier: String? = NSBundle.mainBundle.bundleIdentifier
 
     actual val softwareId: String?
         get() {
@@ -82,4 +82,10 @@ internal actual object Device {
             return NSProcessInfo.processInfo.hostName
         }
     }
+
+    actual val category: String = "desktop"
+    actual val browser: String? = null
+    actual val browserVersion: String? = null
+    actual val currentUserAgent: String? = null
+    actual val brand: String = "Apple Inc."
 }

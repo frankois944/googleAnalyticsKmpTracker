@@ -60,7 +60,7 @@ internal actual object Device {
 
     actual val language: String? = NSLocale.preferredLanguages.firstOrNull() as? String
 
-    actual val actionUrl: String? = NSBundle.mainBundle.bundleIdentifier
+    actual val identifier: String? = NSBundle.mainBundle.bundleIdentifier
 
     private fun getPlatform(): String {
         return NSProcessInfo().environment["SIMULATOR_MODEL_IDENTIFIER"]?.toString() ?: memScoped {
@@ -84,4 +84,10 @@ internal actual object Device {
             return buffer.toKString()
         }
     }
+
+    actual val category: String = "smart Watch"
+    actual val browser: String? = operatingSystem
+    actual val browserVersion: String? = null
+    actual val currentUserAgent: String? = null
+    actual val brand: String = "Apple Inc."
 }

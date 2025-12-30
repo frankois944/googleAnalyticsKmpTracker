@@ -25,7 +25,13 @@ internal actual object Device {
 
     actual val softwareId: String? = si.operatingSystem.versionInfo.codeName
 
-    actual val language: String? = Locale.getDefault().language + "-" + Locale.getDefault().country
+    actual val language: String?
+        get() = Locale.getDefault().language + "-" + Locale.getDefault().country
 
-    actual val actionUrl: String? = null
+    actual val identifier: String? = null
+    actual val category: String = "desktop"
+    actual val browser: String? = operatingSystem
+    actual val browserVersion: String? = null
+    actual val currentUserAgent: String? = null
+    actual val brand: String = si.hardware.computerSystem.manufacturer
 }

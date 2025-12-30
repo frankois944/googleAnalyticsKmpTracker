@@ -30,13 +30,16 @@ class EventTest {
         Tracker
             .create(
                 apiSecret = apiSecret,
-                measurementId = firebaseAppId,
+                measurementId = measurementId,
                 url = "https://www.google-analytics.com/mp/collect"
+                // For request validation only
+                //url = "https://www.google-analytics.com/debug/mp/collect"
             ).also {
                 it.setIsHeartBeat(false)
                 it.logger = DefaultGATrackerLogger(minLevel = LogLevel.Verbose)
                 it.dispatchBatch()
                 it.queue!!.removeAll()
+                it.setUserId("Francois.Dabonot")
                 assertEquals(
                     emptyList(),
                     it.queue!!.first(10),
@@ -83,15 +86,15 @@ class EventTest {
                 val nbVisit = 1
                 for (i in 1..nbVisit) {
                     println("Session send $i")
-                    tracker.trackView(listOf("index1"))
+                    tracker.trackView(listOf("index11"))
                     delay(50.milliseconds)
-                    tracker.trackView(listOf("index2"))
+                    tracker.trackView(listOf("index1", "index21"))
                     delay(50.milliseconds)
-                    tracker.trackView(listOf("index3"))
+                    tracker.trackView(listOf("index1", "index2", "index31"))
                     delay(50.milliseconds)
-                    tracker.trackView(listOf("index4"))
+                    tracker.trackView(listOf("index1", "index2", "index3", "index41"))
                     delay(50.milliseconds)
-                    tracker.trackView(listOf("index5"))
+                    tracker.trackView(listOf("index1", "index2", "index3", "index4", "index51"))
                     delay(50.milliseconds)
                 }
                 waitAllEventSent(tracker)

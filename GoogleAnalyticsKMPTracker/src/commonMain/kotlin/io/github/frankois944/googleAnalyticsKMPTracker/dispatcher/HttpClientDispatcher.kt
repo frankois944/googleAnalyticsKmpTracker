@@ -2,9 +2,9 @@
 
 package io.github.frankois944.googleAnalyticsKMPTracker.dispatcher
 
-import io.github.frankois944.googleAnalyticsKMPTracker.getGARequest
 import io.github.frankois944.googleAnalyticsKMPTracker.UserAgentProvider
 import io.github.frankois944.googleAnalyticsKMPTracker.core.Event
+import io.github.frankois944.googleAnalyticsKMPTracker.getGABody
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.DefaultRequest
 import io.ktor.client.plugins.HttpTimeout
@@ -95,7 +95,7 @@ internal class HttpClientDispatcher(
                     parameters.append("api_secret", apiSecret)
                 }
                 setBody(
-                    event.getGARequest
+                    event.getGABody
                 )
     }.handleResponse()
 }

@@ -6,12 +6,12 @@ import io.github.frankois944.googleAnalyticsKMPTracker.core.CustomDimension
 import io.github.frankois944.googleAnalyticsKMPTracker.core.Event
 import io.github.frankois944.googleAnalyticsKMPTracker.core.OrderItem
 import io.github.frankois944.googleAnalyticsKMPTracker.core.Visitor
-import io.github.frankois944.googleAnalyticsKMPTracker.model.GoogleAnalyticsEventParameterRequest
-import io.github.frankois944.googleAnalyticsKMPTracker.model.GoogleAnalyticsEventRequest
-import io.github.frankois944.googleAnalyticsKMPTracker.model.GoogleAnalyticsRequest
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
@@ -96,32 +96,48 @@ internal fun Event.Companion.create(
         sessionId = tracker.sessionId
     )
 
-internal val Event.getGARequest: GoogleAnalyticsRequest
+internal val Event.getGABody: JsonObject
     get() {
         // TODO: build a valid request from event from Event Class
         // https://developers.google.com/analytics/devguides/collection/protocol/ga4/reference?client_type=firebase
         // the original implementation come from matomo
         // https://developer.matomo.org/api-reference/tracking-api
-       return GoogleAnalyticsRequest(
-            clientId = visitor.clientId,
-            events = buildList {
-                add(
-                    GoogleAnalyticsEventRequest(
-                        name = "page_view",
-                        params = buildMap {
-                            put("page_title", actionName.last())
-                         //   put("page_location", actionName.joinToString("/"))
-                        }
-
-                        /*params = buildMap {
-                            put("engagement_time_msec", 1200.toString())
-                            put("screen_name", actionName.joinToString("/"))
-                            put("session_id", this@getGARequest.sessionId.toString())
-                        }*/
-                    )
-                )
+        return buildJsonObject {
+            put("client_id", visitor.clientId)
+            if (!visitor.userId.isNullOrEmpty()) {
+                put("user_id", visitor.userId)
             }
-        )
+            Device.currentUserAgent?.let { userAgent ->
+                put("user_agent", userAgent)
+            } ?: run {
+                put("device", getGADeviceObject(language, screenResolution))
+            }
+
+            put("user_properties", buildJsonObject {
+
+            })
+
+            /*
+            "user_properties": {
+        "customer_tier": {
+          "value": "CUSTOMER_TIER
+
+"
+        }
+      },
+             */
+
+            put("events", buildJsonObject {
+                put("name", "page_view")
+                put("params", buildJsonObject {
+                    put("session_id", sessionId)
+                    put("page_title", actionName.last())
+                    put("page_location", actionName.joinToString("/"))
+                })
+            })
+            // TODO: remove when debug is over
+            // put("validation_behavior", "ENFORCE_RECOMMENDATIONS")
+        }
     }
 
 // TODO: To be removed when migration done
