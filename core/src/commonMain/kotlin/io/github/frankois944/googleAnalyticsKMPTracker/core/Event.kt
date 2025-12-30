@@ -43,7 +43,7 @@ public class Event(
     public val orderShippingCost: Double?,
     public val orderDiscount: Double?,
     public val isPing: Boolean,
-    public val firebaseAppId: String,
+    public val measurementId: String,
     public val sessionId: Long
     ) {
     override fun toString(): String =
@@ -84,7 +84,7 @@ public class Event(
             |  orderShippingCost=$orderShippingCost,
             |  orderDiscount=$orderDiscount,
             |  isPing=$isPing
-            |  firebaseAppId=$firebaseAppId,
+            |  firebaseAppId=$measurementId,
             |  sessionId=$sessionId
             |)
         """.trimMargin()
@@ -129,7 +129,7 @@ public class Event(
                 orderShippingCost == other.orderShippingCost &&
                 orderDiscount == other.orderDiscount &&
                 isPing == other.isPing &&
-                firebaseAppId == other.firebaseAppId &&
+                measurementId == other.measurementId &&
                 sessionId == other.sessionId
     }
 
@@ -170,7 +170,7 @@ public class Event(
         result = 31 * result + (contentInteraction?.hashCode() ?: 0)
         result = 31 * result + (orderId?.hashCode() ?: 0)
         result = 31 * result + orderItems.hashCode()
-        result = 31 * result + firebaseAppId.hashCode()
+        result = 31 * result + measurementId.hashCode()
         result = 31 * result + sessionId.hashCode()
         return result
     }

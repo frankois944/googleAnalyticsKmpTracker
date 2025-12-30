@@ -65,7 +65,7 @@ public class DatabaseQueue(
                     orderShippingCost = event.orderShippingCost,
                     orderDiscount = event.orderDiscount,
                     isPing = if (event.isPing) 1L else 0L,
-                    firebaseAppId = event.firebaseAppId,
+                    firebaseAppId = event.measurementId,
                     sessionId = event.sessionId
                 )
             }

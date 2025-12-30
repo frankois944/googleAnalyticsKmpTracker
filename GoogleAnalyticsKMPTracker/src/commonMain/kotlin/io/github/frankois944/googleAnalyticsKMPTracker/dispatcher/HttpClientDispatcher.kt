@@ -2,13 +2,9 @@
 
 package io.github.frankois944.googleAnalyticsKMPTracker.dispatcher
 
-import io.github.frankois944.googleAnalyticsKMPTracker.GARequest
+import io.github.frankois944.googleAnalyticsKMPTracker.getGARequest
 import io.github.frankois944.googleAnalyticsKMPTracker.UserAgentProvider
 import io.github.frankois944.googleAnalyticsKMPTracker.core.Event
-import io.github.frankois944.googleAnalyticsKMPTracker.model.GoogleAnalyticsEventParameterRequest
-import io.github.frankois944.googleAnalyticsKMPTracker.model.GoogleAnalyticsEventRequest
-import io.github.frankois944.googleAnalyticsKMPTracker.model.GoogleAnalyticsRequest
-import io.github.frankois944.googleAnalyticsKMPTracker.utils.UuidGenerator
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.DefaultRequest
 import io.ktor.client.plugins.HttpTimeout
@@ -29,8 +25,6 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.isSuccess
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
-import kotlin.random.Random
-import kotlin.time.Clock
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.ExperimentalTime
@@ -97,11 +91,11 @@ internal class HttpClientDispatcher(
         client
             .post {
                 url {
-                    parameters.append("firebase_app_id", event.firebaseAppId)
+                    parameters.append("measurement_id", event.measurementId)
                     parameters.append("api_secret", apiSecret)
                 }
                 setBody(
-                    event.GARequest
+                    event.getGARequest
                 )
     }.handleResponse()
 }

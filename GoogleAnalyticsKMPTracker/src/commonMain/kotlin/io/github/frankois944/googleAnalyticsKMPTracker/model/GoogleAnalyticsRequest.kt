@@ -8,7 +8,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 internal class GoogleAnalyticsRequest(
-    @SerialName("app_instance_id")
-    val appInstanceId: String,
+    @SerialName("client_id")
+    val clientId: String,
     val events: List<GoogleAnalyticsEventRequest>,
 )

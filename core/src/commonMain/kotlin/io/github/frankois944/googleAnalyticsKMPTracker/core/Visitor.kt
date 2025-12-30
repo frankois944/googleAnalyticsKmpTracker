@@ -8,7 +8,7 @@ public class Visitor(
     /**
      * Required. Unique identifier for a specific installation of a Firebase app.
      */
-    public val appInstanceId: String,
+    public val clientId: String,
     /**
      * Optional. A unique identifier for a user. See User-ID for cross-platform analysis for more information on this
      * identifier. Can include only utf-8 characters.

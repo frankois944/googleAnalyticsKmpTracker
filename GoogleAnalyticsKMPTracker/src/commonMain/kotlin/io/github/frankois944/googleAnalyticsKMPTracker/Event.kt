@@ -12,7 +12,6 @@ import io.github.frankois944.googleAnalyticsKMPTracker.model.GoogleAnalyticsRequ
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import kotlinx.serialization.json.Json
-import kotlin.random.Random
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
@@ -93,28 +92,32 @@ internal fun Event.Companion.create(
         language = Device.language,
         isNewSession = isNewSession,
         screenResolution = Device.screenSize,
-        firebaseAppId = tracker.firebaseAppId,
+        measurementId = tracker.measurementId,
         sessionId = tracker.sessionId
     )
 
-internal val Event.GARequest: GoogleAnalyticsRequest
+internal val Event.getGARequest: GoogleAnalyticsRequest
     get() {
         // TODO: build a valid request from event from Event Class
         // https://developers.google.com/analytics/devguides/collection/protocol/ga4/reference?client_type=firebase
         // the original implementation come from matomo
         // https://developer.matomo.org/api-reference/tracking-api
        return GoogleAnalyticsRequest(
-            appInstanceId = this.visitor.appInstanceId,
+            clientId = visitor.clientId,
             events = buildList {
                 add(
                     GoogleAnalyticsEventRequest(
-                        name = "search",
-                        params = GoogleAnalyticsEventParameterRequest(
-                            sessionId = this@GARequest.sessionId,
-                            debugMode = true,
-                            engagementTimeMsec = 1200,
-                            searchTerm = "I want to search",
-                        )
+                        name = "page_view",
+                        params = buildMap {
+                            put("page_title", actionName.last())
+                         //   put("page_location", actionName.joinToString("/"))
+                        }
+
+                        /*params = buildMap {
+                            put("engagement_time_msec", 1200.toString())
+                            put("screen_name", actionName.joinToString("/"))
+                            put("session_id", this@getGARequest.sessionId.toString())
+                        }*/
                     )
                 )
             }
@@ -133,7 +136,7 @@ internal val Event.queryItems: Map<String, Any?>
             buildMap<String, Any?> {
                 set("apiv", "1")
                 set("rec", "1")
-                set("_id", visitor.appInstanceId)
+                set("_id", visitor.clientId)
                 set("uid", visitor.userId)
                 set("cdt", currentInstant.toString())
                 val localTime = currentInstant.toLocalDateTime(TimeZone.currentSystemDefault())

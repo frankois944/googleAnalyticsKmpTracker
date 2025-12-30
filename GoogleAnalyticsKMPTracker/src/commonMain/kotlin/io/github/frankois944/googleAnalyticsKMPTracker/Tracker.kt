@@ -18,7 +18,6 @@ import io.github.frankois944.googleAnalyticsKMPTracker.dispatcher.HttpClientDisp
 import io.github.frankois944.googleAnalyticsKMPTracker.preferences.UserPreferences
 import io.github.frankois944.googleAnalyticsKMPTracker.utils.ConcurrentMutableList
 import io.github.frankois944.googleAnalyticsKMPTracker.utils.startTimer
-import io.ktor.http.Url
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -30,12 +29,11 @@ import kotlin.random.Random
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 import kotlin.uuid.ExperimentalUuidApi
-import kotlin.uuid.Uuid
 
 public class Tracker private constructor(
     internal val url: String,
     internal val apiSecret: String,
-    internal val firebaseAppId: String,
+    internal val measurementId: String,
     internal val customDispatcher: Dispatcher? = null,
     internal val customQueue: Queue? = null,
     context: Any?,
@@ -52,7 +50,7 @@ public class Tracker private constructor(
     internal val dispatchInterval: Duration = 5.seconds
     private var isDispatching: Boolean = false
     private val mutex: Mutex = Mutex()
-    private val heartbeat: HeartBeat
+    // private val heartbeat: HeartBeat
     internal var sessionId: Long = Random.nextLong(from = 1, until = Long.MAX_VALUE)
     internal lateinit var visitor: Visitor
 
@@ -68,12 +66,12 @@ public class Tracker private constructor(
             "An Android context must be set"
         }
         storeContext(context)
-        heartbeat = HeartBeat(this)
+       // heartbeat = HeartBeat(this)
     }
 
     internal suspend fun build(): Tracker {
         withContext(Dispatchers.Default) {
-            val scope = firebaseAppId
+            val scope = measurementId
             // Dispatcher
             dispatcher =
                 customDispatcher ?: HttpClientDispatcher(
@@ -95,9 +93,9 @@ public class Tracker private constructor(
             // Startup
             startNewSession()
             startDispatchEvents()
-            if (userPreferences.isHeartbeatEnabled()) {
+           /* if (userPreferences.isHeartbeatEnabled()) {
                 heartbeat.start()
-            }
+            }*/
         }
         return this
     }
@@ -152,7 +150,7 @@ public class Tracker private constructor(
     public companion object {
         /**
          * @param apiSecret The API Secret from the Google Analytics UI.
-         * @param firebaseAppId Firebase App ID. The identifier for a Firebase app.
+         * @param measurementId GA Property ID.
          * @param url The url of the Google Analytics API endpoint, use `https://region1.google-analytics.com/mp/collect` for europe
          * @param context (MANDATORY for Android target) A valid Android Context for content retrieval
          * @param customDispatcher
@@ -161,7 +159,7 @@ public class Tracker private constructor(
         @Throws(IllegalArgumentException::class, CancellationException::class)
         public suspend fun create(
             apiSecret: String,
-            firebaseAppId: String,
+            measurementId: String,
             url: String = "https://www.google-analytics.com/mp/collect",
             context: Any? = null,
             customDispatcher: Dispatcher? = null,
@@ -171,7 +169,7 @@ public class Tracker private constructor(
                 url = url,
                 apiSecret = apiSecret,
                 context = context,
-                firebaseAppId = firebaseAppId,
+                measurementId = measurementId,
                 customDispatcher = customDispatcher,
                 customQueue = customQueue,
             ).build()
@@ -182,12 +180,10 @@ public class Tracker private constructor(
         nextEventStartsANewSession: Boolean,
     ) {
         coroutine.launch(Dispatchers.Default) {
-            userPreferences.let { userPreferences ->
-                if (isOptedOut()) return@launch
-                event.isNewSession = nextEventStartsANewSession
-                logger.log("Queued event: ${event.uuid}", LogLevel.Verbose)
-                this@Tracker.queue?.enqueue(event)
-            }
+            if (isOptedOut()) return@launch
+            event.isNewSession = nextEventStartsANewSession
+            logger.log("Queued event: ${event.uuid}", LogLevel.Verbose)
+            this@Tracker.queue?.enqueue(event)
         }
     }
 
@@ -195,7 +191,7 @@ public class Tracker private constructor(
      * Defines if the user opted out of tracking. When set to true, every event
      * will be discarded immediately. This property is persisted between app launches.
      */
-    public suspend fun isOptedOut(): Boolean = userPreferences.optOut() ?: false
+    public suspend fun isOptedOut(): Boolean = userPreferences.optOut()
 
     /**
      * Defines if the user opted out of tracking. When set to true, every event
@@ -206,7 +202,7 @@ public class Tracker private constructor(
     /**
      * Get the heartbeat tracking state for the user.
      */
-    public suspend fun isHeartBeatEnabled(): Boolean = userPreferences.isHeartbeatEnabled() ?: true
+    public suspend fun isHeartBeatEnabled(): Boolean = userPreferences.isHeartbeatEnabled()
 
     /**
      * Updates the heartbeat tracking state for the user.
@@ -216,11 +212,11 @@ public class Tracker private constructor(
      */
     public suspend fun setIsHeartBeat(value: Boolean): Unit =
         userPreferences.setEnableHeartbeat(value).let { isEnabled ->
-            if (isEnabled) {
+            /*if (isEnabled) {
                 heartbeat.start()
             } else {
                 heartbeat.stop()
-            }
+            }*/
         }
 
     /**
@@ -517,8 +513,8 @@ public class Tracker private constructor(
      */
     public fun reset() {
         coroutine.launch {
-            logger.log("Reset Session firebaseAppId: $firebaseAppId", LogLevel.Debug)
-            userPreferences?.reset()
+            logger.log("Reset Session firebaseAppId: $measurementId", LogLevel.Debug)
+            userPreferences.reset()
             dimensions.removeAll { true }
             campaignName = null
             campaignKeyword = null

@@ -16,4 +16,8 @@ internal class GoogleAnalyticsEventParameterRequest(
     val engagementTimeMsec: Long? = null,
     @SerialName("search_term")
     val searchTerm: String? = null,
+    @SerialName("screen_class")
+    val screenClass: String? = null,
+    @SerialName("screen_name")
+    val screenName: String? = null,
 )

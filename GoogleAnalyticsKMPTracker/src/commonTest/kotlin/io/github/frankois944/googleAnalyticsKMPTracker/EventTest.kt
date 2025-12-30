@@ -30,8 +30,8 @@ class EventTest {
         Tracker
             .create(
                 apiSecret = apiSecret,
-                firebaseAppId = firebaseAppId,
-                url = "https://www.google-analytics.com/debug/mp/collect"
+                measurementId = firebaseAppId,
+                url = "https://www.google-analytics.com/mp/collect"
             ).also {
                 it.setIsHeartBeat(false)
                 it.logger = DefaultGATrackerLogger(minLevel = LogLevel.Verbose)
@@ -82,7 +82,6 @@ class EventTest {
                 val tracker = getTracker()
                 val nbVisit = 1
                 for (i in 1..nbVisit) {
-                    /*tracker.startNewSession()
                     println("Session send $i")
                     tracker.trackView(listOf("index1"))
                     delay(50.milliseconds)
@@ -93,8 +92,7 @@ class EventTest {
                     tracker.trackView(listOf("index4"))
                     delay(50.milliseconds)
                     tracker.trackView(listOf("index5"))
-                    delay(50.milliseconds)*/
-                    tracker.trackView(listOf("index1"))
+                    delay(50.milliseconds)
                 }
                 waitAllEventSent(tracker)
             }

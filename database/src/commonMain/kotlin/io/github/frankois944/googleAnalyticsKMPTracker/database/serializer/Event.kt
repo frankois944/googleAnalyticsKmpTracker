@@ -52,7 +52,7 @@ internal fun eventFromTrackingCache(item: TrackingCache): Event =
         orderShippingCost = item.orderShippingCost,
         orderDiscount = item.orderDiscount,
         isPing = item.isPing != 0L,
-        firebaseAppId = item.firebaseAppId,
+        measurementId = item.firebaseAppId,
         url = null,
         sessionId = item.sessionId
     )

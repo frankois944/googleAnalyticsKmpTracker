@@ -5,6 +5,6 @@ import kotlinx.serialization.Serializable
 @Serializable
 internal class GoogleAnalyticsEventRequest(
     val name: String,
-    val params: GoogleAnalyticsEventParameterRequest? = null
+    val params: Map<String, String> = emptyMap()
 ) {
 }

@@ -27,15 +27,15 @@ internal class UserPreferences(
 
     // <editor-fold desc="Client Id">
 
-    suspend fun appInstanceId(): String? =
+    suspend fun clientId(): String? =
         database.persistingPreferenceQueries
-            .selectPreference("appInstanceId", scope)
+            .selectPreference("setClientId", scope)
             .awaitAsOneOrNull()
             ?.value_
 
-    suspend fun setAppInstanceId(value: String?) {
+    suspend fun setClientId(value: String?) {
         database.persistingPreferenceQueries
-            .insertPreference("appInstanceId", value, scope)
+            .insertPreference("setClientId", value, scope)
     }
 // </editor-fold>
 
