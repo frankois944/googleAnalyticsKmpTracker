@@ -103,14 +103,14 @@ internal val Event.getGABody: JsonObject
         // https://developer.matomo.org/api-reference/tracking-api
         return buildJsonObject {
             put("client_id", visitor.clientId)
-           /* if (!visitor.userId.isNullOrEmpty()) {
+            if (!visitor.userId.isNullOrEmpty()) {
                 put("user_id", visitor.userId)
             }
             Device.currentUserAgent?.let { userAgent ->
                 put("user_agent", userAgent)
             } ?: run {
                 put("device", getGADeviceObject(language, screenResolution))
-            }*/
+            }
 
             put("events", buildJsonObject {
                 put("name", eventName)
