@@ -18,14 +18,14 @@ public class UserProperty(
     public val value: JsonPrimitive,
 ) {
     public constructor(name: String, value: Any) : this(
-        name.also {
-            require(it.length <= 24) {
-                "Property name must be 24 characters or fewer, got ${name.length}"
+        name.also { toCheck ->
+            require(toCheck.length <= 24) {
+                "Property name must be 24 characters or fewer, got ${toCheck.length}"
             }
-            require(it.isNotEmpty() && name.first().isLetter()) {
+            require(toCheck.isNotEmpty() && toCheck.first().isLetter()) {
                 "Property name must start with an alphabetic character, got $name"
             }
-            require(it.all { it.isLetterOrDigit() || it == '_' }) {
+            require(toCheck.all { it.isLetterOrDigit() || it == '_' }) {
                 "Property name can only contain alphanumeric characters and underscores, got $name"
             }
         },

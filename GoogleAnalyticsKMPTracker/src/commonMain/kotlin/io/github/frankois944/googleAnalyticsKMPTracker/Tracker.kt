@@ -17,6 +17,7 @@ import io.github.frankois944.googleAnalyticsKMPTracker.dispatcher.http.HttpClien
 import io.github.frankois944.googleAnalyticsKMPTracker.preferences.UserPreferences
 import io.github.frankois944.googleAnalyticsKMPTracker.utils.ConcurrentMutableList
 import io.github.frankois944.googleAnalyticsKMPTracker.utils.startTimer
+import io.github.frankois944.googleAnalyticsKMPTracker.utils.toJsonObject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -24,6 +25,7 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.jsonPrimitive
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.time.Clock
 import kotlin.time.Duration
@@ -220,65 +222,49 @@ public class Tracker private constructor(
      *
      * @param event The event that should be tracked.
      */
-    public fun track(event: Event) {
+    internal fun track(event: Event) {
         queue(event)
     }
 
     /**
-     * Adds the name and keyword for the current campaign.
-     * This is usually very helpfull if you use deeplinks into your app.
+     * Send an event with the specified name and parameters.
      *
-     *  More information on campaigns: [https:*matomo.org/docs/tracking-campaigns/](https:*matomo.org/docs/tracking-campaigns/)
-     *
-     * @param name The name of the campaign.
-     * @param keyword The keyword of the campaign.
+     * @param name The name of the event to be tracked. It identifies the type of action or behavior being logged.
+     * @param params A map containing key-value pairs of additional information or attributes related to the event.
+     * Accepted value types include String, Int, Double, Boolean, Long, and Float.
+     * Other types will be converted to a string representation.
      */
-    public fun trackCampaign(
-        name: String,
-        keyword: String? = null,
-    ) {
-    }
-
-    /**
-     * Track a content impression
-     *
-     * @param name The name of the content. For instance 'Ad Foo Bar'
-     * @param piece The actual content piece. For instance the path to an image, video, audio, any text
-     * @param target The target of the content. For instance the URL of a landing page
-     */
-    public fun trackContentImpression(
-        name: String,
-        piece: String? = null,
-        target: String? = null,
-    ) {
+    public fun sendEvent(name: String, params: Map<String, Any>) {
         track(
             Event.create(
                 tracker = this,
-                eventName = "name",
-                params = mapOf()
+                eventName = name,
+                params = params.toJsonObject().map { it.key to it.value.jsonPrimitive }.toMap(),
             ),
         )
     }
 
     /**
-     * Tracks an interaction with a specific content element.
+     * Tracks an interaction with a specific content item.
      *
-     * @param name The name of the content being interacted with.
-     * @param interaction The type of interaction that occurred.
-     * @param piece Additional information or a specific part of the content involved in the interaction, nullable.
-     * @param target The intended target of the interaction, nullable.
+     * This method creates a "select_content" event, which represents the interaction with content.
+     * The event includes the type and ID of the content interacted with, if provided.
+     *
+     * @param contentType The type of the content being interacted with (e.g., video, article). Can be null.
+     * @param contentId The unique identifier of the content being interacted with. Can be null.
      */
     public fun trackContentInteraction(
-        name: String,
-        interaction: String,
-        piece: String? = null,
-        target: String? = null,
+        contentType: String? = null,
+        contentId: String? = null,
     ) {
         track(
             Event.create(
                 tracker = this,
                 eventName = "select_content",
-                params = mapOf(),
+                params = buildMap {
+                    contentId?.let { put("content_id", JsonPrimitive(contentType)) }
+                    contentType?.let { put("content_type", JsonPrimitive(contentId)) }
+                },
             ),
         )
     }
@@ -295,6 +281,7 @@ public class Tracker private constructor(
     ) {
         trackView(listOf(viewName))
     }
+
     /**
      * Tracks a page view event for the specified screen.
      *
@@ -354,67 +341,21 @@ public class Tracker private constructor(
     }
 
     /**
-     * Tracks a goal as described here: https://matomo.org/docs/tracking-goals-web-analytics/
+     * Tracks a search event with the specified search term.
      *
-     * @param goalId The defined ID of the Goal
-     * @param revenue The monetary value that was generated by the Goal
-     */
-    public fun trackGoal(
-        goalId: Int,
-        revenue: Double,
-    ) {
-        track(
-            Event.create(
-                tracker = this,
-                eventName = "goal",
-                params = mapOf(),
-            ),
-        )
-    }
-
-    /**
-     * Tracks an order as described here: https://matomo.org/faq/reports/advanced-manually-tracking-ecommerce-actions-in-matomo/#tracking-orders-to-matomo-required
-     *
-     * @param id The unique ID of the order
-     * @param items The array of items to be ordered
-     * @param revenue The grand total for the order (includes tax, shipping and subtracted discount)
-     * @param subTotal The sub total of the order (excludes shipping)
-     * @param tax The tax amount of the order
-     * @param shippingCost The shipping cost of the order
-     * @param discount The discount offered
-     */
-    public fun trackOrder(
-        id: String,
-        items: List<Any>,
-        revenue: Double,
-        subTotal: Double? = null,
-        tax: Double? = null,
-        shippingCost: Double? = null,
-        discount: Double? = null,
-    ) {
-    }
-
-    /**
-     * Tracks a search result page as described here: https://matomo.org/docs/site-search/
-     *
-     * @param query The string the user was searching for
-     * @param category An optional category which the user was searching in
-     * @param resultCount The number of results that were displayed for that search
-     * @param dimensions An optional array of dimensions, that will be set only in the scope of this event.
-     * @param url The optional url of the page that was viewed.
+     * @param searchTerm The search term entered by the user.
+     * This term will be recorded as part of the search tracking event.
      */
     public fun trackSearch(
-        query: String,
-        category: String? = null,
-        resultCount: Int? = null,
-        dimensions: List<UserProperty> = emptyList(),
-        url: String? = null,
+        searchTerm: String,
     ) {
         track(
             Event.create(
                 tracker = this,
                 eventName = "search",
-                params = mapOf(),
+                params = buildMap {
+                    put("search_term", JsonPrimitive(searchTerm))
+                },
             ),
         )
     }

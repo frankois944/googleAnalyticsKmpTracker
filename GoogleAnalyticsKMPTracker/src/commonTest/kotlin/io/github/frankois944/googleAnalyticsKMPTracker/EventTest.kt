@@ -89,110 +89,17 @@ class EventTest {
     }
 
     @Test
-    fun testGoal() = runTest(timeout = 30.seconds) {
-        if (isAndroid()) {
-            return@runTest
-        }
-        val tracker = getTracker()
-        tracker.trackGoal(goalId = 1, revenue = 42.0)
-        waitAllEventSent(tracker)
-    }
-
-    @Test
     fun testSearch() = runTest(timeout = 30.seconds) {
         if (isAndroid()) {
             return@runTest
         }
         val tracker = getTracker()
         launch(Dispatchers.Unconfined) {
-            tracker.trackSearch(query = "Test Unit Search 1")
+            tracker.trackSearch("Test Unit Search 1")
             delay(1.seconds)
-            tracker.trackSearch(query = "Test Unit Search 2", category = "Search Unit Test")
+            tracker.trackSearch("Test Unit Search 2")
             delay(1.seconds)
-            tracker.trackSearch(query = "Test Unit Search 3", category = "Search Unit Test", resultCount = 10)
-            waitAllEventSent(tracker)
-        }
-    }
-
-    @Test
-    fun testCampaign() = runTest(timeout = 30.seconds) {
-        if (isAndroid()) {
-            return@runTest
-        }
-        val tracker = getTracker()
-        launch(Dispatchers.Unconfined) {
-            tracker.trackCampaign(name = "Test-Unit-kmp", keyword = "kmp")
-            tracker.trackView(listOf("url_test_unit"))
-            waitAllEventSent(tracker)
-        }
-    }
-
-    @Test
-    fun testInteraction() = runTest(timeout = 30.seconds) {
-        if (isAndroid()) {
-            return@runTest
-        }
-        val tracker = getTracker()
-        launch(Dispatchers.Unconfined) {
-        tracker.trackContentInteraction(
-            name = "Test Unit interact1",
-            interaction = "SendSimpleAction",
-            piece = "extra",
-            target = "Backend",
-        )
-        waitAllEventSent(tracker)
-            }
-    }
-
-    @Test
-    fun testImpression() = runTest(timeout = 30.seconds) {
-        if (isAndroid()) {
-            return@runTest
-        }
-        val tracker = getTracker()
-        launch(Dispatchers.Unconfined) {
-            tracker.trackContentImpression(
-                name = "Test Unit Impression",
-                piece = "extra print",
-                target = "Backend print",
-            )
-            waitAllEventSent(tracker)
-        }
-    }
-
-    @Test
-    fun testOrder() = runTest(timeout = 30.seconds) {
-        if (isAndroid()) {
-            return@runTest
-        }
-        val tracker = getTracker()
-        launch(Dispatchers.Unconfined) {
-            /* val items =
-             listOf(
-                 OrderItem(
-                     sku = "SKU-001",
-                     name = "Running Shoes",
-                     category = "Shoes",
-                     price = 89.99,
-                     quantity = 1,
-                 ),
-                 OrderItem(
-                     sku = "SKU-002",
-                     name = "Socks",
-                     category = "Accessories",
-                     price = 9.99,
-                     quantity = 2,
-                 ),
-             )
-         tracker.trackOrder(
-             id = "ORDER-${Uuid.random().toHexString()}",
-             items = items,
-             revenue = 109.97, // if not set, you can also provide orderRevenue via optional params
-             subTotal = 99.97,
-             tax = 5.00,
-             shippingCost = 5.00,
-             discount = 0.0,
-         )*/
+            tracker.trackSearch("Test Unit Search 3")
             waitAllEventSent(tracker)
         }
     }
