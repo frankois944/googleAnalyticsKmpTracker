@@ -12,6 +12,6 @@ internal object UuidGenerator {
 
     fun nextUuid(): String =
         Random
-            .nextBytes(8)
+            .nextBytes(16)
             .joinToString("") { it.toHex() }
 }

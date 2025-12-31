@@ -1,67 +1,34 @@
 CREATE TABLE trackingCache (
     uuid TEXT PRIMARY KEY NOT NULL,
-    scope TEXT NOT NULL,
-    timestamp INTEGER NOT NULL,
-    nanosecond INTEGER NOT NULL,
-    siteId INTEGER NOT NULL,
-    visitor TEXT,
-    isCustomAction INTEGER NOT NULL,
-    date INTEGER NOT NULL,
-    url TEXT,
-    actionName BLOB NOT NULL,
-    language TEXT,
-    isNewSession INTEGER NOT NULL,
-    referer TEXT,
-    screenResolution TEXT NOT NULL,
-    eventCategory TEXT,
-    eventAction TEXT,
-    eventName TEXT,
-    eventValue REAL,
-    campaignName TEXT,
-    campaignKeyword TEXT,
-    searchQuery TEXT,
-    searchCategory TEXT,
-    searchResultsCount INTEGER,
-    dimensions BLOB NOT NULL,
-    customTrackingParameters BLOB NOT NULL,
-    contentName TEXT,
-    contentPiece TEXT,
-    contentTarget TEXT,
-    contentInteraction TEXT,
-    goalId INTEGER,
-    revenue REAL,
-    orderId TEXT,
-    orderItems BLOB NOT NULL,
-    orderRevenue REAL,
-    orderSubTotal REAL,
-    orderTax REAL,
-    orderShippingCost REAL,
-    orderDiscount REAL,
-    isPing INTEGER NOT NULL
+    measurementId TEXT NOT NULL,
+    eventDateInMs INTEGER NOT NULL,
+    event BLOB NOT NULL
 );
 
 CREATE INDEX trackingCache_key ON trackingCache(uuid);
 
 insertUuid:
-INSERT OR REPLACE INTO trackingCache (uuid, scope, timestamp, nanosecond, siteId, visitor, isCustomAction, date, url, actionName, language, isNewSession, referer, screenResolution, eventCategory, eventAction, eventName, eventValue, campaignName, campaignKeyword, searchQuery, searchCategory, searchResultsCount, dimensions, customTrackingParameters, contentName, contentPiece, contentTarget, contentInteraction, goalId, revenue, orderId, orderItems, orderRevenue, orderSubTotal, orderTax, orderShippingCost, orderDiscount, isPing)
-VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+INSERT OR REPLACE INTO trackingCache (uuid, measurementId, eventDateInMs, event)
+VALUES (?, ?, ?,  ?);
 
 deleteUuid:
 DELETE FROM trackingCache WHERE uuid = ?;
 
 deleteUuids:
-DELETE FROM trackingCache WHERE uuid IN ? AND scope = ?;
+DELETE FROM trackingCache WHERE uuid IN ?;
 
 deleteAll:
-DELETE FROM trackingCache WHERE scope = ?;
+DELETE FROM trackingCache;
+
+deleteExpiredEvent:
+DELETE FROM trackingCache WHERE eventDateInMs <= ?;
 
 selectUuid:
-SELECT * FROM trackingCache WHERE uuid = ? AND scope = ?;
+SELECT * FROM trackingCache WHERE uuid = ? AND measurementId = ?;
 
 selectWithLimit:
 SELECT * FROM trackingCache
-WHERE scope = ?
-ORDER BY timestamp, nanosecond ASC
+ORDER BY eventDateInMs ASC
 LIMIT ?;
 
 selectUuids:
@@ -71,6 +38,5 @@ selectAll:
 SELECT * FROM trackingCache;
 
 count:
-SELECT COUNT(*) FROM trackingCache
-WHERE scope = ?;
+SELECT COUNT(*) FROM trackingCache;
 

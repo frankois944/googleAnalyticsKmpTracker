@@ -29,13 +29,13 @@ internal class UserPreferences(
 
     suspend fun clientId(): String? =
         database.persistingPreferenceQueries
-            .selectPreference("clientId", scope)
+            .selectPreference("setClientId", scope)
             .awaitAsOneOrNull()
             ?.value_
 
     suspend fun setClientId(value: String?) {
         database.persistingPreferenceQueries
-            .insertPreference("clientId", value, scope)
+            .insertPreference("setClientId", value, scope)
     }
 // </editor-fold>
 

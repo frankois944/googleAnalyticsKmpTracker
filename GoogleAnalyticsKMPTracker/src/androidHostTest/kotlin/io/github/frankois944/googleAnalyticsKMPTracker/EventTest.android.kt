@@ -15,7 +15,6 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
-import kotlin.test.assertEquals
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
@@ -24,8 +23,6 @@ actual fun isAndroid(): Boolean = true
 @RunWith(RobolectricTestRunner::class)
 class EventTestAndroid {
     private val mainThreadSurrogate = StandardTestDispatcher()
-
-    private val siteId = 6
 
     @BeforeTest
     fun setUp() {
@@ -38,26 +35,14 @@ class EventTestAndroid {
     }
 
     suspend fun waitAllEventSent(tracker: Tracker) {
-        val maxSeconds = 20
-        var currentSecond = 0
         delay(1.seconds)
         while (tracker.queue!!.first(10).isNotEmpty()) {
             delay(1.seconds)
-            val currentEvent = tracker.queue!!.first(10)
-            if (currentSecond > maxSeconds && currentEvent.isNotEmpty()) {
-                assertEquals(
-                    emptyList(),
-                    currentEvent,
-                    "The queue is not empty after $maxSeconds seconds",
-                )
-            }
-            currentSecond++
         }
     }
 
     @kotlin.test.Test
-    fun testPageView() =
-        runTest {
+    fun testPageView() = runTest(timeout = 30.seconds) {
             launch(Dispatchers.IO) {
                 /*val queuedEvents = mutableListOf<Event>()
 
@@ -82,12 +67,14 @@ class EventTestAndroid {
                 val tracker =
                     Tracker
                         .create(
-                            url = "https://matomo.spmforkmp.eu/matomo.php",
-                            siteId = siteId,
+                            apiSecret = apiSecret,
+                            measurementId = measurementId,
+                            url = "https://www.google-analytics.com/mp/collect",
                             context = ApplicationProvider.getApplicationContext(),
-                            //   customQueue = queue,
+                            // For request validation only
+                            //url = "https://www.google-analytics.com/debug/mp/collect"
                         ).also {
-                            it.logger = DefaultMatomoTrackerLogger(minLevel = LogLevel.Verbose)
+                            it.logger = DefaultGATrackerLogger(minLevel = LogLevel.Verbose)
                         }
                 val nbVisit = 3
                 for (i in 1..nbVisit) {

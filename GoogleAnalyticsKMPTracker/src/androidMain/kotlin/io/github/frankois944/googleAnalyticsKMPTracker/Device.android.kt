@@ -3,6 +3,8 @@
 package io.github.frankois944.googleAnalyticsKMPTracker
 
 import android.content.Context
+import android.content.pm.PackageManager
+import android.content.res.Configuration
 import android.os.Build
 import android.util.DisplayMetrics
 import android.view.Display
@@ -21,9 +23,10 @@ internal actual object Device {
         } ?: Size(0, 0)
     actual val nativeScreenSize: Size? = null
     actual val softwareId: String? = null
-    actual val language: String? = Locale.getDefault().language + "-" + Locale.getDefault().country
+    actual val language: String?
+        get() = Locale.getDefault().language + "-" + Locale.getDefault().country
 
-    actual val actionUrl: String? = context?.get()?.packageName
+    actual val identifier: String? = context?.get()?.packageName
 
     fun getResolution(): IntArray? {
         context?.get()?.apply {
@@ -56,4 +59,30 @@ internal actual object Device {
         }
         return null
     }
+
+    actual val category: String
+        get() {
+            context?.get()?.apply {
+                val packageManager = this.packageManager
+                // Check for Android TV
+                if (packageManager.hasSystemFeature(PackageManager.FEATURE_LEANBACK)) {
+                    return "smart TV"
+                }
+
+                // Check for Wear OS (smartwatch)
+                val config: Configuration = resources.configuration
+                val isWatch = (config.uiMode and Configuration.UI_MODE_TYPE_MASK) == Configuration.UI_MODE_TYPE_WATCH
+                if (packageManager.hasSystemFeature(PackageManager.FEATURE_WATCH) || isWatch) {
+                    return "smart Watch"
+                }
+                // Default to mobile for phones and tablets
+                return "mobile"
+            }
+            // Fallback if context is null
+            return "mobile"
+        }
+    actual val browser: String? = operatingSystem
+    actual val browserVersion: String? = null
+    actual val currentUserAgent: String? = null
+    actual val brand: String = Build.BRAND
 }

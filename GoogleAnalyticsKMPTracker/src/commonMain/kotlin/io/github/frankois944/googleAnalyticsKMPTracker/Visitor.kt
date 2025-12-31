@@ -4,19 +4,20 @@ package io.github.frankois944.googleAnalyticsKMPTracker
 
 import io.github.frankois944.googleAnalyticsKMPTracker.core.Visitor
 import io.github.frankois944.googleAnalyticsKMPTracker.preferences.UserPreferences
-import io.github.frankois944.googleAnalyticsKMPTracker.utils.UuidGenerator
+import kotlin.random.Random
 import kotlin.uuid.ExperimentalUuidApi
 
 internal suspend fun Visitor.Companion.current(userPreferences: UserPreferences): Visitor {
-    var id = userPreferences.clientId()
-    if (id.isNullOrEmpty()) {
-        id =
-            newVisitorID().also {
+    var clientID = userPreferences.clientId()
+    if (clientID.isNullOrEmpty()) {
+        clientID =
+            newClientId().also {
                 userPreferences.setClientId(it)
             }
     }
     val userId = userPreferences.userId()
-    return Visitor(id = id, userId = userId)
+    return Visitor(clientId = clientID, userId = userId)
 }
 
-private fun Visitor.Companion.newVisitorID(): String = UuidGenerator.nextUuid()
+private fun Visitor.Companion.newClientId(): String =
+    "${Random.nextInt(1, Int.MAX_VALUE)}.${Random.nextInt(1, Int.MAX_VALUE)}"

@@ -10,14 +10,14 @@ public enum class LogLevel(
     Error(50),
 }
 
-public interface MatomoTrackerLogger {
+public interface GATrackerLogger {
     public fun log(
         message: String,
         level: LogLevel,
     )
 }
 
-public class DisabledLogger : MatomoTrackerLogger {
+public class DisabledLogger : GATrackerLogger {
     override fun log(
         message: String,
         level: LogLevel,
@@ -27,9 +27,9 @@ public class DisabledLogger : MatomoTrackerLogger {
 }
 
 // / This Logger logs every message to the console with a `println` statement.
-public class DefaultMatomoTrackerLogger(
+public class DefaultGATrackerLogger(
     private var minLevel: LogLevel,
-) : MatomoTrackerLogger {
+) : GATrackerLogger {
     override fun log(
         message: String,
         level: LogLevel,
