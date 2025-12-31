@@ -5,11 +5,7 @@ package io.github.frankois944.googleAnalyticsKMPTracker
 import io.github.frankois944.googleAnalyticsKMPTracker.core.Event
 import io.github.frankois944.googleAnalyticsKMPTracker.core.UserProperty
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
-import kotlinx.serialization.json.buildJsonObject
-import kotlinx.serialization.json.jsonObject
-import kotlinx.serialization.json.put
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 import kotlin.uuid.ExperimentalUuidApi
@@ -36,6 +32,27 @@ internal fun Event.Companion.create(
     params: Map<String, JsonPrimitive> = emptyMap(),
     properties: List<UserProperty> = emptyList(),
 ): Event {
+    for ((name, value) in params) {
+        require(name.length <= 40) {
+            "Parameter name \"$name\" must be 40 characters or fewer, got ${name.length}"
+        }
+        require(name.isNotEmpty() && name.first().isLetter()) {
+            "Parameter name \"$name\" must start with an alphabetic character"
+        }
+        require(name.all { it.isLetterOrDigit() || it == '_' }) {
+            "Parameter name \"$name\" can only contain alphanumeric characters and underscores"
+        }
+        require(value.content.length <= 100) {
+            "Event value \"$value\" must be 100 characters or fewer, got ${value.content.length}"
+        }
+    }
+    require(eventName.length <= 40) { "Event name \"$eventName\" must be 40 characters or fewer, got ${eventName.length}" }
+    require(eventName.isNotEmpty() && eventName.first().isLetter()) {
+        "Event name \"$eventName\" must start with an alphabetic character"
+    }
+    require(eventName.all { it.isLetterOrDigit() || it == '_' }) {
+        "Event name \"$eventName\" can only contain alphanumeric characters and underscores"
+    }
     return Event(
         dateCreatedInMs = Clock.System.now().toEpochMilliseconds(),
         uuid = Uuid.random().toHexString(),

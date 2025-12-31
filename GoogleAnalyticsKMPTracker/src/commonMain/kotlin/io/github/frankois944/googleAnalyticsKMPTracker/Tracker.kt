@@ -129,17 +129,17 @@ public class Tracker private constructor(
         if (items.isNullOrEmpty()) {
             logger.log("No events to dispatch", LogLevel.Verbose)
         } else {
-       //     items.forEach { item ->
-                logger.log("Sending event ${items.joinToString { it.uuid }}", LogLevel.Verbose)
-                try {
-                    // bulk or not build ??
-                    dispatcher.sendBulkEvent(items)
-                    logger.log("remove events ${items.joinToString { it.uuid }}", LogLevel.Verbose)
-                    queue?.remove(items)
-                } catch (e: Exception) {
-                    logger.log("Error while dispatching events: $e", LogLevel.Error)
-                }
+            //     items.forEach { item ->
+            logger.log("Sending event ${items.joinToString { it.uuid }}", LogLevel.Verbose)
+            try {
+                // bulk or not build ??
+                dispatcher.sendBulkEvent(items)
+                logger.log("remove events ${items.joinToString { it.uuid }}", LogLevel.Verbose)
+                queue?.remove(items)
+            } catch (e: Exception) {
+                logger.log("Error while dispatching events: $e", LogLevel.Error)
             }
+        }
         //}
     }
 
@@ -286,17 +286,23 @@ public class Tracker private constructor(
 // <editor-fold desc="Track actions">
 
     /**
-     * Tracks a screenview.
+     * Tracks a page view event for the specified screen.
      *
-     * This method can be used to track hierarchical screen names, e.g. screen/settings/register. Use this to create a hierarchical and logical grouping of screen views in the Matomo web interface.
+     * @param viewName The name of the screen being viewed. This is used as the page title in the tracking data.
+     */
+    public fun trackView(
+        viewName: String,
+    ) {
+        trackView(listOf(viewName))
+    }
+    /**
+     * Tracks a page view event for the specified screen.
      *
-     * @param view An array of hierarchical screen names.
-     * @param url The optional url of the page that was viewed.
-     * @param properties An optional array of dimensions, that will be set only in the scope of this view.
+     * @param view A list of hierarchical screen names. The last element is used as the page title,
+     * and all elements are joined with '/' to form the page location.
      */
     public fun trackView(
         view: List<String>,
-        properties: List<UserProperty> = emptyList(),
     ) {
         track(
             Event.create(
@@ -306,34 +312,43 @@ public class Tracker private constructor(
                     put("page_title", JsonPrimitive(view.last()))
                     put("page_location", JsonPrimitive(view.joinToString("/")))
                 },
-                properties = properties,
             ),
         )
     }
 
     /**
-     * Tracks an event as described here: https://matomo.org/docs/event-tracking/
+     * Tracks a custom event with optional parameters. This method allows the creation
+     * and dispatch of an event with the specified name and attributes.
      *
-     * @param category The Category of the Event
-     * @param action The Action of the Event
-     * @param name The optional name of the Event
-     * @param value The optional value of the Event
-     * @param dimensions An optional array of dimensions, that will be set only in the scope of this event.
-     * @param url The optional url of the page that was viewed.
+     * @param name The name of the event to be tracked.
+     * @param parameters A map of key-value pairs representing additional parameters
+     * for the event. Accepted value types include String, Int, Double, Boolean, Long,
+     * and Float. If the value does not match any of these types, it will be
+     * converted to a string. Can be null.
      */
-    public fun trackEventWithCategory(
-        category: String,
-        action: String,
-        name: String? = null,
-        value: Double? = null,
-        dimensions: List<UserProperty> = emptyList(),
-        url: String? = null,
+    public fun trackEvent(
+        name: String,
+        parameters: Map<String, Any>? = null,
     ) {
         track(
             Event.create(
                 tracker = this,
-                eventName = category,
-                params = mapOf(),
+                eventName = name,
+                params = buildMap {
+                    parameters?.let {
+                        for ((key, value) in parameters) {
+                            when (value) {
+                                is String -> put(key, JsonPrimitive(value))
+                                is Int -> put(key, JsonPrimitive(value))
+                                is Double -> put(key, JsonPrimitive(value))
+                                is Boolean -> put(key, JsonPrimitive(value))
+                                is Long -> put(key, JsonPrimitive(value))
+                                is Float -> put(key, JsonPrimitive(value))
+                                else -> put(key, JsonPrimitive(value.toString()))
+                            }
+                        }
+                    }
+                }
             ),
         )
     }
@@ -446,6 +461,7 @@ public class Tracker private constructor(
     public fun startNewSession() {
         logger.log("start New Session", LogLevel.Info)
         sessionId = Clock.System.now().epochSeconds
+        lastEventDate = Clock.System.now()
     }
 
     /**
@@ -455,7 +471,7 @@ public class Tracker private constructor(
      */
     public fun reset() {
         coroutine.launch {
-            logger.log("Reset Session firebaseAppId: $measurementId", LogLevel.Debug)
+            logger.log("Reset Session measurementId: $measurementId", LogLevel.Debug)
             userPreferences.reset()
             userProperties.removeAll { true }
             startNewSession()
