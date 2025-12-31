@@ -1,332 +1,88 @@
-# Matomo KMP Tracker
+# Google Analytics KMP Tracker
 
-[![Maven Central Version](https://img.shields.io/maven-central/v/io.github.frankois944/matomoKMPTracker)](https://central.sonatype.com/artifact/io.github.frankois944/matomoKMPTracker)
-[![GitHub License](https://img.shields.io/github/license/frankois944/matomoKMPTracker)](https://github.com/frankois944/spm4Kmp/blob/main/LICENSE)
+A Kotlin Multiplatform library for Google Analytics (GA4) that supports all major targets (Android, iOS, Desktop, Web, macOS, tvOS, watchos). This library uses the Measurement Protocol (v2) to send events directly to Google Analytics from your shared code.
 
+## Features
 
-A lightweight, Kotlin Multiplatform (KMP) client tracker for [Matomo](https://matomo.org/). It lets you track page views, events, goals, on‑site search, content interactions, and e‑commerce across Android, iOS, tvOS, watchOS, macOS, Desktop (JVM), JavaScript, and WASM from one shared Kotlin codebase.
-
-- Persisted offline queue (SQLDelight) with automatic retries
-- Heartbeat pings to keep long visits alive
-- Custom dimensions, campaign parameters, and user identification
-- Pluggable dispatcher and queue backends
-
-
-## Supported targets
-
-- Android
-- iOS, tvOS, watchOS (Darwin)
-- macOS (Arm64, x64)
-- Desktop (JVM)
-- JavaScript (Browser)
-- WASM (Browser)
-
-
-## Requirements
-
-- At least Kotlin 2.2.0 
-- A running Matomo instance (cloud/self-hosted) and a site configured with a `siteId`
+- **Multiplatform Support**: Android, iOS, Desktop (JVM), Web (JS/Wasm), macOS, tvOS, watchos.
+- **Persistence**: Events are queued and persisted (using SQLDelight) to ensure delivery even if the app is offline or closed.
+- **Session Management**: Automatic session handling and heartbeat.
+- **Customizable**: Custom dispatchers and queues can be provided.
+- **Easy Integration**: Simple API for tracking views, events, and user properties.
 
 ## Installation
 
-Add the dependency to your KMP project.
-
 ```kotlin
-// build.gradle.kts (module)
-dependencies {
-    implementation("io.github.frankois944:matomoKMPTracker:<latest-version>")
-}
-```
-
-Replace `<latest-version>` with the latest version published on Maven Central [![Maven Central Version](https://img.shields.io/maven-central/v/io.github.frankois944/matomoKMPTracker)](https://central.sonatype.com/artifact/io.github.frankois944/matomoKMPTracker).
-
-### Apple targets
-
-The Apple platform requires **sqlite** to be linked to your application
-
-### WASM / JS targets
-
-Some additional configuration need to be done : 
-
-```kotlin
-// {project}/build.gradle.kts
-wasmJsMain.dependencies {
-    implementation(devNpm("copy-webpack-plugin", "9.1.0"))
-}
-// OR
-jsMain.dependencies {
-    implementation(devNpm("copy-webpack-plugin", "9.1.0"))
-}
-```
-
-```js
-// {project}/webpack.config.d/sqljs.js
-config.resolve = {
-    fallback: {
-        fs: false,
-        path: false,
-        crypto: false,
+// build.gradle.kts
+commonMain {
+    dependencies {
+        implementation("io.github.frankois944:googleAnalyticsKMPTracker:LATEST_VERSION")
     }
-};
-
-const CopyWebpackPlugin = require('copy-webpack-plugin');
-config.plugins.push(
-    new CopyWebpackPlugin({
-        patterns: [
-            '../../node_modules/sql.js/dist/sql-wasm.wasm'
-        ]
-    })
-);
-```
-
-
-### Sample
-
-[A full sample is available](https://github.com/frankois944/matomoKMPTracker/tree/main/sample)
-
-## Quick start
-
-Create a `Tracker` and send a few page views. The tracker automatically batches and dispatches events in the background.
-
-```kotlin
-import io.github.frankois944.googleAnalyticsKMPTracker.Tracker
-
-suspend fun setupAndTrack() {
-    val tracker = Tracker.create(
-        url = "https://your.matomo.tld/matomo.php",
-        siteId = 1,
-        // Android only: pass an Android Context
-        // context = applicationContext,
-        // Optional:
-        // tokenAuth = "<32-char-token>",
-        // customActionHostUrl = "app.example", // used to build action URLs when no explicit URL is provided
-        // customUserAgent = "MyApp/1.0 (KMP)",
-    )
-
-    // Page view with hierarchical path
-    tracker.trackView(listOf("Home", "Details"))
 }
 ```
-
-Android-specific creation (Context is mandatory on Android):
-
-```kotlin
-val tracker = Tracker.create(
-    url = "https://your.matomo.tld/matomo.php",
-    siteId = 1,
-    context = applicationContext,
-)
-```
-
 
 ## Usage
 
-### Page views
-```kotlin
-tracker.startNewSession() // optional: begin a new visit
-tracker.trackView(listOf("index1"))
-tracker.trackView(listOf("Products", "Shoes", "Running"))
-```
+### 1. Initialization
 
-You can provide a full URL yourself if needed:
-```kotlin
-tracker.trackView(
-    view = listOf("Products", "Shoes"),
-    url = "https://my.app/products/shoes"
-)
-```
+Initialize the tracker in your shared code. On Android, a `Context` is required for disk persistence and device info.
 
-### Events
-```kotlin
-tracker.trackEventWithCategory(
-    category = "Video",
-    action = "Play",
-    name = "Trailer",
-    value = 1f,
-)
-```
+#### Requirement
 
-### Goals
-```kotlin
-tracker.trackGoal(goalId = 1, revenue = 42.0f)
-```
-
-### On‑site search
-```kotlin
-tracker.trackSearch(query = "Test Unit")
-tracker.trackSearch(query = "Headphones", category = "Electronics")
-tracker.trackSearch(query = "Headphones", category = "Electronics", resultCount = 10)
-```
-
-### Campaigns
-```kotlin
-// Set once, applies to subsequent events
-tracker.trackCampaign(name = "spring_sale", keyword = "newsletter")
-// Then track an action
-tracker.trackView(listOf("Landing"))
-```
-
-### Content tracking
-```kotlin
-// Impression
-tracker.trackContentImpression(
-    name = "Homepage Banner",
-    piece = "banner.jpg",
-    target = "https://my.app/offers"
-)
-
-// Interaction
-tracker.trackContentInteraction(
-    name = "Homepage Banner",
-    interaction = "click",
-    piece = "banner.jpg",
-    target = "https://my.app/offers"
-)
-```
-
-### E‑commerce
-```kotlin
-import io.github.frankois944.googleAnalyticsKMPTracker.OrderItem
-
-val items = listOf(
-    OrderItem(
-        sku = "SKU-001",
-        name = "Running Shoes",
-        category = "Shoes",
-        price = 89.99f,
-        quantity = 1f,
-    ),
-    OrderItem(
-        sku = "SKU-002",
-        name = "Socks",
-        category = "Accessories",
-        price = 9.99f,
-        quantity = 2f,
-    ),
-)
-
-tracker.trackOrder(
-    id = "ORDER-123",
-    items = items,
-    revenue = 109.97f, // if not set, you can also provide orderRevenue via optional params
-    subTotal = 99.97f,
-    tax = 5.00f,
-    shippingCost = 5.00f,
-    discount = 0.0f,
-)
-```
-
-### Custom dimensions
-Set global dimensions that will apply to all subsequent events:
-```kotlin
-tracker.setDimension(value = "premium", forIndex = 1)
-tracker.setDimension(value = "ab-test-A", forIndex = 2)
-```
-
-Remove a dimension:
-```kotlin
-tracker.removeDimension(atIndex = 2)
-```
-
-Provide per‑event dimensions:
-```kotlin
-import io.github.frankois944.googleAnalyticsKMPTracker.CustomDimension
-
-tracker.trackView(
-    view = listOf("Catalog"),
-    dimensions = listOf(
-        CustomDimension(index = 3, value = "kiosk-mode"),
-    ),
-)
-```
-
-### User identification
-```kotlin
-// Set a persistent user ID (e.g., username or hashed email)
-tracker.setUserId("user_123")
-
-// Later you can query it:
-val currentUserId = tracker.userId()
-```
-
-### Sessions
-```kotlin
-// Start a new session (visit) — next event will mark a new visit in Matomo
-tracker.startNewSession()
-```
-
-### Opt‑out
-```kotlin
-// Respect user privacy preferences
-tracker.setOptOut(true)  // events will be discarded while opted out
-val isOptedOut = tracker.isOptedOut()
-```
-
-### Heartbeat
-Heartbeat keeps a visit active by sending pings automatically.
-```kotlin
-// Enable or disable heartbeat; the preference is persisted
-tracker.setIsHeartBeat(true)
-val enabled = tracker.isHeartBeatEnabled()
-```
-
-
-## Advanced configuration
-
-### Custom action host
-When you do not pass a full URL to track calls, the library builds one for you. You can control the base host:
+* **api_secret** :  Found under Admin > Data Streams > Choose your stream > Measurement Protocol > Create.
+                Private to your organization. Should be regularly updated to avoid excessive SPAM.
+* **measurementId** : Found in the Google Analytics UI under Admin > Data Streams > choose your stream > Measurement ID. Measurement ID. The identifier for a Data Stream.
 
 ```kotlin
 val tracker = Tracker.create(
-    url = "https://your.matomo.tld/matomo.php",
-    siteId = 1,
-    customActionHostUrl = "app.example", // results in http://app.example/<your-action>
+    apiSecret = "YOUR_API_SECRET",
+    measurementId = "G-XXXXXXXXXX",
+    context = androidContext // Mandatory for Android, null otherwise
 )
 ```
 
-Platform defaults for `customActionHostUrl`:
-- Android/iOS/Apple: defaults to application/package identifier
-- WASM/JS: defaults to the browser hostname
-- Desktop (JVM): no default — it is recommended to provide a value
+### 2. Tracking Events
 
-### Custom user agent
+You can track custom events with parameters:
+
 ```kotlin
-val tracker = Tracker.create(
-    url = "https://your.matomo.tld/matomo.php",
-    siteId = 1,
-    customUserAgent = "MyApp/1.0 (KMP)"
+tracker.trackEvent(
+    name = "button_click",
+    parameters = mapOf(
+        "button_id" to "login_submit",
+        "screen_name" to "LoginScreen"
+    )
 )
 ```
 
-### Custom dispatcher or queue
-Provide your own HTTP dispatcher or queue implementation if you need custom transport or storage.
+### 3. Tracking Page Views
+
+Track screen transitions easily:
 
 ```kotlin
-import io.github.frankois944.googleAnalyticsKMPTracker.dispatcher.Dispatcher
-import io.github.frankois944.googleAnalyticsKMPTracker.queue.Queue
+// Simple view tracking
+tracker.trackView("HomeScreen")
 
-val tracker = Tracker.create(
-    url = "https://your.matomo.tld/matomo.php",
-    siteId = 1,
-    customDispatcher = myDispatcher, // implements Dispatcher
-    customQueue = myQueue          // implements Queue
-)
+// Tracking nested navigation paths
+tracker.trackView(listOf("Main", "Settings", "Profile"))
 ```
 
-## Logging
-
-You can customize logging. The default logger is verbose for development.
+### 4. Tracking Search
 
 ```kotlin
-import io.github.frankois944.googleAnalyticsKMPTracker.MatomoTrackerLogger
-import io.github.frankois944.googleAnalyticsKMPTracker.DefaultMatomoTrackerLogger
-import io.github.frankois944.googleAnalyticsKMPTracker.LogLevel
-
-val tracker = Tracker.create(url = "https://…/matomo.php", siteId = 1)
-tracker.logger = DefaultMatomoTrackerLogger(minLevel = LogLevel.Info)
+tracker.trackSearch("Kotlin Multiplatform")
 ```
 
+### 5. User Properties and User ID
+
+```kotlin
+// Set unique user ID
+tracker.setUserId("user_123456")
+
+// Set custom user properties
+tracker.setUserProperty("membership_level", "premium")
+```
 
 ## License
 
-MIT 2025 © François Dabonot
+This project is licensed under the Apache License 2.0.
