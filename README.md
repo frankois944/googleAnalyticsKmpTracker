@@ -6,9 +6,6 @@ A Kotlin Multiplatform library for Google Analytics (GA4) that supports all majo
 
 - **Multiplatform Support**: Android, iOS, Desktop (JVM), Web (JS/Wasm), macOS, tvOS, watchos.
 - **Persistence**: Events are queued and persisted (using SQLDelight) to ensure delivery even if the app is offline or closed.
-- **Session Management**: Automatic session handling and heartbeat.
-- **Customizable**: Custom dispatchers and queues can be provided.
-- **Easy Integration**: Simple API for tracking views, events, and user properties.
 
 ## Installation
 
