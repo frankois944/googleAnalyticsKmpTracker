@@ -3,7 +3,6 @@
 
 package io.github.frankois944.googleAnalyticsKMPTracker
 
-import io.github.frankois944.googleAnalyticsKMPTracker.core.Size
 
 internal actual object Device {
     actual val model: String

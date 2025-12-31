@@ -2,7 +2,6 @@
 
 package io.github.frankois944.googleAnalyticsKMPTracker
 
-import io.github.frankois944.googleAnalyticsKMPTracker.core.Size
 import oshi.SystemInfo
 import java.awt.GraphicsDevice
 import java.awt.GraphicsEnvironment

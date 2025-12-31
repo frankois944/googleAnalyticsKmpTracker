@@ -6,17 +6,16 @@ import app.cash.sqldelight.async.coroutines.synchronous
 import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
 import io.github.frankois944.googleAnalyticsKMPTracker.schema.CacheDatabase
-import okio.FileSystem
 import java.util.Properties
 
 public actual class DriverFactory {
     public actual suspend fun createDriver(
         dbName: String,
         dbVersion: Int,
-    ): SqlDriver =
-        JdbcSqliteDriver(
-            "jdbc:sqlite:${FileSystem.SYSTEM_TEMPORARY_DIRECTORY}/$dbName-googleAnalytics-kmp-tracker-$dbVersion.db",
-            Properties(),
-            CacheDatabase.Schema.synchronous(),
-        )
+    ): SqlDriver = JdbcSqliteDriver(JdbcSqliteDriver.IN_MEMORY, Properties(), CacheDatabase.Schema.synchronous())
+    /*        JdbcSqliteDriver(
+                "jdbc:sqlite:${FileSystem.SYSTEM_TEMPORARY_DIRECTORY}/$dbName-googleAnalytics-kmp-tracker-$dbVersion.db",
+                Properties(),
+                CacheDatabase.Schema.synchronous(),
+            )*/
 }

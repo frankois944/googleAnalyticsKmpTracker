@@ -1,10 +1,9 @@
-@file:OptIn(ExperimentalTime::class)
-
-package io.github.frankois944.googleAnalyticsKMPTracker.dispatcher
+package io.github.frankois944.googleAnalyticsKMPTracker.dispatcher.http
 
 import io.github.frankois944.googleAnalyticsKMPTracker.UserAgentProvider
 import io.github.frankois944.googleAnalyticsKMPTracker.core.Event
-import io.github.frankois944.googleAnalyticsKMPTracker.getGABody
+import io.github.frankois944.googleAnalyticsKMPTracker.dispatcher.Dispatcher
+import io.github.frankois944.googleAnalyticsKMPTracker.dispatcher.getGaBody
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.DefaultRequest
 import io.ktor.client.plugins.HttpTimeout
@@ -25,9 +24,7 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.isSuccess
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
-import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
-import kotlin.time.ExperimentalTime
 
 internal class HttpClientDispatcher(
     override val baseURL: String,
@@ -44,7 +41,7 @@ internal class HttpClientDispatcher(
                     explicitNulls = false
                 })
             }
-            install(DefaultRequest)
+            install(DefaultRequest.Plugin)
             install(ContentEncoding) {
                 deflate()
                 gzip()
@@ -71,23 +68,22 @@ internal class HttpClientDispatcher(
             }
         }
 
-    val hearthBeatClient: HttpClient =
-        client.config {
-            install(HttpTimeout) {
-                requestTimeoutMillis = 500.milliseconds.inWholeMilliseconds
-            }
-        }
 
     @Throws(Throwable::class, IllegalArgumentException::class)
     override suspend fun sendBulkEvent(events: List<Event>) {
         client
             .post {
-                setBody(BulkRequest.create(events))
+                url {
+                    parameters.append("measurement_id", events.first().measurementId)
+                    parameters.append("api_secret", apiSecret)
+                }
+                setBody(
+                    events.getGaBody()
+                )
             }.handleResponse()
     }
 
     override suspend fun sendSingleEvent(event: Event) {
-        val client = if (event.isPing) hearthBeatClient else client
         client
             .post {
                 url {
@@ -95,28 +91,22 @@ internal class HttpClientDispatcher(
                     parameters.append("api_secret", apiSecret)
                 }
                 setBody(
-                    event.getGABody
+                    event.getGaBody()
                 )
-    }.handleResponse()
-}
+            }.handleResponse()
+    }
 
-private suspend fun HttpResponse.handleResponse() {
-    if (!this.status.isSuccess()) {
-        val message =
-            """
+    private suspend fun HttpResponse.handleResponse() {
+        if (!this.status.isSuccess()) {
+            val message =
+                """
 Send event failed with status 
 code: ${this.status.value}
 body: ${this.bodyAsText()}
                 """.trimIndent()
-        if (this.status.value >= 400) {
-            throw IllegalArgumentException(
-                message,
-            )
-        } else {
             throw Throwable(
                 message,
             )
         }
     }
-}
 }

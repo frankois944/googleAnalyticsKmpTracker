@@ -59,6 +59,7 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             implementation(libs.kotlinx.serialization.cbor)
+            implementation(libs.kotlinx.serialization.json)
         }
     }
 }

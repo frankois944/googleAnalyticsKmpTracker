@@ -2,8 +2,10 @@
 
 package io.github.frankois944.googleAnalyticsKMPTracker.core
 
+import kotlinx.serialization.Serializable
 import kotlin.uuid.ExperimentalUuidApi
 
+@Serializable
 public class Visitor(
     /**
      * Required. Unique identifier for a specific installation of a Firebase app.
@@ -14,6 +16,4 @@ public class Visitor(
      * identifier. Can include only utf-8 characters.
      **/
     public val userId: String?,
-) {
-    public companion object
-}
+)

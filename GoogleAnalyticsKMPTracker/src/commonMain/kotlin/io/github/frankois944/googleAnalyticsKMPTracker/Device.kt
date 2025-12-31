@@ -2,10 +2,15 @@
 
 package io.github.frankois944.googleAnalyticsKMPTracker
 
-import io.github.frankois944.googleAnalyticsKMPTracker.core.Size
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
+
+internal class Size(
+    val width: Long,
+    val height: Long,
+)
+
 
 internal expect object Device {
 
@@ -35,7 +40,7 @@ internal expect object Device {
     val brand: String
 }
 
-internal fun getGADeviceObject(language: String?, screenSize: Size) : JsonObject {
+internal fun getGADeviceJsonObject(language: String?, screenSize: Size) : JsonObject {
     return buildJsonObject {
         put("category", Device.category)
         language?.let {  put("language", it) }

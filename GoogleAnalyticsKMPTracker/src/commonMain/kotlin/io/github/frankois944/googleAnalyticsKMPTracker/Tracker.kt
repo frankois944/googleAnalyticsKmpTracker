@@ -4,9 +4,8 @@
 package io.github.frankois944.googleAnalyticsKMPTracker
 
 import io.github.frankois944.googleAnalyticsKMPTracker.context.storeContext
-import io.github.frankois944.googleAnalyticsKMPTracker.core.CustomDimension
 import io.github.frankois944.googleAnalyticsKMPTracker.core.Event
-import io.github.frankois944.googleAnalyticsKMPTracker.core.OrderItem
+import io.github.frankois944.googleAnalyticsKMPTracker.core.UserProperty
 import io.github.frankois944.googleAnalyticsKMPTracker.core.Visitor
 import io.github.frankois944.googleAnalyticsKMPTracker.core.queue.Queue
 import io.github.frankois944.googleAnalyticsKMPTracker.core.queue.enqueue
@@ -14,7 +13,7 @@ import io.github.frankois944.googleAnalyticsKMPTracker.database.factory.DriverFa
 import io.github.frankois944.googleAnalyticsKMPTracker.database.factory.createDatabase
 import io.github.frankois944.googleAnalyticsKMPTracker.database.queue.DatabaseQueue
 import io.github.frankois944.googleAnalyticsKMPTracker.dispatcher.Dispatcher
-import io.github.frankois944.googleAnalyticsKMPTracker.dispatcher.HttpClientDispatcher
+import io.github.frankois944.googleAnalyticsKMPTracker.dispatcher.http.HttpClientDispatcher
 import io.github.frankois944.googleAnalyticsKMPTracker.preferences.UserPreferences
 import io.github.frankois944.googleAnalyticsKMPTracker.utils.ConcurrentMutableList
 import io.github.frankois944.googleAnalyticsKMPTracker.utils.startTimer
@@ -24,13 +23,12 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.json.JsonPrimitive
 import kotlin.coroutines.cancellation.CancellationException
-import kotlin.random.Random
 import kotlin.time.Clock
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.ExperimentalTime
-import kotlin.time.Instant
 import kotlin.uuid.ExperimentalUuidApi
 
 @OptIn(ExperimentalTime::class)
@@ -45,15 +43,17 @@ public class Tracker private constructor(
     internal var queue: Queue? = null
     internal lateinit var userPreferences: UserPreferences
     internal lateinit var dispatcher: Dispatcher
-    internal var dimensions: ConcurrentMutableList<CustomDimension> = ConcurrentMutableList()
-    internal var campaignName: String? = null
-    internal var campaignKeyword: String? = null
-    private val numberOfEventsDispatchedAtOnce = 5L
+    internal var userProperties: ConcurrentMutableList<UserProperty> = ConcurrentMutableList()
+    private val numberOfEventsDispatchedAtOnce = 10L
     internal val coroutine = CoroutineScope(Dispatchers.Default)
     internal val dispatchInterval: Duration = 5.seconds
     private var isDispatching: Boolean = false
     private val mutex: Mutex = Mutex()
-    // private val heartbeat: HeartBeat
+    private var lastEventDate = Clock.System.now()
+
+    /**
+     * sessionId is the timestamps of the beginning of the session
+     */
     internal var sessionId: Long = Clock.System.now().epochSeconds
     internal lateinit var visitor: Visitor
 
@@ -69,7 +69,6 @@ public class Tracker private constructor(
             "An Android context must be set"
         }
         storeContext(context)
-       // heartbeat = HeartBeat(this)
     }
 
     internal suspend fun build(): Tracker {
@@ -96,9 +95,6 @@ public class Tracker private constructor(
             // Startup
             startNewSession()
             startDispatchEvents()
-           /* if (userPreferences.isHeartbeatEnabled()) {
-                heartbeat.start()
-            }*/
         }
         return this
     }
@@ -133,21 +129,18 @@ public class Tracker private constructor(
         if (items.isNullOrEmpty()) {
             logger.log("No events to dispatch", LogLevel.Verbose)
         } else {
-            items.forEach { item ->
-                logger.log("Sending event ${items.joinToString { "${it.uuid}," }}", LogLevel.Verbose)
+       //     items.forEach { item ->
+                logger.log("Sending event ${items.joinToString { it.uuid }}", LogLevel.Verbose)
                 try {
-                    dispatcher.sendSingleEvent(item)
-                    logger.log("remove events ${items.joinToString { "${it.uuid}," }}", LogLevel.Verbose)
-                    queue?.remove(listOf(item))
-                } catch (e: IllegalArgumentException) {
-                    logger.log("remove events ${items.joinToString { "${it.uuid}," }}", LogLevel.Verbose)
-                    queue?.remove(listOf(item))
-                    logger.log("Invalid request data, remove from cache: $e", LogLevel.Error)
+                    // bulk or not build ??
+                    dispatcher.sendBulkEvent(items)
+                    logger.log("remove events ${items.joinToString { it.uuid }}", LogLevel.Verbose)
+                    queue?.remove(items)
                 } catch (e: Exception) {
                     logger.log("Error while dispatching events: $e", LogLevel.Error)
                 }
             }
-        }
+        //}
     }
 
     public companion object {
@@ -184,7 +177,9 @@ public class Tracker private constructor(
         coroutine.launch(Dispatchers.Default) {
             if (isOptedOut()) return@launch
             logger.log("Queued event: ${event.uuid}", LogLevel.Verbose)
+            event.lastEventTimeStampInMs = lastEventDate.toEpochMilliseconds()
             this@Tracker.queue?.enqueue(event)
+            lastEventDate = Clock.System.now()
         }
     }
 
@@ -204,21 +199,6 @@ public class Tracker private constructor(
      * Get the heartbeat tracking state for the user.
      */
     public suspend fun isHeartBeatEnabled(): Boolean = userPreferences.isHeartbeatEnabled()
-
-    /**
-     * Updates the heartbeat tracking state for the user.
-     * When the heartbeat is enabled or disabled, this preference is persisted between app launches.
-     *
-     * @param value A boolean value indicating whether to enable (true) or disable (false) the heartbeat tracking.
-     */
-    public suspend fun setIsHeartBeat(value: Boolean): Unit =
-        userPreferences.setEnableHeartbeat(value).let { isEnabled ->
-            /*if (isEnabled) {
-                heartbeat.start()
-            } else {
-                heartbeat.stop()
-            }*/
-        }
 
     /**
      * Will be used to associate all future events with a given visitorId / cid. This property
@@ -242,12 +222,6 @@ public class Tracker private constructor(
      */
     public fun track(event: Event) {
         queue(event)
-        if (event.campaignName == campaignName &&
-            event.campaignKeyword == campaignKeyword
-        ) {
-            campaignName = null
-            campaignKeyword = null
-        }
     }
 
     /**
@@ -263,8 +237,6 @@ public class Tracker private constructor(
         name: String,
         keyword: String? = null,
     ) {
-        campaignName = name
-        campaignKeyword = keyword
     }
 
     /**
@@ -282,10 +254,8 @@ public class Tracker private constructor(
         track(
             Event.create(
                 tracker = this,
-                contentName = name,
-                contentPiece = piece,
-                contentTarget = target,
-                isCustomAction = false,
+                eventName = "name",
+                params = mapOf()
             ),
         )
     }
@@ -307,12 +277,8 @@ public class Tracker private constructor(
         track(
             Event.create(
                 tracker = this,
-                contentInteraction = interaction,
                 eventName = "select_content",
-                contentName = name,
-                contentPiece = piece,
-                contentTarget = target,
-                isCustomAction = false,
+                params = mapOf(),
             ),
         )
     }
@@ -326,21 +292,21 @@ public class Tracker private constructor(
      *
      * @param view An array of hierarchical screen names.
      * @param url The optional url of the page that was viewed.
-     * @param dimensions An optional array of dimensions, that will be set only in the scope of this view.
+     * @param properties An optional array of dimensions, that will be set only in the scope of this view.
      */
     public fun trackView(
         view: List<String>,
-        url: String? = null,
-        dimensions: List<CustomDimension> = emptyList(),
+        properties: List<UserProperty> = emptyList(),
     ) {
         track(
             Event.create(
                 tracker = this,
                 eventName = "page_view",
-                action = view,
-                url = url,
-                dimensions = dimensions,
-                isCustomAction = false,
+                params = buildMap {
+                    put("page_title", JsonPrimitive(view.last()))
+                    put("page_location", JsonPrimitive(view.joinToString("/")))
+                },
+                properties = properties,
             ),
         )
     }
@@ -360,20 +326,14 @@ public class Tracker private constructor(
         action: String,
         name: String? = null,
         value: Double? = null,
-        dimensions: List<CustomDimension> = emptyList(),
+        dimensions: List<UserProperty> = emptyList(),
         url: String? = null,
     ) {
         track(
             Event.create(
                 tracker = this,
-                action = listOf(action),
-                url = url,
-                eventCategory = category,
-                eventAction = action,
-                eventName = name,
-                eventValue = value,
-                dimensions = dimensions,
-                isCustomAction = true,
+                eventName = category,
+                params = mapOf(),
             ),
         )
     }
@@ -391,9 +351,8 @@ public class Tracker private constructor(
         track(
             Event.create(
                 tracker = this,
-                goalId = goalId,
-                revenue = revenue,
-                isCustomAction = true,
+                eventName = "goal",
+                params = mapOf(),
             ),
         )
     }
@@ -411,26 +370,13 @@ public class Tracker private constructor(
      */
     public fun trackOrder(
         id: String,
-        items: List<OrderItem>,
+        items: List<Any>,
         revenue: Double,
         subTotal: Double? = null,
         tax: Double? = null,
         shippingCost: Double? = null,
         discount: Double? = null,
     ) {
-        track(
-            Event.create(
-                tracker = this@Tracker,
-                orderId = id,
-                orderItems = items,
-                orderRevenue = revenue,
-                orderSubTotal = subTotal,
-                orderTax = tax,
-                orderShippingCost = shippingCost,
-                orderDiscount = discount,
-                isCustomAction = true,
-            ),
-        )
     }
 
     /**
@@ -446,20 +392,14 @@ public class Tracker private constructor(
         query: String,
         category: String? = null,
         resultCount: Int? = null,
-        dimensions: List<CustomDimension> = emptyList(),
+        dimensions: List<UserProperty> = emptyList(),
         url: String? = null,
     ) {
         track(
             Event.create(
                 tracker = this,
-                action = emptyList(),
                 eventName = "search",
-                url = url,
-                searchQuery = query,
-                searchCategory = category,
-                searchResultsCount = resultCount,
-                dimensions = dimensions,
-                isCustomAction = true,
+                params = mapOf(),
             ),
         )
     }
@@ -471,27 +411,27 @@ public class Tracker private constructor(
      * Set a permanent custom dimension by value and index.
      *
      * @param value The value for the new Custom Dimension
-     * @param forIndex The index of the new Custom Dimension
+     * @param key The key of the new Custom Dimension
      */
-    public fun setDimension(
-        value: String,
-        forIndex: Int,
+    public fun setUserProperty(
+        key: String,
+        value: Any,
     ) {
         coroutine.launch {
-            removeDimension(forIndex)
-            dimensions.add(CustomDimension(forIndex, value))
+            removeUserProperty(key)
+            userProperties.add(UserProperty(key, value))
         }
     }
 
     /**
      * Removes a previously set custom dimension.
      *
-     * @param removeDimension The index of the dimension.
+     * @param key The name of the propertu.
      */
-    public fun removeDimension(atIndex: Int) {
+    public fun removeUserProperty(key: String) {
         coroutine.launch {
-            dimensions.removeAll {
-                it.index == atIndex
+            userProperties.removeAll {
+                it.name == key
             }
         }
     }
@@ -517,9 +457,7 @@ public class Tracker private constructor(
         coroutine.launch {
             logger.log("Reset Session firebaseAppId: $measurementId", LogLevel.Debug)
             userPreferences.reset()
-            dimensions.removeAll { true }
-            campaignName = null
-            campaignKeyword = null
+            userProperties.removeAll { true }
             startNewSession()
         }
     }
