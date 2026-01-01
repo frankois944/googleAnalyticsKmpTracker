@@ -153,10 +153,10 @@ mavenPublishing {
     )
 
     pom {
-        name = "Matomo KMP Tracker"
-        description = "A Matomo client tracker for Kotlin Multiplatform"
-        inceptionYear = "2025"
-        url = "https://github.com/frankois944/matomoKMPTracker"
+        name = "GoogleAnalytics KMP Tracker"
+        description = "A Google Analytics client tracker for Kotlin Multiplatform"
+        inceptionYear = "2026"
+        url = "https://github.com/frankois944/googleAnalyticsKmpTracker"
         licenses {
             license {
                 name = "MIT"
@@ -171,7 +171,7 @@ mavenPublishing {
             }
         }
         scm {
-            url = "https://github.com/frankois944/matomoKMPTracker"
+            url = "https://github.com/frankois944/googleAnalyticsKmpTracker"
         }
     }
 }

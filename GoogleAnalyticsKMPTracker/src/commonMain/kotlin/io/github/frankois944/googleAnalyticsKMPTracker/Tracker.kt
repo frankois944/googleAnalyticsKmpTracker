@@ -62,7 +62,7 @@ public class Tracker private constructor(
     internal lateinit var visitor: Visitor
 
     /**
-     * This logger is used to perform logging of all sorts of Matomo related information.
+     * This logger is used to perform logging of all sorts of GA related information.
      * Per default it is a `DefaultLogger` with a `minLevel` of `LogLevel.warning`.
      * You can set your own Logger with a custom `minLevel` or a complete custom logging mechanism.
      */
@@ -77,7 +77,6 @@ public class Tracker private constructor(
 
     internal suspend fun build(): Tracker {
         withContext(Dispatchers.Default) {
-            val scope = measurementId
             // Dispatcher
             dispatcher =
                 customDispatcher ?: HttpClientDispatcher(
@@ -91,10 +90,10 @@ public class Tracker private constructor(
             val database =
                 createDatabase(
                     driverFactory = DriverFactory(),
-                    dbName = scope.hashCode().toString(),
+                    dbName = measurementId.hashCode().toString(),
                 )
-            this@Tracker.queue = customQueue ?: DatabaseQueue(database, scope)
-            this@Tracker.userPreferences = UserPreferences(database, scope)
+            this@Tracker.queue = customQueue ?: DatabaseQueue(database)
+            this@Tracker.userPreferences = UserPreferences(database, measurementId)
             this@Tracker.visitor = Visitor.current(userPreferences)
             this@Tracker.setOptOut(isOptedOut)
             this@Tracker.adUserDataEnabled = this@Tracker.userPreferences.adUserData()
@@ -116,7 +115,7 @@ public class Tracker private constructor(
                         logger.log("Already dispatching events", LogLevel.Verbose)
                         return@startTimer
                     }
-                    if (queue?.eventCount() == 0L) {
+                    if (queue == null || queue?.eventCount() == 0L) {
                         logger.log("No events to dispatch", LogLevel.Verbose)
                         return@startTimer
                     }
@@ -136,26 +135,27 @@ public class Tracker private constructor(
         if (items.isNullOrEmpty()) {
             logger.log("No events to dispatch", LogLevel.Verbose)
         } else {
-            //     items.forEach { item ->
             logger.log("Sending event ${items.joinToString { it.uuid }}", LogLevel.Verbose)
             try {
-                // bulk or not build ??
                 dispatcher.sendBulkEvent(items)
                 logger.log("remove events ${items.joinToString { it.uuid }}", LogLevel.Verbose)
+                queue?.remove(items)
+            } catch (e: IllegalArgumentException) {
+                logger.log("Invalid response from server, $e", LogLevel.Error)
+                // if the response of the server is invalid, the request can't be sent again
                 queue?.remove(items)
             } catch (e: Exception) {
                 logger.log("Error while dispatching events: $e", LogLevel.Error)
             }
         }
-        //}
     }
 
     public companion object {
         /**
          * @param apiSecret The API Secret from the Google Analytics UI.
          * @param measurementId GA Property ID.
-         * @param isOptedOut Disable tracking on start, require explicit activation.
          * @param url The url of the Google Analytics API endpoint, use `https://region1.google-analytics.com/mp/collect` for europe
+         * @param isOptedOut Disable tracking on start, require explicit activation.
          * @param context (MANDATORY for Android target) A valid Android Context for content retrieval
          * @param customDispatcher
          * @param customQueue
@@ -220,13 +220,9 @@ public class Tracker private constructor(
     }
 
     /**
-     * Will be used to associate all future events with a given visitorId / cid. This property
-     * is persisted between app launches.
-     */
-    public suspend fun userId(): String? = userPreferences.userId()
-
-    /**
-     * User ID is any non-empty unique string identifying the user (such as an email address or a username)
+     * Sets the user ID for tracking purposes.
+     *
+     * @param value The user ID to set. Can be null.
      */
     public suspend fun setUserId(value: String?) {
         logger.log("Setting the userId to $value", LogLevel.Debug)
@@ -246,7 +242,7 @@ public class Tracker private constructor(
     /**
      * Send an event with the specified name and parameters.
      *
-     * @param name The name of the event to be tracked. It identifies the type of action or behavior being logged.
+     * @param name The name of the event to be tracked.
      * @param params A map containing key-value pairs of additional information or attributes related to the event.
      * Accepted value types include String, Int, Double, Boolean, Long, and Float.
      * Other types will be converted to a string representation.
@@ -262,13 +258,10 @@ public class Tracker private constructor(
     }
 
     /**
-     * Tracks an interaction with a specific content item.
+     * Tracks a user interaction with specific content, such as selecting an item or viewing a piece of media.
      *
-     * This method creates a "select_content" event, which represents the interaction with content.
-     * The event includes the type and ID of the content interacted with, if provided.
-     *
-     * @param contentType The type of the content being interacted with (e.g., video, article). Can be null.
-     * @param contentId The unique identifier of the content being interacted with. Can be null.
+     * @param contentType The type of content being interacted with, such as "video", "article", or "image". Can be null.
+     * @param contentId A unique identifier for the content being interacted with. Can be null.
      */
     public fun trackContentInteraction(
         contentType: String? = null,
@@ -321,14 +314,12 @@ public class Tracker private constructor(
     }
 
     /**
-     * Tracks a custom event with optional parameters. This method allows the creation
-     * and dispatch of an event with the specified name and attributes.
+     * Tracks an event with the specified name and optional parameters.
      *
      * @param name The name of the event to be tracked.
-     * @param parameters A map of key-value pairs representing additional parameters
-     * for the event. Accepted value types include String, Int, Double, Boolean, Long,
-     * and Float. If the value does not match any of these types, it will be
-     * converted to a string. Can be null.
+     * @param parameters A map of key-value pairs providing additional details about the event.
+     * Accepted value types include String, Int, Double, Boolean, Long, and Float. Values of other types
+     * will be converted to their string representation. Can be null.
      */
     public fun trackEvent(
         name: String,
@@ -358,10 +349,9 @@ public class Tracker private constructor(
     }
 
     /**
-     * Tracks a search event with the specified search term.
+     * Tracks a search event with the given search term.
      *
      * @param searchTerm The search term entered by the user.
-     * This term will be recorded as part of the search tracking event.
      */
     public fun trackSearch(
         searchTerm: String,
@@ -378,13 +368,14 @@ public class Tracker private constructor(
     }
 // </editor-fold>
 
-// <editor-fold desc="Dimension">
+// <editor-fold desc="UserProperty">
 
     /**
-     * Set a permanent custom dimension by value and index.
+     * Sets a user property by adding a new property or updating an existing one.
      *
-     * @param value The value for the new Custom Dimension
-     * @param key The key of the new Custom Dimension
+     * @param key The name of the user property. Must be 24 characters or fewer, start with an alphabetic character, and contain only alphanumeric characters or underscores.
+     * @param value The value of the user property. Accepted types include Double, String, Int, Boolean, Long, and other types convertible to a string. The value must not exceed
+     * 36 characters in length.
      */
     public fun setUserProperty(
         key: String,
@@ -397,9 +388,10 @@ public class Tracker private constructor(
     }
 
     /**
-     * Removes a previously set custom dimension.
+     * Removes a user property that matches the specified key.
      *
-     * @param key The name of the propertu.
+     * @param key The name of the user property to remove. Properties with names matching
+     * this key will be removed from the stored user properties.
      */
     public fun removeUserProperty(key: String) {
         coroutine.launch {
@@ -411,10 +403,7 @@ public class Tracker private constructor(
 // </editor-fold>
 
     /**
-     * Starts a new Session
-     *
-     * Use this function to manually start a new Session. A new Session will be automatically
-     * created only on init of the tracker.
+     * Starts a new session.
      */
     public fun startNewSession() {
         logger.log("start New Session", LogLevel.Info)

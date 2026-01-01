@@ -1,4 +1,4 @@
-package io.github.frankois944.googleAnalyticsKMPTracker.user
+package io.github.frankois944.googleAnalyticsKMPTracker.dispatcher.http.builder
 
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject

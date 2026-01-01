@@ -1,17 +1,16 @@
-package io.github.frankois944.googleAnalyticsKMPTracker.dispatcher
+package io.github.frankois944.googleAnalyticsKMPTracker.dispatcher.http.builder
 
 import io.github.frankois944.googleAnalyticsKMPTracker.Device
 import io.github.frankois944.googleAnalyticsKMPTracker.Size
 import io.github.frankois944.googleAnalyticsKMPTracker.core.Event
-import io.github.frankois944.googleAnalyticsKMPTracker.getGADeviceJsonObject
-import io.github.frankois944.googleAnalyticsKMPTracker.user.getGAUserConsent
-import io.github.frankois944.googleAnalyticsKMPTracker.user.getGAUserLabelJsonObject
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonObjectBuilder
 import kotlinx.serialization.json.buildJsonArray
 import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.put
 
 
@@ -51,6 +50,7 @@ private fun JsonObjectBuilder.setBaseInfo(event: Event) {
     if (!event.visitor.userId.isNullOrEmpty()) {
         put("user_id", event.visitor.userId)
     }
+    setUserProperties(event)
     getGAUserConsent(event.adUserData, event.adPersonalization)?.let {
         put("consent", it)
     }
@@ -81,5 +81,29 @@ private fun setEvent(event: Event): JsonObject {
                 put(key, value)
             }
         })
+    }
+}
+
+private fun JsonObjectBuilder.setUserProperties(event: Event) {
+    if (event.properties.isNotEmpty()) {
+        val userProperties = jsonConfig.parseToJsonElement(event.properties).jsonArray
+        if (userProperties.isNotEmpty()) {
+            val propertyValues = buildJsonObject {
+                userProperties.forEach { property ->
+                    val item = property.jsonObject
+                    val name = item["name"]!!.jsonPrimitive.content
+                    val value = item["value"]
+                    put(
+                        name,
+                        buildJsonObject {
+                            if (value != null) {
+                                put("value", value)
+                            }
+                        }
+                    )
+                }
+            }
+            put("user_properties", propertyValues)
+        }
     }
 }

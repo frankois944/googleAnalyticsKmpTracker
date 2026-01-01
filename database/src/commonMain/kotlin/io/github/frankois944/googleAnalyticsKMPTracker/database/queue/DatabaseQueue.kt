@@ -18,7 +18,6 @@ import kotlin.uuid.ExperimentalUuidApi
 
 public class DatabaseQueue(
     public val database: CacheDatabase,
-    public val scope: String,
 ) : Queue {
     private val mutex = Mutex()
     private var requireCleanup = true

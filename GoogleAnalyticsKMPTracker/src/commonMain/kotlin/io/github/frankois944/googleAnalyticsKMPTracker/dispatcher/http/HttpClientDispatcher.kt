@@ -2,7 +2,7 @@ package io.github.frankois944.googleAnalyticsKMPTracker.dispatcher.http
 
 import io.github.frankois944.googleAnalyticsKMPTracker.core.Event
 import io.github.frankois944.googleAnalyticsKMPTracker.dispatcher.Dispatcher
-import io.github.frankois944.googleAnalyticsKMPTracker.dispatcher.getGaBody
+import io.github.frankois944.googleAnalyticsKMPTracker.dispatcher.http.builder.getGaBody
 import io.github.frankois944.googleAnalyticsKMPTracker.user.UserAgentProvider
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.DefaultRequest
@@ -104,7 +104,7 @@ Send event failed with status
 code: ${this.status.value}
 body: ${this.bodyAsText()}
                 """.trimIndent()
-            throw Throwable(
+            throw IllegalArgumentException(
                 message,
             )
         }
