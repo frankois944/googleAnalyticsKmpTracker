@@ -4,6 +4,8 @@ import io.github.frankois944.googleAnalyticsKMPTracker.Device
 import io.github.frankois944.googleAnalyticsKMPTracker.Size
 import io.github.frankois944.googleAnalyticsKMPTracker.core.Event
 import io.github.frankois944.googleAnalyticsKMPTracker.getGADeviceJsonObject
+import io.github.frankois944.googleAnalyticsKMPTracker.user.UserLocation
+import io.github.frankois944.googleAnalyticsKMPTracker.user.getGAUserLabelJsonObject
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonObjectBuilder
@@ -50,6 +52,7 @@ private fun JsonObjectBuilder.setBaseInfo(event: Event) {
         put("user_id", event.visitor.userId)
     }
     if (Device.currentUserAgent.isNullOrEmpty()) {
+        put("user_location", getGAUserLabelJsonObject())
         put(
             "device", getGADeviceJsonObject(
                 event.language,

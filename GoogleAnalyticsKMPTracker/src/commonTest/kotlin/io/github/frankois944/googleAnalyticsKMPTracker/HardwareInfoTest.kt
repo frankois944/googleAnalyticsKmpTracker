@@ -2,6 +2,7 @@
 
 package io.github.frankois944.googleAnalyticsKMPTracker
 
+import io.github.frankois944.googleAnalyticsKMPTracker.user.UserAgentProvider
 import io.github.frankois944.googleAnalyticsKMPTracker.utils.UuidGenerator
 import kotlin.test.Test
 import kotlin.test.assertContains
