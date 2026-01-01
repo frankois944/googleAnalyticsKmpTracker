@@ -31,7 +31,7 @@ class EventTest {
                 measurementId = measurementId,
                 url = "https://www.google-analytics.com/mp/collect"
                 // For request validation only
-                //url = "https://www.google-analytics.com/debug/mp/collect"
+                // url = "https://www.google-analytics.com/debug/mp/collect"
             ).also {
                 it.logger = DefaultGATrackerLogger(minLevel = LogLevel.Verbose)
                 it.dispatchBatch()
@@ -71,6 +71,8 @@ class EventTest {
         val tracker = getTracker()
         tracker.enableAdUserData(false)
         tracker.enableAdPersonalization(true)
+        tracker.setUserProperty("customer_tier", 423)
+        tracker.setUserProperty("custom_stuff", "dsfsfsdf")
         val nbVisit = 1
         for (i in 1..nbVisit) {
             println("Session send $i")
