@@ -7,7 +7,7 @@ A Kotlin Multiplatform library for Google Analytics (GA4) that supports all majo
 - **Multiplatform Support**: Android, iOS, Desktop (JVM), Web (JS/Wasm), macOS, tvOS, watchos.
 - **Persistence**: Events are queued and persisted (using SQLDelight)
 
-## Installation
+## Installation (Soon)
 
 ```kotlin
 // build.gradle.kts
@@ -28,7 +28,7 @@ Initialize the tracker in your shared code. On Android, a `Context` is required 
 
 Found in the Google Analytics UI :
 
-* **api_secret** :  Found under Admin > Data Streams > Choose your stream > Measurement Protocol > Create.
+* **apiSecret** :  Found under Admin > Data Streams > Choose your stream > Measurement Protocol > Create.
                 Private to your organization. Should be regularly updated to avoid excessive SPAM.
 * **measurementId** : Found under Admin > Data Streams > choose your stream > Measurement ID.
 
