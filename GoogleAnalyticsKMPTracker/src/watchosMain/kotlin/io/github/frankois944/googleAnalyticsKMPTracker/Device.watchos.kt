@@ -3,7 +3,6 @@
 
 package io.github.frankois944.googleAnalyticsKMPTracker
 
-import io.github.frankois944.googleAnalyticsKMPTracker.core.Size
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.UnsafeNumber
 import kotlinx.cinterop.alloc
@@ -24,6 +23,8 @@ import platform.posix.uname
 import platform.posix.utsname
 
 internal actual object Device {
+
+    actual val isBrowser: Boolean = false
     actual val model: String = getPlatform()
     actual val operatingSystem: String = "watchOS"
     actual val osVersion: String = WKInterfaceDevice.currentDevice().systemVersion

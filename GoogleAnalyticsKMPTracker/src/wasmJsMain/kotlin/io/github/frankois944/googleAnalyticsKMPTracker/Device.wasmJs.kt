@@ -5,6 +5,8 @@ package io.github.frankois944.googleAnalyticsKMPTracker
 
 
 internal actual object Device {
+
+    actual val isBrowser: Boolean = true
     actual val model: String
         get() = "wasmJs"
     actual val operatingSystem: String = userAgent

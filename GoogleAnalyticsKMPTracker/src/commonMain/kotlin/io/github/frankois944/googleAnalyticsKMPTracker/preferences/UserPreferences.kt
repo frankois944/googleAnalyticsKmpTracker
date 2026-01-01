@@ -37,7 +37,7 @@ internal class UserPreferences(
         database.persistingPreferenceQueries
             .insertPreference("setClientId", value, scope)
     }
-// </editor-fold>
+    // </editor-fold>
 
     // <editor-fold desc="Visitor User Id">
     suspend fun userId(): String? =
@@ -50,23 +50,35 @@ internal class UserPreferences(
         database.persistingPreferenceQueries
             .insertPreference("userId", value, scope)
     }
-// </editor-fold>
+    // </editor-fold>
 
-    // <editor-fold desc="use heartbeat">
-    suspend fun isHeartbeatEnabled(): Boolean =
+    // <editor-fold desc="adUserData">
+    suspend fun adUserData(): Boolean? =
         database.persistingPreferenceQueries
-            .selectPreference("use_heartbeat", scope)
+            .selectPreference("adUserData", scope)
             .awaitAsOneOrNull()
             ?.value_
-            ?.toBoolean()
-            ?: true
+            ?.toBooleanStrictOrNull()
 
-    suspend fun setEnableHeartbeat(value: Boolean): Boolean {
+    suspend fun setAdUserData(value: Boolean?) {
         database.persistingPreferenceQueries
-            .insertPreference("use_heartbeat", value.toString(), scope)
-        return value
+            .insertPreference("adUserData", value.toString(), scope)
     }
-// </editor-fold>
+    // </editor-fold>
+
+    // <editor-fold desc="ad_personalization">
+    suspend fun adPersonalization(): Boolean? =
+        database.persistingPreferenceQueries
+            .selectPreference("adPersonalization", scope)
+            .awaitAsOneOrNull()
+            ?.value_
+            ?.toBooleanStrictOrNull()
+
+    suspend fun setAdPersonalization(value: Boolean?) {
+        database.persistingPreferenceQueries
+            .insertPreference("adPersonalization", value.toString(), scope)
+    }
+    // </editor-fold>
 
     // <editor-fold desc="Reset all preferences">
     suspend fun reset() {

@@ -10,10 +10,11 @@ import android.util.DisplayMetrics
 import android.view.Display
 import android.view.WindowManager
 import io.github.frankois944.googleAnalyticsKMPTracker.context.ContextObject.context
-import io.github.frankois944.googleAnalyticsKMPTracker.core.Size
 import java.util.Locale
 
 internal actual object Device {
+
+    actual val isBrowser: Boolean = false
     actual val model: String = "Android"
     actual val operatingSystem: String = Build.MODEL ?: "Android"
     actual val osVersion: String = Build.VERSION.RELEASE ?: "0"

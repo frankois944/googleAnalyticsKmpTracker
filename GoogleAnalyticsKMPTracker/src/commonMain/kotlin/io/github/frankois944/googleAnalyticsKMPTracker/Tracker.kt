@@ -37,6 +37,7 @@ import kotlin.uuid.ExperimentalUuidApi
 public class Tracker private constructor(
     internal val url: String,
     internal val apiSecret: String,
+    internal val isOptedOut: Boolean = false,
     internal val measurementId: String,
     internal val customDispatcher: Dispatcher? = null,
     internal val customQueue: Queue? = null,
@@ -52,7 +53,8 @@ public class Tracker private constructor(
     private var isDispatching: Boolean = false
     private val mutex: Mutex = Mutex()
     private var lastEventDate = Clock.System.now()
-
+    internal var adUserDataEnabled: Boolean? = null
+    internal var adPersonalizationEnabled: Boolean? = null
     /**
      * sessionId is the timestamps of the beginning of the session
      */
@@ -94,6 +96,9 @@ public class Tracker private constructor(
             this@Tracker.queue = customQueue ?: DatabaseQueue(database, scope)
             this@Tracker.userPreferences = UserPreferences(database, scope)
             this@Tracker.visitor = Visitor.current(userPreferences)
+            this@Tracker.setOptOut(isOptedOut)
+            this@Tracker.adUserDataEnabled = this@Tracker.userPreferences.adUserData()
+            this@Tracker.adPersonalizationEnabled = this@Tracker.userPreferences.adPersonalization()
             // Startup
             startNewSession()
             startDispatchEvents()
@@ -149,6 +154,7 @@ public class Tracker private constructor(
         /**
          * @param apiSecret The API Secret from the Google Analytics UI.
          * @param measurementId GA Property ID.
+         * @param isOptedOut Disable tracking on start, require explicit activation.
          * @param url The url of the Google Analytics API endpoint, use `https://region1.google-analytics.com/mp/collect` for europe
          * @param context (MANDATORY for Android target) A valid Android Context for content retrieval
          * @param customDispatcher
@@ -159,6 +165,7 @@ public class Tracker private constructor(
             apiSecret: String,
             measurementId: String,
             url: String = "https://www.google-analytics.com/mp/collect",
+            isOptedOut: Boolean = false,
             context: Any? = null,
             customDispatcher: Dispatcher? = null,
             customQueue: Queue? = null,
@@ -167,6 +174,7 @@ public class Tracker private constructor(
                 url = url,
                 apiSecret = apiSecret,
                 context = context,
+                isOptedOut = isOptedOut,
                 measurementId = measurementId,
                 customDispatcher = customDispatcher,
                 customQueue = customQueue,
@@ -198,9 +206,18 @@ public class Tracker private constructor(
     public suspend fun setOptOut(value: Boolean): Unit = userPreferences.setOptOut(value)
 
     /**
-     * Get the heartbeat tracking state for the user.
+     * Consent for sending user data from the request's events and user properties to Google for advertising purposes.
      */
-    public suspend fun isHeartBeatEnabled(): Boolean = userPreferences.isHeartbeatEnabled()
+    public suspend fun enableAdUserData(value: Boolean?): Unit = userPreferences.setAdUserData(value).also {
+        this.adUserDataEnabled = value
+    }
+
+    /**
+     * Consent for personalized advertising for the user.
+     */
+    public suspend fun enableAdPersonalization(value: Boolean?): Unit = userPreferences.setAdPersonalization(value).also {
+        this.adPersonalizationEnabled = value
+    }
 
     /**
      * Will be used to associate all future events with a given visitorId / cid. This property
@@ -406,7 +423,7 @@ public class Tracker private constructor(
     }
 
     /**
-     * Resets all session, visitor and campaign information.
+     * Resets all session, visitor and preferences
      *
      * After calling this method this instance behaves like the app has been freshly installed.
      */

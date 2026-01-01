@@ -69,6 +69,8 @@ class EventTest {
             return@runTest
         }
         val tracker = getTracker()
+        tracker.enableAdUserData(false)
+        tracker.enableAdPersonalization(true)
         val nbVisit = 1
         for (i in 1..nbVisit) {
             println("Session send $i")

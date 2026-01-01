@@ -8,6 +8,8 @@ import java.awt.GraphicsEnvironment
 import java.util.Locale
 
 internal actual object Device {
+
+    actual val isBrowser: Boolean = false
     private val si = SystemInfo()
     var ge: GraphicsEnvironment = GraphicsEnvironment.getLocalGraphicsEnvironment()
     var devices: GraphicsDevice? = ge.defaultScreenDevice

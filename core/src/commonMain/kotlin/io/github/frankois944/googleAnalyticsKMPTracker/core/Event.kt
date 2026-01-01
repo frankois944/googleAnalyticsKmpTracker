@@ -23,6 +23,8 @@ public class Event(
     public val measurementId: String,
     public val language: String?,
     public val eventName: String,
+    public val adUserData: Boolean? = null,
+    public val adPersonalization: Boolean? = null,
     /**
      * JSON encoded string
      */

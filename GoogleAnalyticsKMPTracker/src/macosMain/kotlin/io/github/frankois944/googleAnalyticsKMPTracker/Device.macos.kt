@@ -23,6 +23,8 @@ import platform.posix.uname
 import platform.posix.utsname
 
 internal actual object Device {
+
+    actual val isBrowser: Boolean = false
     actual val model: String = getPlatform()
     actual val operatingSystem: String = "MacOS"
     actual val osVersion: String =

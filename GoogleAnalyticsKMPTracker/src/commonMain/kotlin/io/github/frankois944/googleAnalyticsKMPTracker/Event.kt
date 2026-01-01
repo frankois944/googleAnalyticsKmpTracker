@@ -64,6 +64,8 @@ internal fun Event.Companion.create(
         measurementId = tracker.measurementId,
         language = Device.language,
         eventName = eventName,
+        adUserData = tracker.adUserDataEnabled,
+        adPersonalization = tracker.adPersonalizationEnabled,
         params = jsonConfig.encodeToString(params)
     )
 }

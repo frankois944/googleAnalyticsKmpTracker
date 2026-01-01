@@ -14,6 +14,8 @@ internal class Size(
 
 internal expect object Device {
 
+    val isBrowser: Boolean
+
     val model: String
 
     val operatingSystem: String

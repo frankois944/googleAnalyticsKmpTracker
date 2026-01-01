@@ -3,9 +3,11 @@
 
 package io.github.frankois944.googleAnalyticsKMPTracker
 
-import io.github.frankois944.googleAnalyticsKMPTracker.core.Size
 
 internal actual object Device {
+
+    actual val isBrowser: Boolean = true
+    
     actual val model: String
         get() = "jsBrowser"
     actual val operatingSystem: String = userAgent
