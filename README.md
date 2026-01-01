@@ -26,9 +26,11 @@ Initialize the tracker in your shared code. On Android, a `Context` is required 
 
 #### Requirement
 
+Found in the Google Analytics UI :
+
 * **api_secret** :  Found under Admin > Data Streams > Choose your stream > Measurement Protocol > Create.
                 Private to your organization. Should be regularly updated to avoid excessive SPAM.
-* **measurementId** : Found in the Google Analytics UI under Admin > Data Streams > choose your stream > Measurement ID. Measurement ID. The identifier for a Data Stream.
+* **measurementId** : Found under Admin > Data Streams > choose your stream > Measurement ID.
 
 ```kotlin
 val tracker = Tracker.create(

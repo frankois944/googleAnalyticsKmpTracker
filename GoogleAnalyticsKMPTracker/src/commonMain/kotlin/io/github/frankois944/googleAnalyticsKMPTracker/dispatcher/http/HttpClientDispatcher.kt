@@ -1,9 +1,9 @@
 package io.github.frankois944.googleAnalyticsKMPTracker.dispatcher.http
 
-import io.github.frankois944.googleAnalyticsKMPTracker.UserAgentProvider
 import io.github.frankois944.googleAnalyticsKMPTracker.core.Event
 import io.github.frankois944.googleAnalyticsKMPTracker.dispatcher.Dispatcher
 import io.github.frankois944.googleAnalyticsKMPTracker.dispatcher.getGaBody
+import io.github.frankois944.googleAnalyticsKMPTracker.user.UserAgentProvider
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.DefaultRequest
 import io.ktor.client.plugins.HttpTimeout

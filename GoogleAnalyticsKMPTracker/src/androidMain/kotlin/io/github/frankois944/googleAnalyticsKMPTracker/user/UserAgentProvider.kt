@@ -1,6 +1,4 @@
-@file:Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
-
-package io.github.frankois944.googleAnalyticsKMPTracker
+package io.github.frankois944.googleAnalyticsKMPTracker.user
 
 import android.os.Build
 import android.webkit.WebSettings
@@ -37,7 +35,7 @@ internal actual object UserAgentProvider {
             val android = getRelease()
             val model = getModel()
             val build = getBuildId()
-            return String.format(
+            return String.Companion.format(
                 Locale.US,
                 "Dalvik/%s (Linux; U; Android %s; %s Build/%s)",
                 dalvik,
@@ -49,12 +47,4 @@ internal actual object UserAgentProvider {
         return httpAgent
     }
 
-    actual fun getClientHint(): String =
-        (
-            "{" +
-                "\"versionNum\": \"42\"" +
-                "," +
-                "\"versionBuild\": \"1\"" +
-                "}"
-        )
 }
