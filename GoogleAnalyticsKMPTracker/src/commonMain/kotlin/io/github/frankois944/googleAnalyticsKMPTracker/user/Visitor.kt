@@ -1,6 +1,6 @@
 @file:OptIn(ExperimentalUuidApi::class)
 
-package io.github.frankois944.googleAnalyticsKMPTracker
+package io.github.frankois944.googleAnalyticsKMPTracker.user
 
 import io.github.frankois944.googleAnalyticsKMPTracker.core.Visitor
 import io.github.frankois944.googleAnalyticsKMPTracker.preferences.UserPreferences

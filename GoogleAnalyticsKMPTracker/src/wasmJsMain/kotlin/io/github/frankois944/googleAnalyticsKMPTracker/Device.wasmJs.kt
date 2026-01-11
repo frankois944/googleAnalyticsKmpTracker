@@ -3,6 +3,8 @@
 
 package io.github.frankois944.googleAnalyticsKMPTracker
 
+import io.github.frankois944.googleAnalyticsKMPTracker.user.Size
+
 
 internal actual object Device {
 

@@ -1,7 +1,7 @@
 package io.github.frankois944.googleAnalyticsKMPTracker.dispatcher.http.builder
 
-import io.github.frankois944.googleAnalyticsKMPTracker.Device
-import io.github.frankois944.googleAnalyticsKMPTracker.Size
+import io.github.frankois944.googleAnalyticsKMPTracker.user.Device
+import io.github.frankois944.googleAnalyticsKMPTracker.user.Size
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put

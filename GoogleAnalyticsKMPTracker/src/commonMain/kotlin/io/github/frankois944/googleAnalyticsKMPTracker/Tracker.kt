@@ -15,6 +15,8 @@ import io.github.frankois944.googleAnalyticsKMPTracker.database.queue.DatabaseQu
 import io.github.frankois944.googleAnalyticsKMPTracker.dispatcher.Dispatcher
 import io.github.frankois944.googleAnalyticsKMPTracker.dispatcher.http.HttpClientDispatcher
 import io.github.frankois944.googleAnalyticsKMPTracker.preferences.UserPreferences
+import io.github.frankois944.googleAnalyticsKMPTracker.user.Device
+import io.github.frankois944.googleAnalyticsKMPTracker.user.current
 import io.github.frankois944.googleAnalyticsKMPTracker.utils.ConcurrentMutableList
 import io.github.frankois944.googleAnalyticsKMPTracker.utils.startTimer
 import io.github.frankois944.googleAnalyticsKMPTracker.utils.toJsonObject

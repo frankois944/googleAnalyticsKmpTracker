@@ -3,7 +3,7 @@
 
 package io.github.frankois944.googleAnalyticsKMPTracker
 
-import io.github.frankois944.googleAnalyticsKMPTracker.core.Size
+import io.github.frankois944.googleAnalyticsKMPTracker.user.Size
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.alloc
 import kotlinx.cinterop.allocArray

@@ -10,6 +10,7 @@ import android.util.DisplayMetrics
 import android.view.Display
 import android.view.WindowManager
 import io.github.frankois944.googleAnalyticsKMPTracker.context.ContextObject.context
+import io.github.frankois944.googleAnalyticsKMPTracker.user.Size
 import java.util.Locale
 
 internal actual object Device {

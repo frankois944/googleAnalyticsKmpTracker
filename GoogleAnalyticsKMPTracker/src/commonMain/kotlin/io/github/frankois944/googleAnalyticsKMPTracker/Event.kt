@@ -4,6 +4,7 @@ package io.github.frankois944.googleAnalyticsKMPTracker
 
 import io.github.frankois944.googleAnalyticsKMPTracker.core.Event
 import io.github.frankois944.googleAnalyticsKMPTracker.core.UserProperty
+import io.github.frankois944.googleAnalyticsKMPTracker.user.Device
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonPrimitive
 import kotlin.time.Clock
