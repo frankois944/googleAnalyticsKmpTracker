@@ -14,7 +14,7 @@ A Kotlin Multiplatform library for Google Analytics (GA4) that supports all majo
 ### Web targets
 
 > [!IMPORTANT]  
-> Due to the nature of the GoogleAnalytics, you can't use the tracker locally as CORS error will be trigger.
+> Due to the nature of GoogleAnalytics, you can't use the tracker locally as CORS error will be trigger.
 
 ## Installation (Soon)
 
