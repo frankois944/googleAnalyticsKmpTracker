@@ -2,6 +2,10 @@
 
 A Kotlin Multiplatform library for Google Analytics (GA4) that supports all major targets (Android, iOS, Desktop, Web, macOS, tvOS, watchos). This library uses the Measurement Protocol (v2) to send events directly to Google Analytics from your shared code.
 
+> [!IMPORTANT]  
+> This library use the GoogleAnaytlics API not the Firebase API.
+> 
+> As the GA API is optimized for the web, you need to follow this [documentation](https://developers.google.com/analytics/devguides/collection/protocol/ga4/reference/events) to create events.
 ## Features
 
 - **Multiplatform Support**: Android, iOS, Desktop (JVM), Web (JS/Wasm), macOS, tvOS, watchos.
@@ -28,7 +32,7 @@ Initialize the tracker in your shared code. On Android, a `Context` is required 
 
 Found in the Google Analytics UI :
 
-* **apiSecret** :  Found under Admin > Data Streams > Choose your stream > Measurement Protocol > Create.
+* **apiSecret** :  Found under Admin > Data Streams > Choose your stream > Measurement Protocol > Create.  
                 Private to your organization. Should be regularly updated to avoid excessive SPAM.
 * **measurementId** : Found under Admin > Data Streams > choose your stream > Measurement ID.
 
