@@ -5,7 +5,7 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 
-internal fun getGAUserLabelJsonObject(
+internal fun getGAUserLocation(
     city: String? = null,
     regionId: String? = null,
     countryId: String? = null,

@@ -11,7 +11,7 @@ import kotlin.uuid.ExperimentalUuidApi
 public class Event(
     public val uuid: String,
     public val dateCreatedInMs: Long,
-    public val visitor: Visitor,
+    public var visitor: Visitor?,
     /**
      * JSON encoded string
      */

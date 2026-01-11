@@ -1,9 +1,9 @@
 @file:Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
 @file:OptIn(ExperimentalForeignApi::class)
 
-package io.github.frankois944.googleAnalyticsKMPTracker
+package io.github.frankois944.googleAnalyticsKMPTracker.user
 
-import io.github.frankois944.googleAnalyticsKMPTracker.core.Size
+import kotlinx.cinterop.ByteVar
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.alloc
 import kotlinx.cinterop.allocArray
@@ -26,9 +26,8 @@ import platform.posix.utsname
 internal actual object Device {
 
     actual val isBrowser: Boolean = false
-
     actual val model: String = getPlatform()
-    actual val operatingSystem: String = "iOS"
+    actual val operatingSystem: String = "tvOS"
     actual val osVersion: String = UIDevice.currentDevice.systemVersion
     actual val screenSize: Size
         get() =
@@ -46,6 +45,7 @@ internal actual object Device {
                 .useContents {
                     Size(width = size.width.toLong(), height = size.height.toLong())
                 }
+
     actual val softwareId: String?
         get() {
             memScoped {
@@ -57,8 +57,7 @@ internal actual object Device {
             return null
         }
 
-    actual val language: String?
-    get() = NSLocale.preferredLanguages.firstOrNull() as? String
+    actual val language: String? = NSLocale.preferredLanguages.firstOrNull() as? String
 
     actual val identifier: String? = NSBundle.mainBundle.bundleIdentifier
 
@@ -74,7 +73,7 @@ internal actual object Device {
 
             // Allocate memory for the result
             val size = sizePtr.value.toInt()
-            val buffer = allocArray<kotlinx.cinterop.ByteVar>(size)
+            val buffer = allocArray<ByteVar>(size)
 
             // Second call to actually get the data
             if (sysctlbyname(name, buffer, sizePtr.ptr, null, 0UL) != 0) {
@@ -84,7 +83,7 @@ internal actual object Device {
             return buffer.toKString()
         }
 
-    actual val category: String = "mobile"
+    actual val category: String = "smart TV"
     actual val browser: String? = operatingSystem
     actual val browserVersion: String? = null
     actual val currentUserAgent: String? = null

@@ -2,7 +2,6 @@ package io.github.frankois944.googleAnalyticsKMPTracker.user
 
 import platform.Foundation.NSLocale
 import platform.Foundation.NSLocaleCountryCode
-import platform.Foundation.countryCode
 import platform.Foundation.currentLocale
 
 internal actual object UserLocation {

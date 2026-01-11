@@ -1,7 +1,13 @@
 @file:Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
 @file:OptIn(ExperimentalWasmJsInterop::class)
 
-package io.github.frankois944.googleAnalyticsKMPTracker
+package io.github.frankois944.googleAnalyticsKMPTracker.user
+
+import io.github.frankois944.googleAnalyticsKMPTracker.height
+import io.github.frankois944.googleAnalyticsKMPTracker.hostname
+import io.github.frankois944.googleAnalyticsKMPTracker.languages
+import io.github.frankois944.googleAnalyticsKMPTracker.userAgent
+import io.github.frankois944.googleAnalyticsKMPTracker.width
 
 
 internal actual object Device {

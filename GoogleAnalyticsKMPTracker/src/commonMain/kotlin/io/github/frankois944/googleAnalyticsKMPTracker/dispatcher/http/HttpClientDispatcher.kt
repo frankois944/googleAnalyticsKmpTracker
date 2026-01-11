@@ -31,12 +31,14 @@ internal class HttpClientDispatcher(
     onPrintLog: (String) -> Unit,
     override val apiSecret: String,
 ) : Dispatcher {
+
+    private val isValidationMode: Boolean = baseURL.contains("/debug/")
+
     val client: HttpClient =
         HttpClient {
             install(ContentNegotiation) {
                 json(Json {
                     prettyPrint = true
-                    isLenient = true
                     ignoreUnknownKeys = true
                     explicitNulls = false
                 })
@@ -78,7 +80,7 @@ internal class HttpClientDispatcher(
                     parameters.append("api_secret", apiSecret)
                 }
                 setBody(
-                    events.getGaBody()
+                    events.getGaBody(isValidationMode)
                 )
             }.handleResponse()
     }
@@ -91,7 +93,7 @@ internal class HttpClientDispatcher(
                     parameters.append("api_secret", apiSecret)
                 }
                 setBody(
-                    event.getGaBody()
+                    event.getGaBody(isValidationMode)
                 )
             }.handleResponse()
     }

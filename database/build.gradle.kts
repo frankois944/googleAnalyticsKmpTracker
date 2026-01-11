@@ -1,6 +1,8 @@
 @file:Suppress("UnstableApiUsage")
+@file:OptIn(ExperimentalKotlinGradlePluginApi::class)
 
 import com.android.build.api.dsl.androidLibrary
+import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
@@ -57,14 +59,15 @@ kotlin {
         browser()
     }
 
+    dependencies {
+        implementation(libs.kotlinx.coroutines.core)
+        implementation(libs.kotlinx.serialization.json)
+        implementation(libs.kotlinx.serialization.cbor)
+        implementation(libs.kotlinx.datetime)
+        implementation(project(":core"))
+    }
+
     sourceSets {
-        commonMain.dependencies {
-            implementation(libs.kotlinx.coroutines.core)
-            implementation(libs.kotlinx.serialization.json)
-            implementation(libs.kotlinx.serialization.cbor)
-            implementation(libs.kotlinx.datetime)
-            implementation(project(":core"))
-        }
         appleMain.dependencies {
             implementation(libs.native.driver)
         }

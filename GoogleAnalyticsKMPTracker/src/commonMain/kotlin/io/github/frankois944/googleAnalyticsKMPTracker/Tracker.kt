@@ -15,6 +15,13 @@ import io.github.frankois944.googleAnalyticsKMPTracker.database.queue.DatabaseQu
 import io.github.frankois944.googleAnalyticsKMPTracker.dispatcher.Dispatcher
 import io.github.frankois944.googleAnalyticsKMPTracker.dispatcher.http.HttpClientDispatcher
 import io.github.frankois944.googleAnalyticsKMPTracker.preferences.UserPreferences
+import io.github.frankois944.googleAnalyticsKMPTracker.startup.AdPersonalizationEnabled
+import io.github.frankois944.googleAnalyticsKMPTracker.startup.AdUserDataEnabled
+import io.github.frankois944.googleAnalyticsKMPTracker.startup.IsOptOut
+import io.github.frankois944.googleAnalyticsKMPTracker.startup.StartupCache
+import io.github.frankois944.googleAnalyticsKMPTracker.startup.UserId
+import io.github.frankois944.googleAnalyticsKMPTracker.user.Device
+import io.github.frankois944.googleAnalyticsKMPTracker.user.current
 import io.github.frankois944.googleAnalyticsKMPTracker.utils.ConcurrentMutableList
 import io.github.frankois944.googleAnalyticsKMPTracker.utils.startTimer
 import io.github.frankois944.googleAnalyticsKMPTracker.utils.toJsonObject
@@ -23,7 +30,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.jsonPrimitive
 import kotlin.coroutines.cancellation.CancellationException
@@ -37,15 +43,15 @@ import kotlin.uuid.ExperimentalUuidApi
 public class Tracker private constructor(
     internal val url: String,
     internal val apiSecret: String,
-    internal val isOptedOut: Boolean = false,
+    internal var isOptedOut: Boolean = false,
     internal val measurementId: String,
     internal val customDispatcher: Dispatcher? = null,
     internal val customQueue: Queue? = null,
     context: Any?,
 ) {
     internal var queue: Queue? = null
-    internal lateinit var userPreferences: UserPreferences
-    internal lateinit var dispatcher: Dispatcher
+    internal var userPreferences: UserPreferences? = null
+    internal var dispatcher: Dispatcher? = null
     internal var userProperties: ConcurrentMutableList<UserProperty> = ConcurrentMutableList()
     private val numberOfEventsDispatchedAtOnce = 10L
     internal val coroutine = CoroutineScope(Dispatchers.Default)
@@ -55,11 +61,29 @@ public class Tracker private constructor(
     private var lastEventDate = Clock.System.now()
     internal var adUserDataEnabled: Boolean? = null
     internal var adPersonalizationEnabled: Boolean? = null
+
+    /**
+     * Indicates whether the tracker is ready for use.
+     *
+     * This property reflects the current initialization state of the `Tracker` instance.
+     * When `true`, the tracker is fully configured and can perform its intended operations,
+     * such as event tracking and data dispatching ONLINE.
+     * If `false`, the tracker is still currently initializing and store event InMemory.
+     */
+    public var isReady: Boolean = false
+
+    /**
+     * As the startup of the analytics must be async,
+     * we need to store events, user properties, and other startup data InMemory
+     * Until the analytics is initialized then InMemory data is flushed
+     */
+    internal var startupData: StartupCache? = StartupCache()
+
     /**
      * sessionId is the timestamps of the beginning of the session
      */
     internal var sessionId: Long = Clock.System.now().epochSeconds
-    internal lateinit var visitor: Visitor
+    internal var visitor: Visitor? = null
 
     /**
      * This logger is used to perform logging of all sorts of GA related information.
@@ -75,33 +99,37 @@ public class Tracker private constructor(
         storeContext(context)
     }
 
-    internal suspend fun build(): Tracker {
-        withContext(Dispatchers.Default) {
-            // Dispatcher
-            dispatcher =
-                customDispatcher ?: HttpClientDispatcher(
-                    baseURL = url,
-                    onPrintLog = { message ->
-                        logger.log(message = message, LogLevel.Debug)
-                    },
-                    apiSecret = apiSecret,
-                )
+    internal fun build(): Tracker {
+        // Dispatcher
+        dispatcher =
+            customDispatcher ?: HttpClientDispatcher(
+                baseURL = url,
+                onPrintLog = { message ->
+                    logger.log(message = message, LogLevel.Debug)
+                },
+                apiSecret = apiSecret,
+            )
+        coroutine.launch(Dispatchers.Default) {
             // Database
             val database =
                 createDatabase(
                     driverFactory = DriverFactory(),
                     dbName = measurementId.hashCode().toString(),
                 )
-            this@Tracker.queue = customQueue ?: DatabaseQueue(database)
-            this@Tracker.userPreferences = UserPreferences(database, measurementId)
+            val queue = customQueue ?: DatabaseQueue(database)
+            val userPreferences = UserPreferences(database, measurementId)
+            startupData?.flush(queue, userPreferences).also { startupData = null }
+            this@Tracker.queue = queue
+            this@Tracker.userPreferences = userPreferences
             this@Tracker.visitor = Visitor.current(userPreferences)
             this@Tracker.setOptOut(isOptedOut)
-            this@Tracker.adUserDataEnabled = this@Tracker.userPreferences.adUserData()
-            this@Tracker.adPersonalizationEnabled = this@Tracker.userPreferences.adPersonalization()
-            // Startup
-            startNewSession()
+            this@Tracker.adUserDataEnabled = userPreferences.adUserData()
+            this@Tracker.adPersonalizationEnabled = userPreferences.adPersonalization()
+            this@Tracker.isReady = true
             startDispatchEvents()
         }
+        // Startup
+        startNewSession()
         return this
     }
 
@@ -137,7 +165,7 @@ public class Tracker private constructor(
         } else {
             logger.log("Sending event ${items.joinToString { it.uuid }}", LogLevel.Verbose)
             try {
-                dispatcher.sendBulkEvent(items)
+                dispatcher?.sendBulkEvent(items)
                 logger.log("remove events ${items.joinToString { it.uuid }}", LogLevel.Verbose)
                 queue?.remove(items)
             } catch (e: IllegalArgumentException) {
@@ -161,7 +189,7 @@ public class Tracker private constructor(
          * @param customQueue
          */
         @Throws(IllegalArgumentException::class, CancellationException::class)
-        public suspend fun create(
+        public fun create(
             apiSecret: String,
             measurementId: String,
             url: String = "https://www.google-analytics.com/mp/collect",
@@ -184,50 +212,90 @@ public class Tracker private constructor(
     internal fun queue(
         event: Event,
     ) {
-        coroutine.launch(Dispatchers.Default) {
-            if (isOptedOut()) return@launch
-            logger.log("Queued event: ${event.uuid}", LogLevel.Verbose)
-            event.lastEventTimeStampInMs = lastEventDate.toEpochMilliseconds()
-            this@Tracker.queue?.enqueue(event)
-            lastEventDate = Clock.System.now()
+        if (queue == null && !isOptedOut) {
+            logger.log("Not yet initialized, store event InMemory", LogLevel.Info)
+            startupData?.addEvent(event)
+        } else {
+            coroutine.launch(Dispatchers.Default) {
+                if (isOptedOut()) return@launch
+                logger.log("Queued event: ${event.uuid}", LogLevel.Verbose)
+                event.lastEventTimeStampInMs = lastEventDate.toEpochMilliseconds()
+                this@Tracker.queue?.enqueue(event)
+                lastEventDate = Clock.System.now()
+            }
         }
     }
 
     /**
      * Defines if the user opted out of tracking. When set to true, every event
-     * will be discarded immediately. This property is persisted between app launches.
+     * will be discarded immediately.
      */
-    public suspend fun isOptedOut(): Boolean = userPreferences.optOut()
+    public suspend fun isOptedOut(): Boolean = userPreferences?.optOut() ?: this.isOptedOut
 
     /**
      * Defines if the user opted out of tracking. When set to true, every event
-     * will be discarded immediately. This property is persisted between app launches.
+     * will be discarded immediately.
+     * This property is persisted between app launches.
      */
-    public suspend fun setOptOut(value: Boolean): Unit = userPreferences.setOptOut(value)
+    public suspend fun setOptOut(value: Boolean) {
+        this@Tracker.isOptedOut = value
+        userPreferences?.setOptOut(value)?.run {
+            logger.log(
+                "Not yet initialized, store setOptOut InMemory",
+                LogLevel.Info
+            )
+            startupData?.isOptOut = IsOptOut(value)
+        }
+    }
 
     /**
      * Consent for sending user data from the request's events and user properties to Google for advertising purposes.
+     * This property is persisted between app launches.
      */
-    public suspend fun enableAdUserData(value: Boolean?): Unit = userPreferences.setAdUserData(value).also {
+    public suspend fun enableAdUserData(value: Boolean?) {
         this.adUserDataEnabled = value
+        userPreferences?.setAdUserData(value) ?: run {
+            logger.log(
+                "Not yet initialized, store enableAdUserData InMemory",
+                LogLevel.Info
+            )
+            startupData?.adUserDataEnabled = AdUserDataEnabled(value)
+        }
     }
 
     /**
      * Consent for personalized advertising for the user.
+     * This property is persisted between app launches.
      */
-    public suspend fun enableAdPersonalization(value: Boolean?): Unit = userPreferences.setAdPersonalization(value).also {
+    public suspend fun enableAdPersonalization(value: Boolean?) {
         this.adPersonalizationEnabled = value
+        userPreferences?.setAdPersonalization(value) ?: run {
+            logger.log(
+                "Not yet initialized, store enableAdPersonalization InMemory",
+                LogLevel.Info
+            )
+            startupData?.adPersonalizationEnabled = AdPersonalizationEnabled(value)
+        }
     }
 
     /**
      * Sets the user ID for tracking purposes.
+     * This property is persisted between app launches.
      *
      * @param value The user ID to set. Can be null.
      */
     public suspend fun setUserId(value: String?) {
         logger.log("Setting the userId to $value", LogLevel.Debug)
-        userPreferences.setUserId(value)
-        visitor = Visitor.current(userPreferences)
+        userPreferences?.let { userPreferences ->
+            userPreferences.setUserId(value)
+            visitor = Visitor.current(userPreferences)
+        } ?: run {
+            logger.log(
+                "Not yet initialized, store UserId InMemory",
+                LogLevel.Info
+            )
+            startupData?.userId = UserId(value)
+        }
     }
 
     /**
@@ -419,7 +487,11 @@ public class Tracker private constructor(
     public fun reset() {
         coroutine.launch {
             logger.log("Reset Session measurementId: $measurementId", LogLevel.Debug)
-            userPreferences.reset()
+            userPreferences?.reset()
+            this@Tracker.isOptedOut = false
+            this@Tracker.adPersonalizationEnabled = null
+            this@Tracker.adUserDataEnabled = null
+            this@Tracker.setUserId(null)
             userProperties.removeAll { true }
             startNewSession()
         }
