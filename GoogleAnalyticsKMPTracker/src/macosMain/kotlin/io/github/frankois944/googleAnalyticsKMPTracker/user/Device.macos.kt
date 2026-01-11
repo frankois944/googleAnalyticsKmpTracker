@@ -1,9 +1,8 @@
 @file:Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
 @file:OptIn(ExperimentalForeignApi::class)
 
-package io.github.frankois944.googleAnalyticsKMPTracker
+package io.github.frankois944.googleAnalyticsKMPTracker.user
 
-import io.github.frankois944.googleAnalyticsKMPTracker.user.Size
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.alloc
 import kotlinx.cinterop.allocArray
@@ -26,7 +25,7 @@ internal actual object Device {
 
     actual val isBrowser: Boolean = false
     actual val model: String = getPlatform()
-    actual val operatingSystem: String = "MacOS"
+    actual val operatingSystem: String = "macOS"
     actual val osVersion: String =
         NSProcessInfo.processInfo.operatingSystemVersion.useContents {
             "$majorVersion.$minorVersion.$patchVersion"
@@ -86,7 +85,7 @@ internal actual object Device {
     }
 
     actual val category: String = "desktop"
-    actual val browser: String? = null
+    actual val browser: String? = operatingSystem
     actual val browserVersion: String? = null
     actual val currentUserAgent: String? = null
     actual val brand: String = "Apple Inc."

@@ -1,6 +1,6 @@
 @file:Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
 
-package io.github.frankois944.googleAnalyticsKMPTracker
+package io.github.frankois944.googleAnalyticsKMPTracker.user
 
 import android.content.Context
 import android.content.pm.PackageManager
@@ -10,7 +10,6 @@ import android.util.DisplayMetrics
 import android.view.Display
 import android.view.WindowManager
 import io.github.frankois944.googleAnalyticsKMPTracker.context.ContextObject.context
-import io.github.frankois944.googleAnalyticsKMPTracker.user.Size
 import java.util.Locale
 
 internal actual object Device {

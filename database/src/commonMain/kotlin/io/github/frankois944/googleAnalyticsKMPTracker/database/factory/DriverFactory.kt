@@ -16,7 +16,7 @@ public suspend fun createDatabase(
     driverFactory: DriverFactory,
     dbName: String,
 ): CacheDatabase {
-    val version = 7
+    val version = 8
     val driver = driverFactory.createDriver(dbName, version)
     val database = CacheDatabase(driver)
     return database

@@ -1,7 +1,10 @@
+@file:OptIn(ExperimentalKotlinGradlePluginApi::class)
+@file:Suppress("UnstableApiUsage")
+
 import com.android.build.api.dsl.androidLibrary
+import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-import org.jetbrains.kotlin.gradle.plugin.mpp.apple.XCFramework
 import org.jetbrains.kotlin.gradle.targets.native.tasks.KotlinNativeSimulatorTest
 import java.util.Locale
 
@@ -39,7 +42,6 @@ kotlin {
         }
     }
 
-    val xcf = XCFramework()
     listOf(
         iosX64(),
         iosArm64(),
@@ -64,7 +66,6 @@ kotlin {
                 productName.replaceFirstChar { name ->
                     if (name.isLowerCase()) name.titlecase(Locale.getDefault()) else name.toString()
                 }
-            xcf.add(this)
             binaryOption("bundleId", "${group}${productName.lowercase()}")
             binaryOption("bundleVersion", version.toString())
             export(project(":core"))
@@ -96,19 +97,20 @@ kotlin {
         binaries.executable()
     }
 
+    dependencies {
+        implementation(libs.ktor.client.core)
+        implementation(libs.ktor.content.negotiation)
+        implementation(libs.ktor.content.encoding)
+        implementation(libs.ktor.serialization.kotlinx.json)
+        implementation(libs.ktor.logging)
+        implementation(libs.kotlinx.coroutines.core)
+        implementation(libs.kotlinx.serialization.json)
+        implementation(libs.kotlinx.datetime)
+        implementation(project(":database"))
+        api(project(":core"))
+    }
+
     sourceSets {
-        commonMain.dependencies {
-            implementation(libs.ktor.client.core)
-            implementation(libs.ktor.content.negotiation)
-            implementation(libs.ktor.content.encoding)
-            implementation(libs.ktor.serialization.kotlinx.json)
-            implementation(libs.ktor.logging)
-            implementation(libs.kotlinx.coroutines.core)
-            implementation(libs.kotlinx.serialization.json)
-            implementation(libs.kotlinx.datetime)
-            implementation(project(":database"))
-            api(project(":core"))
-        }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
             implementation(libs.kotlinx.coroutines.test)

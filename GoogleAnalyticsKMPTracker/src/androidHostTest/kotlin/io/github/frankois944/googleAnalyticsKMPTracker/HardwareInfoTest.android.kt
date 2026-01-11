@@ -5,6 +5,7 @@ package io.github.frankois944.googleAnalyticsKMPTracker
 import androidx.test.core.app.ApplicationProvider
 import io.github.frankois944.googleAnalyticsKMPTracker.context.storeContext
 import io.github.frankois944.googleAnalyticsKMPTracker.user.Device
+import io.github.frankois944.googleAnalyticsKMPTracker.user.UserAgentProvider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher

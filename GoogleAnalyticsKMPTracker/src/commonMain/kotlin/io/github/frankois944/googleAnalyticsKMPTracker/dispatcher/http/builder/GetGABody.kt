@@ -1,8 +1,8 @@
 package io.github.frankois944.googleAnalyticsKMPTracker.dispatcher.http.builder
 
+import io.github.frankois944.googleAnalyticsKMPTracker.core.Event
 import io.github.frankois944.googleAnalyticsKMPTracker.user.Device
 import io.github.frankois944.googleAnalyticsKMPTracker.user.Size
-import io.github.frankois944.googleAnalyticsKMPTracker.core.Event
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonObjectBuilder
@@ -19,17 +19,17 @@ private val jsonConfig = Json {
     ignoreUnknownKeys = true
     explicitNulls = false
 }
-
-internal fun Event.getGaBody(): JsonObject {
+internal fun Event.getGaBody(isValidationMode: Boolean): JsonObject {
     return buildJsonObject {
         setBaseInfo(this@getGaBody)
         put("events", setEvent(this@getGaBody))
-        // TODO: remove when debug is over
-        put("validation_behavior", "ENFORCE_RECOMMENDATIONS")
+        if (isValidationMode) {
+            put("validation_behavior", "ENFORCE_RECOMMENDATIONS")
+        }
     }
 }
 
-internal fun List<Event>.getGaBody(): JsonObject {
+internal fun List<Event>.getGaBody(isValidationMode: Boolean): JsonObject {
     if (isEmpty()) {
         return JsonObject(emptyMap())
     }
@@ -40,24 +40,26 @@ internal fun List<Event>.getGaBody(): JsonObject {
                 add(setEvent(event))
             }
         })
-        // TODO: remove when debug is over
-        put("validation_behavior", "ENFORCE_RECOMMENDATIONS")
+        if (isValidationMode) {
+            put("validation_behavior", "ENFORCE_RECOMMENDATIONS")
+        }
     }
 }
 
 private fun JsonObjectBuilder.setBaseInfo(event: Event) {
-    put("client_id", event.visitor.clientId)
-    if (!event.visitor.userId.isNullOrEmpty()) {
-        put("user_id", event.visitor.userId)
+    val visitor = event.visitor ?: return
+    put("client_id", visitor.clientId)
+    if (!visitor.userId.isNullOrEmpty()) {
+        put("user_id", visitor.userId)
     }
     setUserProperties(event)
     getGAUserConsent(event.adUserData, event.adPersonalization)?.let {
         put("consent", it)
     }
     if (!Device.isBrowser) {
-        put("user_location", getGAUserLabelJsonObject())
+        put("user_location", getGAUserLocation())
         put(
-            "device", getGADeviceJsonObject(
+            "device", getGADevice(
                 event.language,
                 Size(event.screenResolutionWidth, event.screenResolutionHeight)
             )
@@ -77,6 +79,7 @@ private fun setEvent(event: Event): JsonObject {
             // You must include the engagement_time_msec and session_id parameters in order for user activity
             // to display in reports like Realtime.
             put("engagement_time_msec", event.dateCreatedInMs - event.lastEventTimeStampInMs)
+            put("debug_mode", true)
             eventParams.asSequence().take(25).forEach { (key, value) ->
                 put(key, value)
             }

@@ -17,6 +17,7 @@ import kotlin.test.assertEquals
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 expect fun isAndroid(): Boolean
 
@@ -33,10 +34,15 @@ class EventTest {
                 // For request validation only
                 // url = "https://www.google-analytics.com/debug/mp/collect"
             ).also {
+                while (!it.isReady) { // the init of the Tracker is async
+                    delay(500.milliseconds)
+                }
                 it.logger = DefaultGATrackerLogger(minLevel = LogLevel.Verbose)
                 it.dispatchBatch()
-                it.queue!!.removeAll()
-                it.setUserId("my_user_id")
+                it.queue?.removeAll()
+                it.setUserId("my_user_id_${Uuid.random().toHexString()}")
+                it.enableAdPersonalization(true)
+                it.enableAdUserData(true)
                 assertEquals(
                     emptyList(),
                     it.queue!!.first(1),
@@ -116,7 +122,7 @@ class EventTest {
         val tracker = getTracker()
         launch(Dispatchers.Unconfined) {
             tracker.trackEvent(
-                name = "event_name1",
+                name = "event_ios_native_name",
                 parameters = buildMap {
                     put("category", "Button")
                     put("value", 42)

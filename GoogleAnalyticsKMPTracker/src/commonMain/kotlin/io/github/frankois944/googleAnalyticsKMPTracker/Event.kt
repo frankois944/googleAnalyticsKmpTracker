@@ -44,7 +44,7 @@ internal fun Event.Companion.create(
             "Parameter name \"$name\" can only contain alphanumeric characters and underscores"
         }
         require(value.content.length <= 100) {
-            "Event value \"$value\" must be 100 characters or fewer, got ${value.content.length}"
+            "Event content \"$value\" must be 100 characters or fewer, got ${value.content.length}"
         }
     }
     require(eventName.length <= 40) { "Event name \"$eventName\" must be 40 characters or fewer, got ${eventName.length}" }
