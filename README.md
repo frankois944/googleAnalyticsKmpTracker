@@ -11,6 +11,11 @@ A Kotlin Multiplatform library for Google Analytics (GA4) that supports all majo
 - **Multiplatform Support**: Android, iOS, Desktop (JVM), Web (JS/Wasm), macOS, tvOS, watchos.
 - **Persistence**: Events are queued and persisted (using SQLDelight)
 
+### Web targets
+
+> [!IMPORTANT]  
+> Due to the nature of the GoogleAnalytics, you can't use the tracker locally as CORS error will be trigger.
+
 ## Installation (Soon)
 
 ```kotlin
