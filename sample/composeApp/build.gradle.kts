@@ -54,7 +54,7 @@ kotlin {
             implementation(compose.components.uiToolingPreview)
             implementation(libs.androidx.lifecycle.viewmodelCompose)
             implementation(libs.androidx.lifecycle.runtimeCompose)
-            implementation(libs.matomokmptracker)
+            implementation("io.github.frankois944:googleAnalyticsKMPTracker:0.0.1")
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

@@ -1,9 +1,21 @@
 # Google Analytics KMP Tracker
 
+![Maven Central Version](https://img.shields.io/maven-central/v/io.github.frankois944/googleAnalyticsKMPTracker)
+[![Kotlin](https://img.shields.io/badge/kotlin-2.2.20-blue.svg?logo=kotlin)](https://kotlinlang.org)
+
+![Android](https://img.shields.io/badge/Android-green.svg?logo=android)
+![iOS](https://img.shields.io/badge/iOS-black.svg?logo=apple)
+![macOS](https://img.shields.io/badge/macOS-black.svg?logo=apple)
+![tvOS](https://img.shields.io/badge/tvOS-black.svg?logo=apple)
+![watchOS](https://img.shields.io/badge/watchOS-black.svg?logo=apple)
+![Desktop](https://img.shields.io/badge/Desktop-JVM-orange.svg?logo=openjdk)
+![JS](https://img.shields.io/badge/JS-yellow.svg?logo=javascript)
+![Wasm](https://img.shields.io/badge/Wasm-purple.svg?logo=webassembly)
+
 A Kotlin Multiplatform library for Google Analytics (GA4) that supports all major targets (Android, iOS, Desktop, Web, macOS, tvOS, watchos). This library uses the Measurement Protocol (v2) to send events directly to Google Analytics from your shared code.
 
 > [!IMPORTANT]  
-> This library use the GoogleAnaytlics API not the Firebase API.
+> This library uses the Google Analytics API, not the Firebase API.
 > 
 > As the GA API is optimized for the web, you need to follow this [documentation](https://developers.google.com/analytics/devguides/collection/protocol/ga4/reference/events) to create events.
 ## Features
@@ -14,9 +26,11 @@ A Kotlin Multiplatform library for Google Analytics (GA4) that supports all majo
 ### Web targets
 
 > [!IMPORTANT]  
-> Due to the nature of GoogleAnalytics, you can't use the tracker locally as CORS error will be trigger.
+> Due to the nature of Google Analytics, you can't use the tracker locally, as a CORS error will be triggered.
 
-## Installation (Soon)
+## Installation
+
+![Maven Central Version](https://img.shields.io/maven-central/v/io.github.frankois944/googleAnalyticsKMPTracker)
 
 ```kotlin
 // build.gradle.kts

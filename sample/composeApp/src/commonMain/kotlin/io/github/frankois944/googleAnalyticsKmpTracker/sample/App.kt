@@ -23,7 +23,8 @@ import googleanalyticskmptrackersample.composeapp.generated.resources.compose_mu
 fun App(context: Any? = null) {
 
     LaunchedEffect(context) {
-        MatomoTracker.create(context)
+        GATracker.create(context)
+        GATracker.current.trackView("MainScreen")
     }
 
     MaterialTheme {
@@ -37,10 +38,12 @@ fun App(context: Any? = null) {
         ) {
             Button(onClick = {
                 showContent = !showContent
-                MatomoTracker.current.trackEventWithCategory(
+                GATracker.current.trackEvent(
                     "Button",
-                    action = "Click me!",
-                    value = if (showContent) 1.0 else 0.0
+                    parameters = buildMap {
+                        put("action", "Click me!")
+                        put("value",if (showContent) 1.0 else 0.0)
+                    }
                 )
             }) {
                 Text("Click me!")
