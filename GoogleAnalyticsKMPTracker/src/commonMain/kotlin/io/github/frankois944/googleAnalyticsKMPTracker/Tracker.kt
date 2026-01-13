@@ -3,7 +3,7 @@
 
 package io.github.frankois944.googleAnalyticsKMPTracker
 
-import io.github.frankois944.googleAnalyticsKMPTracker.context.storeContext
+import io.github.frankois944.googleAnalyticsKMPTracker.context.storeAndLoadContext
 import io.github.frankois944.googleAnalyticsKMPTracker.core.Event
 import io.github.frankois944.googleAnalyticsKMPTracker.core.UserProperty
 import io.github.frankois944.googleAnalyticsKMPTracker.core.Visitor
@@ -96,7 +96,7 @@ public class Tracker private constructor(
         require(!(Device.model == "Android" && context == null)) {
             "An Android context must be set"
         }
-        storeContext(context, measurementId)
+        storeAndLoadContext(context, measurementId)
     }
 
     internal fun build(): Tracker {

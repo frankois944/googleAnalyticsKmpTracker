@@ -3,7 +3,7 @@
 package io.github.frankois944.googleAnalyticsKMPTracker
 
 import androidx.test.core.app.ApplicationProvider
-import io.github.frankois944.googleAnalyticsKMPTracker.context.storeContext
+import io.github.frankois944.googleAnalyticsKMPTracker.context.storeAndLoadContext
 import io.github.frankois944.googleAnalyticsKMPTracker.user.Device
 import io.github.frankois944.googleAnalyticsKMPTracker.user.UserAgentProvider
 import kotlinx.coroutines.Dispatchers
@@ -27,7 +27,7 @@ class HardwareInfoAndroidTest {
     @BeforeTest
     fun setUp() {
         Dispatchers.setMain(mainThreadSurrogate)
-        storeContext(ApplicationProvider.getApplicationContext())
+        storeAndLoadContext(ApplicationProvider.getApplicationContext())
     }
 
     @AfterTest

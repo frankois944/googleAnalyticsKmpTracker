@@ -1,4 +1,4 @@
 package io.github.frankois944.googleAnalyticsKMPTracker.context
 
-internal actual fun storeContext(context: Any?, measurementId: String) {
+internal actual fun storeAndLoadContext(context: Any?, measurementId: String) {
 }

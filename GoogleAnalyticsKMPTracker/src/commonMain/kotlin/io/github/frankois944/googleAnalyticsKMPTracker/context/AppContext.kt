@@ -1,3 +1,3 @@
 package io.github.frankois944.googleAnalyticsKMPTracker.context
 
-internal expect fun storeContext(context: Any?, measurementId: String)
+internal expect fun storeAndLoadContext(context: Any?, measurementId: String)

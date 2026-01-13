@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalWasmJsInterop::class)
+
 package io.github.frankois944.googleAnalyticsKMPTracker
 
 import kotlin.js.ExperimentalWasmJsInterop
@@ -10,7 +12,7 @@ import kotlin.js.js
 internal fun loadGtagJS(measurementId: String) {
     js("""
 (function () {
-    var MEASUREMENT_ID = "measurementId";
+    var MEASUREMENT_ID = measurementId;
     
     // Create dataLayer
     window.dataLayer = window.dataLayer || [];
@@ -34,14 +36,19 @@ internal fun loadGtagJS(measurementId: String) {
     """)
 }
 
-/**
- * Retrieves the client ID from gtag.
- */
-internal fun getClientId(measurementId: String) {
+
+internal fun sendEvent(eventName: String, params: JsAny?) {
     js("""
-        window.gtag('get', measurementId, 'client_id', function(clientId) {
-            console.log(clientId);
-            console.log("\n");
-        });
+        window.gtag('event', eventName, params);
+    """)
+}
+internal fun set(parameterName: String, params: JsAny?) {
+    js("""
+        window.gtag('set', eventName, params);
+    """)
+}
+internal fun consent(consentArgs: JsAny) {
+    js("""
+        window.gtag('consent', consentArgs);
     """)
 }
