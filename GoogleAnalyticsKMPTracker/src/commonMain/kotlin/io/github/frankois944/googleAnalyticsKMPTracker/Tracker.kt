@@ -96,7 +96,7 @@ public class Tracker private constructor(
         require(!(Device.model == "Android" && context == null)) {
             "An Android context must be set"
         }
-        storeContext(context)
+        storeContext(context, measurementId)
     }
 
     internal fun build(): Tracker {

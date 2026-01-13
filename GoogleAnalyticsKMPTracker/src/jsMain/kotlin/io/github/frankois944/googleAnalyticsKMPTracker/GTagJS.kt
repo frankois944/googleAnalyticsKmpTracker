@@ -9,19 +9,28 @@ import kotlin.js.js
  */
 internal fun loadGtagJS(measurementId: String) {
     js("""
-        (function(id) {
-            var script = document.createElement('script');
-            script.async = true;
-            script.src = 'https://www.googletagmanager.com/gtag/js?id=' + id;
-            document.head.appendChild(script);
-
-            window.dataLayer = window.dataLayer || [];
-            window.gtag = function() {
-                window.dataLayer.push(arguments);
-            };
-            window.gtag('js', new Date());
-            window.gtag('config', id);
-        })(measurementId);
+(function () {
+    var MEASUREMENT_ID = "measurementId";
+    
+    // Create dataLayer
+    window.dataLayer = window.dataLayer || [];
+    
+    // Define gtag
+    window.gtag = function () {
+    window.dataLayer.push(arguments);
+    };
+    
+    // Load Google tag script
+    var script = document.createElement("script");
+    script.async = true;
+    script.src =
+    "https://www.googletagmanager.com/gtag/js?id=" + MEASUREMENT_ID;
+    document.head.appendChild(script);
+    
+    // Initialize GA
+    window.gtag("js", new Date());
+    window.gtag("config", MEASUREMENT_ID);
+})();
     """)
 }
 
@@ -30,7 +39,7 @@ internal fun loadGtagJS(measurementId: String) {
  */
 internal fun getClientId(measurementId: String) {
     js("""
-        window.gtag('get', measurementId, 'client_id', (clientId) => {
+        window.gtag('get', measurementId, 'client_id', function(clientId) {
             console.log(clientId);
             console.log("\n");
         });
