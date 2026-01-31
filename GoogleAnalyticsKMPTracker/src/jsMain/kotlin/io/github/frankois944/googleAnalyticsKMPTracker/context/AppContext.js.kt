@@ -3,14 +3,10 @@
 package io.github.frankois944.googleAnalyticsKMPTracker.context
 
 import io.github.frankois944.googleAnalyticsKMPTracker.loadGtagJS
-import io.github.frankois944.googleAnalyticsKMPTracker.mapToJsObject
-import io.github.frankois944.googleAnalyticsKMPTracker.sendEvent
 
-internal actual fun storeAndLoadContext(context: Any?, measurementId: String) {
+internal actual fun storeAndLoadContext(
+    context: Any?,
+    measurementId: String,
+) {
     loadGtagJS(measurementId)
-    println("SEND JS EVENT")
-    sendEvent("myjs_my_custom_event", mapToJsObject(buildMap {
-        put("param12".toJsString(), "data1".toJsString())
-        put("param24".toJsString(), "data2".toJsString())
-    }))
 }

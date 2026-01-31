@@ -11,12 +11,11 @@ internal fun getGAUserLocation(
     countryId: String? = null,
     subcontinentId: String? = null,
     continentId: String? = null,
-): JsonObject {
-    return buildJsonObject {
+): JsonObject =
+    buildJsonObject {
         (city ?: UserLocation.city)?.let { put("city", it) }
         (regionId ?: UserLocation.regionId)?.let { put("region_id", it) }
         (countryId ?: UserLocation.countryId)?.let { put("country_id", it) }
         (subcontinentId ?: UserLocation.subcontinentId)?.let { put("subcontinent_id", it) }
         (continentId ?: UserLocation.continentId)?.let { put("continent_id", it) }
     }
-}

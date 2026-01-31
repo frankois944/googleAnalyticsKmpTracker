@@ -40,6 +40,6 @@ public class UserProperty(
             require(it.content.length <= 36) {
                 "Event value must be 36 characters or fewer, got ${value.toString().length}"
             }
-        }
+        },
     )
 }

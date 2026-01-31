@@ -42,28 +42,29 @@ class EventTestAndroid {
     }
 
     @kotlin.test.Test
-    fun testPageView() = runTest(timeout = 30.seconds) {
+    fun testPageView() =
+        runTest(timeout = 30.seconds) {
             launch(Dispatchers.IO) {
-                /*val queuedEvents = mutableListOf<Event>()
+            /*val queuedEvents = mutableListOf<Event>()
 
-                val queue: Queue =
-                    object : Queue {
-                        override suspend fun eventCount(): Long = 0
+            val queue: Queue =
+                object : Queue {
+                    override suspend fun eventCount(): Long = 0
 
-                        override suspend fun enqueue(events: List<Event>) {
-                            queuedEvents.addAll(events)
-                        }
+                    override suspend fun enqueue(events: List<Event>) {
+                        queuedEvents.addAll(events)
+                    }
 
-                        override suspend fun first(limit: Long): List<Event> = queuedEvents.subList(0, limit.toInt())
+                    override suspend fun first(limit: Long): List<Event> = queuedEvents.subList(0, limit.toInt())
 
-                        override suspend fun remove(events: List<Event>) {
-                            // no-op
-                        }
+                    override suspend fun remove(events: List<Event>) {
+                        // no-op
+                    }
 
-                        override suspend fun removeAll() {
-                            // no-op
-                        }
-                    }*/
+                    override suspend fun removeAll() {
+                        // no-op
+                    }
+                }*/
                 val tracker =
                     Tracker
                         .create(
@@ -72,7 +73,7 @@ class EventTestAndroid {
                             url = "https://www.google-analytics.com/mp/collect",
                             context = ApplicationProvider.getApplicationContext(),
                             // For request validation only
-                            //url = "https://www.google-analytics.com/debug/mp/collect"
+                            // url = "https://www.google-analytics.com/debug/mp/collect"
                         ).also {
                             it.logger = DefaultGATrackerLogger(minLevel = LogLevel.Verbose)
                         }
@@ -94,13 +95,13 @@ class EventTestAndroid {
                     delay(1.seconds)
                 }
                 waitAllEventSent(tracker)
-                /*queuedEvents.forEach {
-                    println("---")
-                    println("DATE = ${it.date}")
-                    println("isNewSession = ${it.isNewSession}")
-                    println("isPing = ${it.isPing}")
-                }
-                println("---")*/
+            /*queuedEvents.forEach {
+                println("---")
+                println("DATE = ${it.date}")
+                println("isNewSession = ${it.isNewSession}")
+                println("isPing = ${it.isPing}")
+            }
+            println("---")*/
             }
         }
 }

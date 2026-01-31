@@ -24,10 +24,11 @@ public class DatabaseQueue(
 
     override suspend fun eventCount(): Long = database.trackingCacheQueries.count().awaitAsOne()
 
-    private val cbor = Cbor {
-        encodeDefaults = true
-        ignoreUnknownKeys = true
-    }
+    private val cbor =
+        Cbor {
+            encodeDefaults = true
+            ignoreUnknownKeys = true
+        }
 
     override suspend fun enqueue(events: List<Event>): Unit =
         mutex.withLock {

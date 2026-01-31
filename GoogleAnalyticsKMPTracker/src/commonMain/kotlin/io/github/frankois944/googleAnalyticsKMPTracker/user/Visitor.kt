@@ -19,5 +19,4 @@ internal suspend fun Visitor.Companion.current(userPreferences: UserPreferences)
     return Visitor(clientId = clientID, userId = userId)
 }
 
-private fun Visitor.Companion.newClientId(): String =
-    "${Random.nextInt(1, Int.MAX_VALUE)}.${Random.nextInt(1, Int.MAX_VALUE)}"
+private fun Visitor.Companion.newClientId(): String = "${Random.nextInt(1, Int.MAX_VALUE)}.${Random.nextInt(1, Int.MAX_VALUE)}"

@@ -30,7 +30,7 @@ class EventTest {
             .create(
                 apiSecret = apiSecret,
                 measurementId = measurementId,
-                url = "https://www.google-analytics.com/mp/collect"
+                url = "https://www.google-analytics.com/mp/collect",
                 // For request validation only
                 // url = "https://www.google-analytics.com/debug/mp/collect"
             ).also {
@@ -68,67 +68,71 @@ class EventTest {
     }
 
     @Test
-    fun testPageView() = runTest(
-        timeout = 30.seconds
-    ) {
-        if (isAndroid()) {
-            return@runTest
-        }
-        val tracker = getTracker()
-        tracker.enableAdUserData(false)
-        tracker.enableAdPersonalization(true)
-        tracker.setUserProperty("customer_tier", 423)
-        tracker.setUserProperty("custom_stuff", "dsfsfsdf")
-        val nbVisit = 1
-        for (i in 1..nbVisit) {
-            println("Session send $i")
-            tracker.trackView(listOf("index11"))
-            delay(50.milliseconds)
-            tracker.trackView(listOf("index1", "index21"))
-            delay(50.milliseconds)
-            tracker.trackView(listOf("index1", "index2", "index31"))
-            delay(50.milliseconds)
-            tracker.trackView(listOf("index1", "index2", "index3", "index41"))
-            delay(50.milliseconds)
-            tracker.trackView(listOf("index1", "index2", "index3", "index4", "index51"))
-            delay(50.milliseconds)
-            tracker.trackView("MyScreenName")
-            delay(50.milliseconds)
-        }
-        waitAllEventSent(tracker)
-    }
-
-    @Test
-    fun testSearch() = runTest(timeout = 30.seconds) {
-        if (isAndroid()) {
-            return@runTest
-        }
-        val tracker = getTracker()
-        launch(Dispatchers.Unconfined) {
-            tracker.trackSearch("Test Unit Search 1")
-            delay(1.seconds)
-            tracker.trackSearch("Test Unit Search 2")
-            delay(1.seconds)
-            tracker.trackSearch("Test Unit Search 3")
+    fun testPageView() =
+        runTest(
+            timeout = 30.seconds,
+        ) {
+            if (isAndroid()) {
+                return@runTest
+            }
+            val tracker = getTracker()
+            tracker.enableAdUserData(false)
+            tracker.enableAdPersonalization(true)
+            tracker.setUserProperty("customer_tier", 423)
+            tracker.setUserProperty("custom_stuff", "dsfsfsdf")
+            val nbVisit = 1
+            for (i in 1..nbVisit) {
+                println("Session send $i")
+                tracker.trackView(listOf("index11"))
+                delay(50.milliseconds)
+                tracker.trackView(listOf("index1", "index21"))
+                delay(50.milliseconds)
+                tracker.trackView(listOf("index1", "index2", "index31"))
+                delay(50.milliseconds)
+                tracker.trackView(listOf("index1", "index2", "index3", "index41"))
+                delay(50.milliseconds)
+                tracker.trackView(listOf("index1", "index2", "index3", "index4", "index51"))
+                delay(50.milliseconds)
+                tracker.trackView("MyScreenName")
+                delay(50.milliseconds)
+            }
             waitAllEventSent(tracker)
         }
-    }
 
     @Test
-    fun testEvent() = runTest(timeout = 30.seconds) {
-        if (isAndroid()) {
-            return@runTest
+    fun testSearch() =
+        runTest(timeout = 30.seconds) {
+            if (isAndroid()) {
+                return@runTest
+            }
+            val tracker = getTracker()
+            launch(Dispatchers.Unconfined) {
+                tracker.trackSearch("Test Unit Search 1")
+                delay(1.seconds)
+                tracker.trackSearch("Test Unit Search 2")
+                delay(1.seconds)
+                tracker.trackSearch("Test Unit Search 3")
+                waitAllEventSent(tracker)
+            }
         }
-        val tracker = getTracker()
-        launch(Dispatchers.Unconfined) {
-            tracker.trackEvent(
-                name = "event_ios_native_name",
-                parameters = buildMap {
-                    put("category", "Button")
-                    put("value", 42)
-                }
-            )
-            waitAllEventSent(tracker)
+
+    @Test
+    fun testEvent() =
+        runTest(timeout = 30.seconds) {
+            if (isAndroid()) {
+                return@runTest
+            }
+            val tracker = getTracker()
+            launch(Dispatchers.Unconfined) {
+                tracker.trackEvent(
+                    name = "event_ios_native_name",
+                    parameters =
+                        buildMap {
+                            put("category", "Button")
+                            put("value", 42)
+                        },
+                )
+                waitAllEventSent(tracker)
+            }
         }
-    }
 }

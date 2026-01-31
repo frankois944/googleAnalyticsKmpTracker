@@ -49,17 +49,17 @@ public class Event(
         if (this === other) return true
         if (other !is Event) return false
         return uuid == other.uuid &&
-                visitor == other.visitor &&
-                params == other.params &&
-                language == other.language &&
-                screenResolutionWidth == other.screenResolutionWidth &&
-                screenResolutionHeight == other.screenResolutionHeight &&
-                eventName == other.eventName &&
-                measurementId == other.measurementId &&
-                sessionId == other.sessionId &&
-                properties == other.properties &&
-                lastEventTimeStampInMs == other.lastEventTimeStampInMs &&
-                dateCreatedInMs == other.dateCreatedInMs
+            visitor == other.visitor &&
+            params == other.params &&
+            language == other.language &&
+            screenResolutionWidth == other.screenResolutionWidth &&
+            screenResolutionHeight == other.screenResolutionHeight &&
+            eventName == other.eventName &&
+            measurementId == other.measurementId &&
+            sessionId == other.sessionId &&
+            properties == other.properties &&
+            lastEventTimeStampInMs == other.lastEventTimeStampInMs &&
+            dateCreatedInMs == other.dateCreatedInMs
     }
 
     override fun hashCode(): Int {

@@ -8,26 +8,40 @@ import io.github.frankois944.googleAnalyticsKMPTracker.user.current
 import kotlin.jvm.JvmInline
 
 @JvmInline
-internal value class UserId(val value: String?)
+internal value class UserId(
+    val value: String?,
+)
+
 @JvmInline
-internal value class IsOptOut(val value: Boolean)
+internal value class IsOptOut(
+    val value: Boolean,
+)
+
 @JvmInline
-internal value class AdUserDataEnabled(val value: Boolean?)
+internal value class AdUserDataEnabled(
+    val value: Boolean?,
+)
+
 @JvmInline
-internal value class AdPersonalizationEnabled(val value: Boolean?)
+internal value class AdPersonalizationEnabled(
+    val value: Boolean?,
+)
 
 internal class StartupCache(
-    val events: MutableList<Event> = mutableListOf(),
+    private val events: MutableList<Event> = mutableListOf(),
     var userId: UserId? = null,
     var adUserDataEnabled: AdUserDataEnabled? = null,
     var adPersonalizationEnabled: AdPersonalizationEnabled? = null,
-    var isOptOut: IsOptOut? = null
+    var isOptOut: IsOptOut? = null,
 ) {
     fun addEvent(event: Event) {
         events.add(event)
     }
 
-    suspend fun flush(queue: Queue, userPreferences: UserPreferences) {
+    suspend fun flush(
+        queue: Queue,
+        userPreferences: UserPreferences,
+    ) {
         userId?.let { userId ->
             userPreferences.setUserId(userId.value)
         }

@@ -12,11 +12,12 @@ import kotlin.time.ExperimentalTime
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
-private val jsonConfig = Json {
-    encodeDefaults = true
-    ignoreUnknownKeys = true
-    explicitNulls = false
-}
+private val jsonConfig =
+    Json {
+        encodeDefaults = true
+        ignoreUnknownKeys = true
+        explicitNulls = false
+    }
 
 /**
  * Creates a new instance of the [Event] class with the specified parameters.
@@ -67,6 +68,6 @@ internal fun Event.Companion.create(
         eventName = eventName,
         adUserData = tracker.adUserDataEnabled,
         adPersonalization = tracker.adPersonalizationEnabled,
-        params = jsonConfig.encodeToString(params)
+        params = jsonConfig.encodeToString(params),
     )
 }

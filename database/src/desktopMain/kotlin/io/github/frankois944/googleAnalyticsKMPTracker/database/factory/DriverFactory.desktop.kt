@@ -13,9 +13,10 @@ public actual class DriverFactory {
     public actual suspend fun createDriver(
         dbName: String,
         dbVersion: Int,
-    ): SqlDriver = JdbcSqliteDriver(
-                "jdbc:sqlite:${FileSystem.SYSTEM_TEMPORARY_DIRECTORY}/$dbName-googleAnalytics-kmp-tracker-$dbVersion.db",
-                Properties(),
-                CacheDatabase.Schema.synchronous(),
-            )
+    ): SqlDriver =
+        JdbcSqliteDriver(
+            "jdbc:sqlite:${FileSystem.SYSTEM_TEMPORARY_DIRECTORY}/$dbName-googleAnalytics-kmp-tracker-$dbVersion.db",
+            Properties(),
+            CacheDatabase.Schema.synchronous(),
+        )
 }

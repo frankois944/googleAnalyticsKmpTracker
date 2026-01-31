@@ -14,6 +14,7 @@ import io.github.frankois944.googleAnalyticsKMPTracker.database.factory.createDa
 import io.github.frankois944.googleAnalyticsKMPTracker.database.queue.DatabaseQueue
 import io.github.frankois944.googleAnalyticsKMPTracker.dispatcher.Dispatcher
 import io.github.frankois944.googleAnalyticsKMPTracker.dispatcher.http.HttpClientDispatcher
+import io.github.frankois944.googleAnalyticsKMPTracker.dispatcher.web.WebDispatcher
 import io.github.frankois944.googleAnalyticsKMPTracker.preferences.UserPreferences
 import io.github.frankois944.googleAnalyticsKMPTracker.startup.AdPersonalizationEnabled
 import io.github.frankois944.googleAnalyticsKMPTracker.startup.AdUserDataEnabled
@@ -84,6 +85,7 @@ public class Tracker private constructor(
      */
     internal var sessionId: Long = Clock.System.now().epochSeconds
     internal var visitor: Visitor? = null
+    internal var webDispatcher: WebDispatcher? = null
 
     /**
      * This logger is used to perform logging of all sorts of GA related information.
@@ -100,15 +102,19 @@ public class Tracker private constructor(
     }
 
     internal fun build(): Tracker {
-        // Dispatcher
-        dispatcher =
-            customDispatcher ?: HttpClientDispatcher(
-                baseURL = url,
-                onPrintLog = { message ->
-                    logger.log(message = message, LogLevel.Debug)
-                },
-                apiSecret = apiSecret,
-            )
+        if (Device.isBrowser) {
+            webDispatcher = WebDispatcher()
+        } else {
+            // Dispatcher
+            dispatcher =
+                customDispatcher ?: HttpClientDispatcher(
+                    baseURL = url,
+                    onPrintLog = { message ->
+                        logger.log(message = message, LogLevel.Debug)
+                    },
+                    apiSecret = apiSecret,
+                )
+        }
         coroutine.launch(Dispatchers.Default) {
             // Database
             val database =
@@ -165,7 +171,14 @@ public class Tracker private constructor(
         } else {
             logger.log("Sending event ${items.joinToString { it.uuid }}", LogLevel.Verbose)
             try {
-                dispatcher?.sendBulkEvent(items)
+                webDispatcher?.let { webDispatcher ->
+                    items.forEach { item ->
+                        webDispatcher.sendSingleEvent(item)
+                    }
+                } ?: run {
+                    dispatcher?.sendBulkEvent(items)
+                }
+
                 logger.log("remove events ${items.joinToString { it.uuid }}", LogLevel.Verbose)
                 queue?.remove(items)
             } catch (e: IllegalArgumentException) {
@@ -209,9 +222,7 @@ public class Tracker private constructor(
             ).build()
     }
 
-    internal fun queue(
-        event: Event,
-    ) {
+    internal fun queue(event: Event) {
         if (queue == null && !isOptedOut) {
             logger.log("Not yet initialized, store event InMemory", LogLevel.Info)
             startupData?.addEvent(event)
@@ -242,7 +253,7 @@ public class Tracker private constructor(
         userPreferences?.setOptOut(value)?.run {
             logger.log(
                 "Not yet initialized, store setOptOut InMemory",
-                LogLevel.Info
+                LogLevel.Info,
             )
             startupData?.isOptOut = IsOptOut(value)
         }
@@ -257,7 +268,7 @@ public class Tracker private constructor(
         userPreferences?.setAdUserData(value) ?: run {
             logger.log(
                 "Not yet initialized, store enableAdUserData InMemory",
-                LogLevel.Info
+                LogLevel.Info,
             )
             startupData?.adUserDataEnabled = AdUserDataEnabled(value)
         }
@@ -272,7 +283,7 @@ public class Tracker private constructor(
         userPreferences?.setAdPersonalization(value) ?: run {
             logger.log(
                 "Not yet initialized, store enableAdPersonalization InMemory",
-                LogLevel.Info
+                LogLevel.Info,
             )
             startupData?.adPersonalizationEnabled = AdPersonalizationEnabled(value)
         }
@@ -292,7 +303,7 @@ public class Tracker private constructor(
         } ?: run {
             logger.log(
                 "Not yet initialized, store UserId InMemory",
-                LogLevel.Info
+                LogLevel.Info,
             )
             startupData?.userId = UserId(value)
         }
@@ -315,7 +326,10 @@ public class Tracker private constructor(
      * Accepted value types include String, Int, Double, Boolean, Long, and Float.
      * Other types will be converted to a string representation.
      */
-    public fun sendEvent(name: String, params: Map<String, Any>) {
+    public fun sendEvent(
+        name: String,
+        params: Map<String, Any>,
+    ) {
         track(
             Event.create(
                 tracker = this,
@@ -339,10 +353,11 @@ public class Tracker private constructor(
             Event.create(
                 tracker = this,
                 eventName = "select_content",
-                params = buildMap {
-                    contentId?.let { put("content_id", JsonPrimitive(contentType)) }
-                    contentType?.let { put("content_type", JsonPrimitive(contentId)) }
-                },
+                params =
+                    buildMap {
+                        contentId?.let { put("content_id", JsonPrimitive(contentType)) }
+                        contentType?.let { put("content_type", JsonPrimitive(contentId)) }
+                    },
             ),
         )
     }
@@ -354,9 +369,7 @@ public class Tracker private constructor(
      *
      * @param viewName The name of the screen being viewed. This is used as the page title in the tracking data.
      */
-    public fun trackView(
-        viewName: String,
-    ) {
+    public fun trackView(viewName: String) {
         trackView(listOf(viewName))
     }
 
@@ -366,17 +379,16 @@ public class Tracker private constructor(
      * @param view A list of hierarchical screen names. The last element is used as the page title,
      * and all elements are joined with '/' to form the page location.
      */
-    public fun trackView(
-        view: List<String>,
-    ) {
+    public fun trackView(view: List<String>) {
         track(
             Event.create(
                 tracker = this,
                 eventName = "page_view",
-                params = buildMap {
-                    put("page_title", JsonPrimitive(view.last()))
-                    put("page_location", JsonPrimitive(view.joinToString("/")))
-                },
+                params =
+                    buildMap {
+                        put("page_title", JsonPrimitive(view.last()))
+                        put("page_location", JsonPrimitive(view.joinToString("/")))
+                    },
             ),
         )
     }
@@ -397,21 +409,22 @@ public class Tracker private constructor(
             Event.create(
                 tracker = this,
                 eventName = name,
-                params = buildMap {
-                    parameters?.let {
-                        for ((key, value) in parameters) {
-                            when (value) {
-                                is String -> put(key, JsonPrimitive(value))
-                                is Int -> put(key, JsonPrimitive(value))
-                                is Double -> put(key, JsonPrimitive(value))
-                                is Boolean -> put(key, JsonPrimitive(value))
-                                is Long -> put(key, JsonPrimitive(value))
-                                is Float -> put(key, JsonPrimitive(value))
-                                else -> put(key, JsonPrimitive(value.toString()))
+                params =
+                    buildMap {
+                        parameters?.let {
+                            for ((key, value) in parameters) {
+                                when (value) {
+                                    is String -> put(key, JsonPrimitive(value))
+                                    is Int -> put(key, JsonPrimitive(value))
+                                    is Double -> put(key, JsonPrimitive(value))
+                                    is Boolean -> put(key, JsonPrimitive(value))
+                                    is Long -> put(key, JsonPrimitive(value))
+                                    is Float -> put(key, JsonPrimitive(value))
+                                    else -> put(key, JsonPrimitive(value.toString()))
+                                }
                             }
                         }
-                    }
-                }
+                    },
             ),
         )
     }
@@ -421,16 +434,15 @@ public class Tracker private constructor(
      *
      * @param searchTerm The search term entered by the user.
      */
-    public fun trackSearch(
-        searchTerm: String,
-    ) {
+    public fun trackSearch(searchTerm: String) {
         track(
             Event.create(
                 tracker = this,
                 eventName = "search",
-                params = buildMap {
-                    put("search_term", JsonPrimitive(searchTerm))
-                },
+                params =
+                    buildMap {
+                        put("search_term", JsonPrimitive(searchTerm))
+                    },
             ),
         )
     }

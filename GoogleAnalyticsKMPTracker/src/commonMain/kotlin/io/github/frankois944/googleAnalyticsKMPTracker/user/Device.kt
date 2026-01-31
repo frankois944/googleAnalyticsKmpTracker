@@ -7,9 +7,7 @@ internal class Size(
     val height: Long,
 )
 
-
 internal expect object Device {
-
     val isBrowser: Boolean
 
     val model: String
@@ -31,11 +29,9 @@ internal expect object Device {
     val category: String
 
     val browser: String?
-    
+
     val browserVersion: String?
 
     val currentUserAgent: String?
     val brand: String
 }
-
-

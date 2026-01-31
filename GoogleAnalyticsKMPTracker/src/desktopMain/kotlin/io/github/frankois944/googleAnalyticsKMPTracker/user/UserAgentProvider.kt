@@ -35,5 +35,4 @@ internal actual object UserAgentProvider {
             }
         }
     }
-
 }

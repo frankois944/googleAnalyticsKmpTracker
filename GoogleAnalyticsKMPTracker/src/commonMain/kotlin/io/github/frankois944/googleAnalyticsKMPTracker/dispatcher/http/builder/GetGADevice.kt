@@ -6,10 +6,13 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 
-internal fun getGADevice(language: String?, screenSize: Size) : JsonObject {
-    return buildJsonObject {
+internal fun getGADevice(
+    language: String?,
+    screenSize: Size,
+): JsonObject =
+    buildJsonObject {
         put("category", Device.category)
-        language?.let {  put("language", it) }
+        language?.let { put("language", it) }
         put("screenResolution", "${screenSize.width}x${screenSize.height}")
         put("operatingSystem", Device.operatingSystem)
         put("operatingSystemVersion", Device.osVersion)
@@ -18,4 +21,3 @@ internal fun getGADevice(language: String?, screenSize: Size) : JsonObject {
         Device.browser?.let { put("browser", it) }
         Device.browserVersion?.let { put("browserVersion", it) }
     }
-}

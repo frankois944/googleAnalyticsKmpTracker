@@ -46,5 +46,4 @@ internal actual object UserAgentProvider {
         }
         return httpAgent
     }
-
 }

@@ -2,7 +2,6 @@
 
 package io.github.frankois944.googleAnalyticsKMPTracker
 
-// internal val version: String = js("process.version")
 internal val userAgent: String = js("navigator.userAgent")
 
 internal val width: Int = js("window.screen.width")

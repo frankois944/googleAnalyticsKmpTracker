@@ -13,7 +13,6 @@ import io.github.frankois944.googleAnalyticsKMPTracker.context.ContextObject.con
 import java.util.Locale
 
 internal actual object Device {
-
     actual val isBrowser: Boolean = false
     actual val model: String = "Android"
     actual val operatingSystem: String = Build.MODEL ?: "Android"
