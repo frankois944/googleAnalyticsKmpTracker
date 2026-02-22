@@ -80,7 +80,7 @@ internal fun valueToJsType(value: Any): JsAny? =
             value.map { item ->
                 putObject(
                     array,
-                    item.toString().toJsString(),
+                    item.key.toString().toJsString(),
                     item.value?.let { valueToJsType(it) },
                 )
             }

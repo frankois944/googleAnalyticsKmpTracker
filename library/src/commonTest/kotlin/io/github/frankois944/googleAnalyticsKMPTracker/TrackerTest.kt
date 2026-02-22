@@ -56,7 +56,7 @@ class TrackerTest : PlatformBaseTest() {
                 GATracker.trackView("Test View1")
                 GATracker.trackView("Test View2")
                 GATracker.trackView("Test View3")
-                delay(5.seconds)
+                delay(1.seconds)
             }
         }
 }
