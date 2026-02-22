@@ -1,11 +1,5 @@
 package io.github.frankois944.googleAnalyticsKMPTracker.logger
 
-import co.touchlab.kermit.Logger
-import co.touchlab.kermit.NoTagFormatter
-import co.touchlab.kermit.Severity
-import co.touchlab.kermit.mutableLoggerConfigInit
-import co.touchlab.kermit.platformLogWriter
-
 public enum class LogLevel(
     internal val level: Int,
 ) {
@@ -14,26 +8,27 @@ public enum class LogLevel(
     Info(30),
     Warning(40),
     Error(50),
-    ;
-
-    internal fun toKermitSeverity(): Severity =
-        when (this) {
-            Verbose -> Severity.Verbose
-            Debug -> Severity.Debug
-            Info -> Severity.Info
-            Warning -> Severity.Warn
-            Error -> Severity.Error
-        }
 }
 
-internal val loggerConfig =
-    mutableLoggerConfigInit(
-        logWriters = listOf(platformLogWriter(NoTagFormatter)).toTypedArray(),
-        minSeverity = Severity.Debug,
+public interface GATrackerLogger {
+    public fun log(
+        level: LogLevel,
+        message: () -> String,
     )
+}
 
-internal val LOG =
-    Logger(
-        loggerConfig,
-        "GATracker",
-    )
+// / This Logger logs every message to the console with a `println` statement.
+public class Logger(
+    internal var minLevel: LogLevel,
+) : GATrackerLogger {
+    override fun log(
+        level: LogLevel,
+        message: () -> String,
+    ) {
+        if (level.level >= minLevel.level) {
+            println("[GATracker][$level]${message()}")
+        }
+    }
+}
+
+internal val LOG = Logger(LogLevel.Debug)

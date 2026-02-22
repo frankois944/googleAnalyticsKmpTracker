@@ -1,13 +1,10 @@
-package io.github.frankois944.googleAnalyticsKMPTracker
+package io.github.frankois944.googleAnalyticsKMPTracker.events
 
-internal expect class GAEvents() {
-    constructor(
-        measurementId: String,
-        url: String? = null,
-        apiSecret: String? = null,
-        context: Any? = null,
-    )
-
+internal expect class GAEvents(
+    measurementId: String,
+    url: String? = null,
+    apiSecret: String? = null,
+) {
     fun sendEvent(
         eventName: String,
         params: Map<String, Any> = emptyMap(),

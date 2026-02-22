@@ -1,6 +1,6 @@
 @file:OptIn(ExperimentalWasmJsInterop::class)
 
-package io.github.frankois944.googleAnalyticsKMPTracker
+package io.github.frankois944.googleAnalyticsKMPTracker.functions
 
 import kotlin.js.ExperimentalWasmJsInterop
 import kotlin.js.JsAny
@@ -12,7 +12,10 @@ import kotlin.js.js
  * Loads the gtag.js script and initializes the dataLayer.
  */
 @OptIn(ExperimentalWasmJsInterop::class)
-internal fun loadGtagJS(measurementId: String) {
+internal fun loadGtagJS(
+    measurementId: String,
+    callback: () -> Unit,
+) {
     js(
         """
         (function(id) {
@@ -27,6 +30,7 @@ internal fun loadGtagJS(measurementId: String) {
             };
             window.gtag('js', new Date());
             window.gtag('config', id);
+            callback()
         })(measurementId);
     """,
     )

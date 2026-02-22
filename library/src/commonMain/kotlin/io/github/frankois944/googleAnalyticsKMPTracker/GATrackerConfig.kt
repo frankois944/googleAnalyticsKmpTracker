@@ -24,12 +24,7 @@ public class GATrackerConfig(
     public var isOptedOut: Boolean = false
 
     /**
-     * Enable logs and debug informations
-     */
-    public var isDebug: Boolean = false
-
-    /**
      * Log level for the tracker
      */
-    public var logLevel: LogLevel = LogLevel.Debug
+    public var logLevel: LogLevel = LogLevel.Error
 }
