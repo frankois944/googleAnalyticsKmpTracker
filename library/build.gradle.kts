@@ -1,40 +1,43 @@
 import com.android.build.api.dsl.androidLibrary
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-import java.util.Locale
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.android.kotlin.multiplatform.library)
     alias(libs.plugins.vanniktech.mavenPublish)
-    alias(libs.plugins.sqlDelight)
     alias(libs.plugins.kotlinx.serialization)
 }
 
-
-group = "io.github.frankois944"
-val productName = "googleAnalyticsKmpTracker"
-version = libs.versions.libaryVersion.get()
+group = libs.versions.group.get()
+val productName = libs.versions.productName.get()
+version = libs.versions.versionName.get()
 
 kotlin {
 
     applyDefaultHierarchyTemplate()
-
+    compilerOptions.freeCompilerArgs.add("-Xexpect-actual-classes")
     explicitApi()
 
     mingwX64()
     linuxX64()
     jvm("desktop")
     androidLibrary {
-        namespace = "org.jetbrains.kotlinx.multiplatform.library.template"
-        compileSdk = libs.versions.android.compileSdk.get().toInt()
-        minSdk = libs.versions.android.minSdk.get().toInt()
+        namespace = "$group.$productName"
+        compileSdk =
+            libs.versions.android.compileSdk
+                .get()
+                .toInt()
+        minSdk =
+            libs.versions.android.minSdk
+                .get()
+                .toInt()
 
         withJava() // enable java compilation support
         withHostTestBuilder {}.configure {}
-        withDeviceTestBuilder {
+        /*withDeviceTestBuilder {
             sourceSetTreeName = "test"
-        }
+        }*/
 
         compilerOptions {
             jvmTarget.set(
@@ -93,7 +96,6 @@ kotlin {
         binaries.executable()
     }
 
-
     sourceSets {
         commonMain.dependencies {
             implementation(libs.kotlinx.coroutines.core)
@@ -106,13 +108,14 @@ kotlin {
             implementation(libs.kermit.test)
         }
         appleMain.dependencies {
-            implementation(libs.native.driver)
             implementation(ktorLibs.client.darwin)
         }
         androidMain.dependencies {
             implementation(libs.kotlinx.coroutines.android)
-            implementation(libs.android.driver)
             implementation(ktorLibs.client.android)
+        }
+        webMain.dependencies {
+            implementation(libs.kotlinx.browser)
         }
         val androidHostTest by getting {
             dependencies {
@@ -124,7 +127,6 @@ kotlin {
         val desktopMain by getting {
             dependencies {
                 implementation(libs.oshi.core)
-                implementation(libs.sqlite.driver)
                 implementation(ktorLibs.client.java)
             }
         }
@@ -141,6 +143,7 @@ kotlin {
                 implementation(ktorLibs.client.logging)
                 implementation(libs.kotlinx.serialization.json)
                 implementation(libs.kotlinx.serialization.cbor)
+                implementation(project(":database"))
             }
         }
         androidMain.get().dependsOn(nonWebMain)
@@ -185,15 +188,6 @@ mavenPublishing {
             url = "XXX"
             connection = "YYY"
             developerConnection = "ZZZ"
-        }
-    }
-}
-
-sqldelight {
-    databases {
-        create("CacheDatabase") {
-            packageName = "io.github.frankois944.googleAnalyticsKMPTracker.schema"
-            generateAsync = true
         }
     }
 }

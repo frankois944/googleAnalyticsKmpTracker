@@ -1,6 +1,6 @@
 @file:OptIn(ExperimentalWasmJsInterop::class)
 
-package io.github.frankois944.googleAnalyticsKmpTracker
+package io.github.frankois944.googleAnalyticsKMPTracker
 
 /*import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonPrimitive

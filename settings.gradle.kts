@@ -19,4 +19,5 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "googleAnalyticsKmpTracker"
+include(":database")
 include(":library")

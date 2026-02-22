@@ -1,45 +1,54 @@
 [versions]
-agp = "8.13.2"
-core = "1.7.0"
-kermit = "2.0.8"
-kotlin = "2.2.20"
-android-minSdk = "24"
+# project metadata
+group = "io.github.frankois944"
+productName = "googleAnalyticsKmpTracker"
+versionName = "0.0.3"
+
+# android
 android-compileSdk = "36"
+android-minSdk = "24"
+
+# build tooling
+agp = "8.13.2"
+kotlin = "2.2.21"
 vanniktechMavenPublish = "0.36.0"
-libaryVersion = "0.0.3"
-kotlinSerialization = "1.9.0" # https://github.com/Kotlin/kotlinx.serialization/releases
-kotlinCoroutines = "1.10.2" # https://github.com/Kotlin/kotlinx.coroutines/releases
-ktor = "3.2.3" # https://github.com/ktorio/ktor/releases
-slf4jAndroid="1.7.36"
-slf4jJvm="2.0.17"
-kotlinx-browser="0.3"
-sqlDelight = "2.2.1"
+
+# kotlin libs
+coroutines = "1.10.2"
+kotlinxDatetime = "0.7.1"
+kotlinxSerialization = "1.9.0"
+
+# other libs
+kermit = "2.0.8"
+kotlinx-browser = "0.5.0"
+mockitoCore = "5.21.0"
 okio = "3.16.4"
 oshiCore = "6.9.3"
 robolectric = "4.16.1"
-mockitoCore = "5.21.0"
-kotlinxDatetime = "0.7.1"
-coroutines = "1.10.2"
-kotlinxSerialization = "1.10.0"
+slf4jAndroid = "1.7.36"
+slf4jJvm = "2.0.17"
+sqlDelight = "2.1.0"
+androidxTest = "1.7.0"
 
 [libraries]
 kermit = { module = "co.touchlab:kermit", version.ref = "kermit" }
 kermit-test = { module = "co.touchlab:kermit-test", version.ref = "kermit" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
-core = { module = "androidx.test:core", version.ref = "core" }
+core = { module = "androidx.test:core", version.ref = "androidxTest" }
 kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutines" }
 kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinxDatetime" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
 kotlinx-serialization-cbor = { module = "org.jetbrains.kotlinx:kotlinx-serialization-cbor", version.ref = "kotlinxSerialization" }
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
 kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "coroutines" }
-android-driver = { module = "app.cash.sqldelight:android-driver", version.ref = "sqlDelight" }
-mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockitoCore" }
-native-driver = { module = "app.cash.sqldelight:native-driver", version.ref = "sqlDelight" }
+sqlite-android-driver = { module = "app.cash.sqldelight:android-driver", version.ref = "sqlDelight" }
+sqlite-driver = { module = "app.cash.sqldelight:sqlite-driver", version.ref = "sqlDelight" }
+sqlite-native-driver = { module = "app.cash.sqldelight:native-driver", version.ref = "sqlDelight" }
 okio = { module = "com.squareup.okio:okio", version.ref = "okio" }
 oshi-core = { module = "com.github.oshi:oshi-core", version.ref = "oshiCore" }
 robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
-sqlite-driver = { module = "app.cash.sqldelight:sqlite-driver", version.ref = "sqlDelight" }
+mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockitoCore" }
+kotlinx-browser = { module = "org.jetbrains.kotlinx:kotlinx-browser", version.ref = "kotlinx-browser" }
 
 [plugins]
 android-kotlin-multiplatform-library = { id = "com.android.kotlin.multiplatform.library", version.ref = "agp" }

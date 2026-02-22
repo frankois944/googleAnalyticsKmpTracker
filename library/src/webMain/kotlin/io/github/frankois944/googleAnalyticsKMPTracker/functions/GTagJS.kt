@@ -8,10 +8,10 @@ import kotlin.js.js
 
 // https://developers.google.com/tag-platform/gtagjs/reference#config
 
-@OptIn(ExperimentalWasmJsInterop::class)
 /**
  * Loads the gtag.js script and initializes the dataLayer.
  */
+@OptIn(ExperimentalWasmJsInterop::class)
 internal fun loadGtagJS(measurementId: String) {
     js(
         """
@@ -103,7 +103,21 @@ internal fun consent(
 internal fun consent(consentArgs: JsAny) {
     js(
         """
-        window.gtag('consent', consentArgs, consentParams);
+        window.gtag('consent', consentArgs);
+    """,
+    )
+}
+
+internal fun get(
+    target: String,
+    fieldName: String,
+    callback: (String) -> Unit,
+) {
+    js(
+        """
+        window.gtag('get', target, fieldName, function(field) {
+            callback(field);
+        });
     """,
     )
 }
