@@ -11,9 +11,12 @@ dependencyResolutionManagement {
         google()
         mavenCentral()
     }
+    versionCatalogs {
+        create("ktorLibs") {
+            from("io.ktor:ktor-version-catalog:3.2.3")
+        }
+    }
 }
 
-rootProject.name = "GoogleAnalytics-kmp-tracker"
-include(":GoogleAnalyticsKMPTracker")
-include(":database")
-include(":core")
+rootProject.name = "googleAnalyticsKmpTracker"
+include(":library")

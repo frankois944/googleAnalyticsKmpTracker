@@ -10,7 +10,7 @@
       </option>
       <option name="taskNames">
         <list>
-          <option value="GoogleAnalyticsKMPTracker:compileKotlinJs" />
+          <option value="library:compileKotlinJs" />
         </list>
       </option>
       <option name="vmOptions" />
