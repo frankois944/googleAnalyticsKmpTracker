@@ -34,7 +34,7 @@ internal actual class GAEvents actual constructor(
     }
 
     actual fun consent(
-        consentArgs: Map<String, Boolean>,
+        consentArgs: String,
         consentParams: Map<String, Any>,
     ) {
     }

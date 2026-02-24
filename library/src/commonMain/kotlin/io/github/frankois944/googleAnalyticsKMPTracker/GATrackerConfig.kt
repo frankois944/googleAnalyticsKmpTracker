@@ -27,4 +27,9 @@ public class GATrackerConfig(
      * Log level for the tracker
      */
     public var logLevel: LogLevel = LogLevel.Error
+
+    /**
+     * User ID for tracking
+     */
+    public var userId: String? = null
 }

@@ -13,6 +13,8 @@ import kotlin.test.BeforeTest
 open class BaseTest {
     private val mainThreadSurrogate = StandardTestDispatcher()
 
+    lateinit var config: GATrackerConfig
+
     @BeforeTest
     fun setUp() {
         Dispatchers.setMain(mainThreadSurrogate)

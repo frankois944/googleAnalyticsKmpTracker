@@ -1,5 +1,7 @@
 package io.github.frankois944.googleAnalyticsKMPTracker.events
 
+import io.github.frankois944.googleAnalyticsKMPTracker.model.ConsentSelection
+
 internal expect class GAEvents(
     measurementId: String,
     url: String? = null,
@@ -20,8 +22,5 @@ internal expect class GAEvents(
         params: Map<String, Any> = emptyMap(),
     )
 
-    fun consent(
-        consentArgs: Map<String, Boolean>,
-        consentParams: Map<String, Any> = emptyMap(),
-    )
+    fun consent(selection: ConsentSelection)
 }

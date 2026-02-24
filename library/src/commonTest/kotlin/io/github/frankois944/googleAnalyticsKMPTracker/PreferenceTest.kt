@@ -3,19 +3,14 @@
 package io.github.frankois944.googleAnalyticsKMPTracker
 
 import io.github.frankois944.googleAnalyticsKMPTracker.logger.LogLevel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.test.runTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
-import kotlin.time.Duration.Companion.seconds
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
-class TrackerTest : PlatformBaseTest() {
+class PreferenceTest : PlatformBaseTest() {
     @BeforeTest
     fun setup() {
         config =
@@ -28,15 +23,17 @@ class TrackerTest : PlatformBaseTest() {
     }
 
     @Test
-    fun testTrackView() =
-        runTest {
-            GATracker.start(config)
-            launch(Dispatchers.Unconfined) {
-                GATracker.trackView("Test View")
-                GATracker.trackView("Test View1")
-                GATracker.trackView("Test View2")
-                GATracker.trackView("Test View3")
-                delay(2.seconds)
-            }
-        }
+    fun testUserId() {
+        GATracker.start(config)
+        assertNull(GATracker.userId)
+        GATracker.userId = Uuid.random().toHexString()
+        assertNotNull(GATracker.userId)
+    }
+
+    @Test
+    fun testIsOptedOut() {
+        config.isOptedOut = false
+        GATracker.start(config)
+        assertNotNull(GATracker.isOptedOut)
+    }
 }

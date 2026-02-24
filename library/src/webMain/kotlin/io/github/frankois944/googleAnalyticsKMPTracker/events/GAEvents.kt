@@ -2,10 +2,15 @@
 
 package io.github.frankois944.googleAnalyticsKMPTracker.events
 
+import io.github.frankois944.googleAnalyticsKMPTracker.createEmptyObject
 import io.github.frankois944.googleAnalyticsKMPTracker.logger.LOG
 import io.github.frankois944.googleAnalyticsKMPTracker.logger.LogLevel
+import io.github.frankois944.googleAnalyticsKMPTracker.model.ConsentSelection
+import io.github.frankois944.googleAnalyticsKMPTracker.model.ConsentType
+import io.github.frankois944.googleAnalyticsKMPTracker.putObject
 import io.github.frankois944.googleAnalyticsKMPTracker.valueToJsType
 import kotlin.js.ExperimentalWasmJsInterop
+import kotlin.js.toJsString
 
 internal actual class GAEvents actual constructor(
     measurementId: String,
@@ -17,6 +22,20 @@ internal actual class GAEvents actual constructor(
         io.github.frankois944.googleAnalyticsKMPTracker.functions.loadGtagJS(measurementId) {
             LOG.log(LogLevel.Debug) { "GoogleAnalytics for javascript loaded" }
         }
+        setDefaultConsent()
+    }
+
+    private fun setDefaultConsent() {
+        val args = createEmptyObject()
+        ConsentType.entries.forEach { type ->
+            putObject(
+                args,
+                type.key.toJsString(),
+                "granted".toJsString(),
+            )
+        }
+        io.github.frankois944.googleAnalyticsKMPTracker.functions
+            .consent("default".toJsString(), args)
     }
 
     actual fun sendEvent(
@@ -24,7 +43,7 @@ internal actual class GAEvents actual constructor(
         params: Map<String, Any>,
     ) {
         LOG.log(LogLevel.Debug) {
-            "[EVENT]Sending event: $eventName with params: $params"
+            "[EVENT]Sending eventName: $eventName with params: $params"
         }
         valueToJsType(params)?.let {
             io.github.frankois944.googleAnalyticsKMPTracker.functions
@@ -40,7 +59,7 @@ internal actual class GAEvents actual constructor(
         params: Map<String, Any>,
     ) {
         LOG.log(LogLevel.Debug) {
-            "[CONFIG]Configuring config: $configName with params: $params"
+            "[CONFIG]Configuring configName: $configName with params: $params"
         }
         valueToJsType(params)?.let {
             io.github.frankois944.googleAnalyticsKMPTracker.functions
@@ -56,7 +75,7 @@ internal actual class GAEvents actual constructor(
         params: Map<String, Any>,
     ) {
         LOG.log(LogLevel.Debug) {
-            "[SET]Set parameter: $parameterName with params: $params"
+            "[SET]Set parameterName: $parameterName with params: $params"
         }
         valueToJsType(params)?.let {
             io.github.frankois944.googleAnalyticsKMPTracker.functions
@@ -67,21 +86,19 @@ internal actual class GAEvents actual constructor(
         }
     }
 
-    actual fun consent(
-        consentArgs: Map<String, Boolean>,
-        consentParams: Map<String, Any>,
-    ) {
+    actual fun consent(selection: ConsentSelection) {
         LOG.log(LogLevel.Debug) {
-            "[CONSENT]Updating consent: $consentArgs with params: $consentParams"
+            "[CONSENT]Updating consentArgs: $selection"
         }
-        valueToJsType(consentArgs)?.let { args ->
-            valueToJsType(consentParams)?.let { params ->
-                io.github.frankois944.googleAnalyticsKMPTracker.functions
-                    .consent(args, params)
-            } ?: run {
-                io.github.frankois944.googleAnalyticsKMPTracker.functions
-                    .consent(args)
-            }
+        val args = createEmptyObject()
+        selection.decisions.forEach { decision ->
+            putObject(
+                args,
+                decision.key.key.toJsString(),
+                decision.value.value.toJsString(),
+            )
         }
+        io.github.frankois944.googleAnalyticsKMPTracker.functions
+            .consent("update".toJsString(), args)
     }
 }

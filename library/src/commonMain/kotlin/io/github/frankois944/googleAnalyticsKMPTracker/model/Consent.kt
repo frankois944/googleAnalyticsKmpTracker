@@ -33,21 +33,13 @@ public enum class ConsentState(
 
 /**
  * Strongly-typed container for a consent decision set.
- *
- * - You can build it safely via [set]
- * - And convert to a wire-friendly Map<String, String> via [asMap]
  */
 public class ConsentSelection private constructor(
     internal val decisions: Map<ConsentType, ConsentState>,
 ) {
     public operator fun get(type: ConsentType): ConsentState = decisions.getOrElse(type) { ConsentState.Granted }
 
-    internal fun all(): Map<String, String> =
-        buildMap {
-            ConsentType.entries.forEach { type ->
-                put(type.key, decisions.getOrElse(type) { ConsentState.Granted }.name)
-            }
-        }
+    override fun toString(): String = decisions.entries.joinToString(", ") { "${it.key}: ${it.value}" }
 
     internal companion object {
         fun build(block: Builder.() -> Unit): ConsentSelection = Builder().apply(block).build()

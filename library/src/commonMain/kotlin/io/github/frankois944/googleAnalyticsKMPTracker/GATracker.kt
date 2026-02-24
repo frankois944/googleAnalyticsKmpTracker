@@ -73,22 +73,34 @@ public class GATracker private constructor(
                 return getInstance().getConsent()
             }
 
-        public fun trackView(viewName: String) {
-            getInstance().trackView(viewName)
+        /**
+         * Track a view with optional location hierarchy.
+         * @param viewName the name of the screen
+         * @param viewLocation the location hierarchy of the screen
+         *
+         * If viewLocation is provided, it will be joined with '/' to form the page_location.
+         * If viewLocation is null, the viewName will be used as page_location.
+         */
+        public fun trackView(
+            viewName: String,
+            viewLocation: List<String>? = null,
+        ) {
+            getInstance().trackView(viewName, viewLocation?.joinToString("/"))
         }
     }
 
     init {
         LOG.minLevel = config.logLevel
         LOG.log(LogLevel.Debug) { "Initializing GA tracker with measurementId: ${config.measurementId}" }
+        setUserId(config.userId)
+        storeContext(config.context)
+        setIsOptedOut(config.isOptedOut)
         eventManager =
             GAEvents(
                 measurementId = config.measurementId,
                 url = config.url,
                 apiSecret = config.apiSecret,
             )
-        storeContext(config.context)
-        setIsOptedOut(config.isOptedOut)
     }
 
     // <editor-fold desc="UserId">
@@ -126,17 +138,24 @@ public class GATracker private constructor(
                 }.apply(block)
                 .build()
         Preferences.consent = result
+        eventManager.consent(result)
     }
 
     public fun getConsent(): ConsentSelection = Preferences.consent
     // </editor-fold>
 
-    private fun trackView(viewName: String) {
-        LOG.log(LogLevel.Debug) { "Track View: $viewName" }
+    private fun trackView(
+        viewName: String,
+        viewLocation: String? = null,
+    ) {
+        LOG.log(LogLevel.Debug) { "Track viewName: $viewName viewLocation: $viewLocation" }
         eventManager.sendEvent(
             "page_view",
             buildMap {
                 put("page_title", viewName)
+                viewLocation?.let { put("page_location", it) } ?: run {
+                    put("page_location", viewName)
+                }
                 userId?.let { put("client_id", it) }
             },
         )

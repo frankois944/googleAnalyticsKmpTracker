@@ -36,8 +36,8 @@ internal object Preferences {
                 }
             }
         set(value) {
-            value.asMap().forEach {
-                PersistingStorage.set(it.key, it.value)
+            value.decisions.forEach {
+                PersistingStorage.set(it.key.key, it.value.value)
             }
         }
 }
