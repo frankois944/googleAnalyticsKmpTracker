@@ -42,13 +42,15 @@ public class ConsentSelection private constructor(
 ) {
     public operator fun get(type: ConsentType): ConsentState = decisions.getOrElse(type) { ConsentState.Granted }
 
-    internal fun asMap(): Map<String, String> =
-        decisions
-            .mapKeys { (type, _) -> type.key }
-            .mapValues { (_, state) -> state.value }
+    internal fun all(): Map<String, String> =
+        buildMap {
+            ConsentType.entries.forEach { type ->
+                put(type.key, decisions.getOrElse(type) { ConsentState.Granted }.name)
+            }
+        }
 
     internal companion object {
-        public fun build(block: Builder.() -> Unit): ConsentSelection = Builder().apply(block).build()
+        fun build(block: Builder.() -> Unit): ConsentSelection = Builder().apply(block).build()
     }
 
     public class Builder {

@@ -6,12 +6,8 @@ import io.github.frankois944.googleAnalyticsKMPTracker.logger.LOG
 import io.github.frankois944.googleAnalyticsKMPTracker.logger.LogLevel
 import io.github.frankois944.googleAnalyticsKMPTracker.model.ConsentSelection
 import io.github.frankois944.googleAnalyticsKMPTracker.model.ConsentSelection.Builder
-import io.github.frankois944.googleAnalyticsKMPTracker.model.ConsentState
-import io.github.frankois944.googleAnalyticsKMPTracker.model.ConsentType
 import io.github.frankois944.googleAnalyticsKMPTracker.storage.PersistingStorage
 import io.github.frankois944.googleAnalyticsKMPTracker.storage.Preferences
-import kotlin.collections.component1
-import kotlin.collections.component2
 
 public class GATracker private constructor(
     config: GATrackerConfig,
@@ -25,7 +21,7 @@ public class GATracker private constructor(
          * Starts the Google Analytics tracker with the provided configuration.
          */
         public fun start(config: GATrackerConfig) {
-            if (isStarted()) return
+            if (isStarted()) error("Tracker already started")
             instance = GATracker(config)
         }
 
@@ -35,17 +31,22 @@ public class GATracker private constructor(
         public fun isStarted(): Boolean = instance != null
 
         /**
+         * Get the tracker instance, ensuring it has been started.
+         * Throws an exception if the tracker has not been started.
+         */
+        @Throws(IllegalStateException::class)
+        private fun getInstance() = requireNotNull(instance) { REQUIRE_START_ERROR }
+
+        /**
          * Defines if the user opted out of tracking. When set to true, every event
          * will be discarded immediately.
          */
         public var isOptedOut: Boolean
             get() {
-                val instance = requireNotNull(instance) { REQUIRE_START_ERROR }
-                return instance.isOptedOut()
+                return getInstance().isOptedOut()
             }
             set(value) {
-                val instance = requireNotNull(instance) { REQUIRE_START_ERROR }
-                instance.setIsOptedOut(value)
+                getInstance().setIsOptedOut(value)
             }
 
         /**
@@ -54,31 +55,26 @@ public class GATracker private constructor(
          */
         public var userId: String?
             get() {
-                val instance = requireNotNull(instance) { REQUIRE_START_ERROR }
-                return instance.userId()
+                return getInstance().userId()
             }
             set(value) {
-                val instance = requireNotNull(instance) { REQUIRE_START_ERROR }
-                instance.setUserId(value)
+                getInstance().setUserId(value)
             }
 
         /**
          * Update Consent
          */
         public fun updateConsent(block: Builder.() -> Unit) {
-            val instance = requireNotNull(instance) { REQUIRE_START_ERROR }
-            instance.updateConsent(block)
+            getInstance().updateConsent(block)
         }
 
         public val consents: ConsentSelection
             get() {
-                val instance = requireNotNull(instance) { REQUIRE_START_ERROR }
-                return instance.getConsent()
+                return getInstance().getConsent()
             }
 
         public fun trackView(viewName: String) {
-            val instance = requireNotNull(instance) { REQUIRE_START_ERROR }
-            instance.trackView(viewName)
+            getInstance().trackView(viewName)
         }
     }
 
