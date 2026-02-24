@@ -1,6 +1,6 @@
 package io.github.frankois944.googleAnalyticsKMPTracker.storage
 
-internal expect object PreferenceStorage {
+internal expect object PersistingStorage {
     fun set(
         key: String,
         value: String?,
@@ -10,6 +10,8 @@ internal expect object PreferenceStorage {
         key: String,
         defaultValue: String? = null,
     ): String?
+
+    fun allKeys(): List<String>?
 
     fun remove(key: String)
 }

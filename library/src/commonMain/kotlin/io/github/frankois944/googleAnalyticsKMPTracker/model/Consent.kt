@@ -4,29 +4,31 @@ package io.github.frankois944.googleAnalyticsKMPTracker.model
  * Consent categories supported by Google Consent Mode (apps/web).
  * Using an enum prevents typos like "ad_stroage".
  */
-internal enum class ConsentType(
-    val key: String,
+public enum class ConsentType(
+    internal val key: String,
 ) {
     AdStorage("ad_storage"),
     AdUserData("ad_user_data"),
     AdPersonalization("ad_personalization"),
     AnalyticsStorage("analytics_storage"),
-    ;
-
-    override fun toString(): String = key
 }
 
 /**
  * Consent values are restricted to the two valid states.
  */
-internal enum class ConsentState(
-    val value: String,
+public enum class ConsentState(
+    internal val value: String,
 ) {
     Granted("granted"),
     Denied("denied"),
     ;
 
-    override fun toString(): String = value
+    internal companion object {
+        fun fromString(value: String): ConsentState =
+            entries.find {
+                it.value.equals(value, true)
+            } ?: Granted
+    }
 }
 
 /**
@@ -35,30 +37,30 @@ internal enum class ConsentState(
  * - You can build it safely via [set]
  * - And convert to a wire-friendly Map<String, String> via [asMap]
  */
-internal class ConsentSelection private constructor(
-    private val decisions: Map<ConsentType, ConsentState>,
+public class ConsentSelection private constructor(
+    internal val decisions: Map<ConsentType, ConsentState>,
 ) {
-    fun get(type: ConsentType): ConsentState? = decisions[type]
+    public operator fun get(type: ConsentType): ConsentState = decisions.getOrElse(type) { ConsentState.Granted }
 
-    fun asMap(): Map<String, String> =
+    internal fun asMap(): Map<String, String> =
         decisions
             .mapKeys { (type, _) -> type.key }
             .mapValues { (_, state) -> state.value }
 
-    companion object {
-        fun build(block: Builder.() -> Unit): ConsentSelection = Builder().apply(block).build()
+    internal companion object {
+        public fun build(block: Builder.() -> Unit): ConsentSelection = Builder().apply(block).build()
     }
 
-    class Builder {
+    public class Builder {
         private val decisions = linkedMapOf<ConsentType, ConsentState>()
 
-        fun set(
+        public fun set(
             type: ConsentType,
             state: ConsentState,
         ) {
             decisions[type] = state
         }
 
-        fun build(): ConsentSelection = ConsentSelection(decisions.toMap())
+        internal fun build(): ConsentSelection = ConsentSelection(decisions.toMap())
     }
 }

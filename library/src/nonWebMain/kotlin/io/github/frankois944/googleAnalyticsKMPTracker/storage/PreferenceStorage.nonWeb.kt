@@ -1,6 +1,6 @@
 package io.github.frankois944.googleAnalyticsKMPTracker.storage
 
-internal actual object PreferenceStorage {
+internal actual object PersistingStorage {
     private val data: MutableMap<String, String?> = mutableMapOf()
 
     actual fun set(
@@ -18,4 +18,6 @@ internal actual object PreferenceStorage {
     actual fun remove(key: String) {
         data.remove(key)
     }
+
+    actual fun allKeys(): List<String>? = data.keys.toList()
 }

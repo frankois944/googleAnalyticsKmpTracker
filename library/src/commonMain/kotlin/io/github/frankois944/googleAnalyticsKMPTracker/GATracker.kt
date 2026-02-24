@@ -4,7 +4,14 @@ import io.github.frankois944.googleAnalyticsKMPTracker.context.storeContext
 import io.github.frankois944.googleAnalyticsKMPTracker.events.GAEvents
 import io.github.frankois944.googleAnalyticsKMPTracker.logger.LOG
 import io.github.frankois944.googleAnalyticsKMPTracker.logger.LogLevel
-import io.github.frankois944.googleAnalyticsKMPTracker.storage.PreferenceStorage
+import io.github.frankois944.googleAnalyticsKMPTracker.model.ConsentSelection
+import io.github.frankois944.googleAnalyticsKMPTracker.model.ConsentSelection.Builder
+import io.github.frankois944.googleAnalyticsKMPTracker.model.ConsentState
+import io.github.frankois944.googleAnalyticsKMPTracker.model.ConsentType
+import io.github.frankois944.googleAnalyticsKMPTracker.storage.PersistingStorage
+import io.github.frankois944.googleAnalyticsKMPTracker.storage.Preferences
+import kotlin.collections.component1
+import kotlin.collections.component2
 
 public class GATracker private constructor(
     config: GATrackerConfig,
@@ -18,6 +25,7 @@ public class GATracker private constructor(
          * Starts the Google Analytics tracker with the provided configuration.
          */
         public fun start(config: GATrackerConfig) {
+            if (isStarted()) return
             instance = GATracker(config)
         }
 
@@ -54,6 +62,20 @@ public class GATracker private constructor(
                 instance.setUserId(value)
             }
 
+        /**
+         * Update Consent
+         */
+        public fun updateConsent(block: Builder.() -> Unit) {
+            val instance = requireNotNull(instance) { REQUIRE_START_ERROR }
+            instance.updateConsent(block)
+        }
+
+        public val consents: ConsentSelection
+            get() {
+                val instance = requireNotNull(instance) { REQUIRE_START_ERROR }
+                return instance.getConsent()
+            }
+
         public fun trackView(viewName: String) {
             val instance = requireNotNull(instance) { REQUIRE_START_ERROR }
             instance.trackView(viewName)
@@ -73,26 +95,45 @@ public class GATracker private constructor(
         setIsOptedOut(config.isOptedOut)
     }
 
+    // <editor-fold desc="UserId">
     private fun userId(): String? =
-        PreferenceStorage.get("userId").also {
+        Preferences.userId.also {
             LOG.log(LogLevel.Verbose) { "Get User ID: $it" }
         }
 
     private fun setUserId(id: String?) {
         LOG.log(LogLevel.Info) { "Set User ID: $id" }
-        PreferenceStorage.set("userId", id)
+        Preferences.userId = id
     }
+    // </editor-fold>
 
+    // <editor-fold desc="OptedOut">
     private fun isOptedOut(): Boolean =
-        PreferenceStorage
+        PersistingStorage
             .get("isOptedOut")
             .toBoolean()
             .also { LOG.log(LogLevel.Verbose) { "Get Opted Out: $it" } }
 
     private fun setIsOptedOut(enabled: Boolean) {
         LOG.log(LogLevel.Info) { "Set IsOptedOut: $enabled" }
-        PreferenceStorage.set("isOptedOut", enabled.toString())
+        Preferences.isOptedOut = enabled
     }
+    // </editor-fold>
+
+    // <editor-fold desc="Consent">
+    private fun updateConsent(block: Builder.() -> Unit) {
+        LOG.log(LogLevel.Info) { "Update Consent" }
+        val result =
+            Builder()
+                .apply {
+                    Preferences.consent.decisions.forEach { (type, state) -> set(type, state) }
+                }.apply(block)
+                .build()
+        Preferences.consent = result
+    }
+
+    public fun getConsent(): ConsentSelection = Preferences.consent
+    // </editor-fold>
 
     private fun trackView(viewName: String) {
         LOG.log(LogLevel.Debug) { "Track View: $viewName" }

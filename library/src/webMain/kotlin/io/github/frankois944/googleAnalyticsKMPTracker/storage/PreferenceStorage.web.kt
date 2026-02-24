@@ -2,7 +2,7 @@ package io.github.frankois944.googleAnalyticsKMPTracker.storage
 
 import kotlinx.browser.window
 
-internal actual object PreferenceStorage {
+internal actual object PersistingStorage {
     actual fun set(
         key: String,
         value: String?,
@@ -28,5 +28,14 @@ internal actual object PreferenceStorage {
         window
             .localStorage
             .removeItem(key)
+    }
+
+    actual fun allKeys(): List<String>? {
+        val size = window.localStorage.length
+        val result = mutableListOf<String>()
+        for (i in 0 until size) {
+            result.add(window.localStorage.key(i) ?: continue)
+        }
+        return result
     }
 }

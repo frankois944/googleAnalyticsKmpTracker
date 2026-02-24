@@ -15,9 +15,6 @@ import kotlin.time.Duration.Companion.seconds
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
-const val MEASUREMENT_ID: String = "G-3L12ZLV24G"
-const val API_SECRET: String = "O_2cm_slTiyb3XcqXPpTiA"
-
 class TrackerTest : PlatformBaseTest() {
     private lateinit var config: GATrackerConfig
 
