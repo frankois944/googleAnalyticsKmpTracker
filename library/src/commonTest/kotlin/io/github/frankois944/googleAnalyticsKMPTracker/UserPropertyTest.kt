@@ -30,25 +30,23 @@ class UserPropertyTest : PlatformBaseTest() {
     @Test
     fun testUserProperty() =
         runTest {
+            GATracker.start(config)
+            GATracker.trackView("testUserProperty - Test View[${Random.nextInt()}]")
+            GATracker.setUserProperty(
+                "testSingleKey0",
+                "SingleValue0${Random.nextInt()}",
+            )
+            GATracker.setUserProperty(
+                "testSingleKey1",
+                "SingleValue1${Random.nextInt()}",
+            )
+            GATracker.setUserProperty(
+                "testSingleKey2",
+                "SingleValue2${Random.nextInt()}",
+            )
+            GATracker.trackView("testUserProperty - Test View[${Random.nextInt()}]")
             launch(Dispatchers.Unconfined) {
-                GATracker.start(config)
-                GATracker.trackView("testUserProperty - Test View[${Random.nextInt()}]")
-                delay(1.seconds)
-                GATracker.setUserProperty(
-                    "testSingleKey0",
-                    "SingleValue0 ${Random.nextInt()}",
-                )
-                GATracker.setUserProperty(
-                    "testSingleKey1",
-                    "SingleValue1 ${Random.nextInt()}",
-                )
-                GATracker.setUserProperty(
-                    "testSingleKey2",
-                    "SingleValue2 ${Random.nextInt()}",
-                )
-                delay(1.seconds)
-                GATracker.trackView("testUserProperty - Test View[${Random.nextInt()}]")
-                delay(2.seconds)
+                delay(5.seconds)
             }
         }
 }

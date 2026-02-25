@@ -8,14 +8,9 @@ internal actual class GAEvents actual constructor(
     measurementId: String,
     url: String?,
     apiSecret: String?,
+    userId: String?,
+    isOptedOut: Boolean,
 ) {
-    init {
-        requireNotNull(apiSecret) { "apiSecret must not be null for non web targets" }
-        LOG.log(LogLevel.Debug) {
-            "Setup GAEvents with measurementId: $measurementId"
-        }
-    }
-
     actual fun sendEvent(
         eventName: String,
         params: Map<String, Any>,
@@ -24,13 +19,25 @@ internal actual class GAEvents actual constructor(
 
     actual fun config(
         configName: String,
-        params: Map<String, Any>?,
+        params: Map<String, Any?>,
+    ) {
+    }
+
+    actual fun config(
+        configName: String,
+        value: String?,
     ) {
     }
 
     actual fun set(
         parameterName: String,
-        params: Map<String, Any>?,
+        params: Map<String, Any?>?,
+    ) {
+    }
+
+    actual fun set(
+        parameterName: String,
+        value: String?,
     ) {
     }
 

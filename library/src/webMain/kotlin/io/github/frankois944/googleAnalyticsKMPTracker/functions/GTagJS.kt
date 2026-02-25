@@ -49,7 +49,8 @@ internal fun loadGtagJS(
             });
             // user_id
             gtag('config', id, {
-                'user_id': userId
+                'user_id': userId,
+                'debug_mode': true
             });
             window.gtag('js', new Date());
             window.gtag('config', id);

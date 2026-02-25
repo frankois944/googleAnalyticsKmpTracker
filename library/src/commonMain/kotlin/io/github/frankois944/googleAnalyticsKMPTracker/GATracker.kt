@@ -8,7 +8,6 @@ import io.github.frankois944.googleAnalyticsKMPTracker.model.ConsentSelection
 import io.github.frankois944.googleAnalyticsKMPTracker.model.ConsentSelection.Builder
 import io.github.frankois944.googleAnalyticsKMPTracker.model.ConsentState
 import io.github.frankois944.googleAnalyticsKMPTracker.model.ConsentType
-import io.github.frankois944.googleAnalyticsKMPTracker.storage.PersistingStorage
 import io.github.frankois944.googleAnalyticsKMPTracker.storage.Preferences
 
 public class GATracker private constructor(
@@ -209,6 +208,7 @@ public class GATracker private constructor(
         eventName: String,
         eventParams: Map<String, Any> = emptyMap(),
     ) {
+        LOG.log(LogLevel.Debug) { "Track event: $eventName with params: $eventParams" }
         eventManager.sendEvent(
             eventName,
             eventParams,
