@@ -126,6 +126,7 @@ kotlin {
             dependencies {
                 implementation(libs.oshi.core)
                 implementation(ktorLibs.client.java)
+                implementation(libs.sqlite.driver)
             }
         }
         val desktopTest by getting
