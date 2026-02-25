@@ -6,7 +6,8 @@ internal expect class GAEvents(
     measurementId: String,
     url: String? = null,
     apiSecret: String? = null,
-    userId: String? = null,
+    userId: String?,
+    isOptedOut: Boolean,
 ) {
     fun sendEvent(
         eventName: String,

@@ -6,6 +6,8 @@ import io.github.frankois944.googleAnalyticsKMPTracker.logger.LOG
 import io.github.frankois944.googleAnalyticsKMPTracker.logger.LogLevel
 import io.github.frankois944.googleAnalyticsKMPTracker.model.ConsentSelection
 import io.github.frankois944.googleAnalyticsKMPTracker.model.ConsentSelection.Builder
+import io.github.frankois944.googleAnalyticsKMPTracker.model.ConsentState
+import io.github.frankois944.googleAnalyticsKMPTracker.model.ConsentType
 import io.github.frankois944.googleAnalyticsKMPTracker.storage.PersistingStorage
 import io.github.frankois944.googleAnalyticsKMPTracker.storage.Preferences
 
@@ -124,10 +126,11 @@ public class GATracker private constructor(
                 measurementId = config.measurementId,
                 url = config.url,
                 apiSecret = config.apiSecret,
+                userId = config.userId,
+                isOptedOut = config.isOptedOut,
             )
         storeContext(config.context)
         setIsOptedOut(config.isOptedOut)
-        setUserId(config.userId)
     }
 
     // <editor-fold desc="UserId">
@@ -148,14 +151,22 @@ public class GATracker private constructor(
 
     // <editor-fold desc="OptedOut">
     private fun isOptedOut(): Boolean =
-        PersistingStorage
-            .get("isOptedOut")
-            .toBoolean()
+        Preferences.isOptedOut
             .also { LOG.log(LogLevel.Verbose) { "Get Opted Out: $it" } }
 
     private fun setIsOptedOut(enabled: Boolean) {
         LOG.log(LogLevel.Info) { "Set IsOptedOut: $enabled" }
         Preferences.isOptedOut = enabled
+        updateConsent {
+            set(
+                ConsentType.AnalyticsStorage,
+                if (enabled) {
+                    ConsentState.Denied
+                } else {
+                    ConsentState.Granted
+                },
+            )
+        }
     }
     // </editor-fold>
 
@@ -180,7 +191,6 @@ public class GATracker private constructor(
         viewName: String,
         viewLocation: String? = null,
     ) {
-        if (isOptedOut()) return
         LOG.log(LogLevel.Debug) { "Track viewName: $viewName viewLocation: $viewLocation" }
         eventManager.sendEvent(
             "page_view",
@@ -199,7 +209,6 @@ public class GATracker private constructor(
         eventName: String,
         eventParams: Map<String, Any> = emptyMap(),
     ) {
-        if (isOptedOut()) return
         eventManager.sendEvent(
             eventName,
             eventParams,
@@ -212,7 +221,6 @@ public class GATracker private constructor(
         propertyName: String,
         value: String? = null,
     ) {
-        if (isOptedOut()) return
         eventManager.set(
             "user_properties",
             mapOf(propertyName to value),

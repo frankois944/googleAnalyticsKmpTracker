@@ -19,18 +19,22 @@ internal actual class GAEvents actual constructor(
     url: String?,
     apiSecret: String?,
     userId: String?,
+    isOptedOut: Boolean,
 ) {
     init {
         LOG.log(LogLevel.Debug) { "Starting GoogleAnalytics for javascript" }
+        val status = if (isOptedOut) ConsentState.Denied.value else ConsentState.Granted.value
         loadGtagJS(
             measurementId,
-            adStorageStatus = ConsentState.Granted.value,
-            adUserDataStatus = ConsentState.Granted.value,
-            adPersonalizationStatus = ConsentState.Granted.value,
-            analyticsStorageStatus = ConsentState.Granted.value,
+            adStorageStatus = status,
+            adUserDataStatus = status,
+            adPersonalizationStatus = status,
+            analyticsStorageStatus = status,
             userId = userId,
         ) {
-            LOG.log(LogLevel.Debug) { "GoogleAnalytics for javascript loaded" }
+            LOG.log(LogLevel.Debug) {
+                "GoogleAnalytics for javascript loaded with consent status: $status"
+            }
         }
     }
 

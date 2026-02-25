@@ -48,7 +48,7 @@ class UserPropertyTest : PlatformBaseTest() {
                 )
                 delay(1.seconds)
                 GATracker.trackView("testUserProperty - Test View[${Random.nextInt()}]")
-                delay(60.seconds)
+                delay(2.seconds)
             }
         }
 }
