@@ -25,13 +25,14 @@ class TrackerTest : PlatformBaseTest() {
                 context = context,
             )
         config.logLevel = LogLevel.Verbose
+        config.userId = "41414141414"
     }
 
     @Test
     fun testTrackView() =
         runTest {
-            GATracker.start(config)
             launch(Dispatchers.Unconfined) {
+                GATracker.start(config)
                 GATracker.trackView("Test View")
                 GATracker.trackView("Test View1")
                 GATracker.trackView("Test View2")

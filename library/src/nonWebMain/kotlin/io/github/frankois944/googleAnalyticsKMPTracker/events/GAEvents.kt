@@ -2,6 +2,7 @@ package io.github.frankois944.googleAnalyticsKMPTracker.events
 
 import io.github.frankois944.googleAnalyticsKMPTracker.logger.LOG
 import io.github.frankois944.googleAnalyticsKMPTracker.logger.LogLevel
+import io.github.frankois944.googleAnalyticsKMPTracker.model.ConsentSelection
 
 internal actual class GAEvents actual constructor(
     measurementId: String,
@@ -23,19 +24,16 @@ internal actual class GAEvents actual constructor(
 
     actual fun config(
         configName: String,
-        params: Map<String, Any>,
+        params: Map<String, Any>?,
     ) {
     }
 
     actual fun set(
         parameterName: String,
-        params: Map<String, Any>,
+        params: Map<String, Any>?,
     ) {
     }
 
-    actual fun consent(
-        consentArgs: String,
-        consentParams: Map<String, Any>,
-    ) {
+    actual fun consent(selection: ConsentSelection) {
     }
 }

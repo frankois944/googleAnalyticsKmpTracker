@@ -49,7 +49,7 @@ internal fun mapToJsObject(map: Map<JsString, JsAny?>): JsAny {
     return null
 }*/
 
-internal fun valueToJsType(value: Any): JsAny? =
+internal fun valueToJsType(value: Any?): JsAny? =
     when (value) {
         is Int -> {
             value.toJsNumber()

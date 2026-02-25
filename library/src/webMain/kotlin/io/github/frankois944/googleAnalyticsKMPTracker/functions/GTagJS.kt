@@ -8,12 +8,24 @@ import kotlin.js.js
 
 // https://developers.google.com/tag-platform/gtagjs/reference#config
 
+/*
+    AdStorage("ad_storage"),
+    AdUserData("ad_user_data"),
+    AdPersonalization("ad_personalization"),
+    AnalyticsStorage("analytics_storage"),
+ */
+
 /**
  * Loads the gtag.js script and initializes the dataLayer.
  */
 @OptIn(ExperimentalWasmJsInterop::class)
 internal fun loadGtagJS(
     measurementId: String,
+    adStorageStatus: String,
+    adUserDataStatus: String,
+    adPersonalizationStatus: String,
+    analyticsStorageStatus: String,
+    userId: String?,
     callback: () -> Unit,
 ) {
     js(
@@ -28,6 +40,17 @@ internal fun loadGtagJS(
             window.gtag = function() {
                 window.dataLayer.push(arguments);
             };
+            // consent
+            gtag('consent', 'default', {
+                'ad_storage': adStorageStatus,
+                'ad_user_data': adUserDataStatus,
+                'ad_personalization': adPersonalizationStatus,
+                'analytics_storage': analyticsStorageStatus   
+            });
+            // user_id
+            gtag('config', id, {
+                'user_id': userId
+            });
             window.gtag('js', new Date());
             window.gtag('config', id);
             callback()
@@ -38,11 +61,12 @@ internal fun loadGtagJS(
 
 internal fun config(
     configName: String,
-    params: JsAny,
+    params: JsAny?,
 ) {
     js(
         """
-        window.gtag('config', configName, params);
+            console.log(configName, params)
+            window.gtag('config', configName, params);
     """,
     )
 }
@@ -57,7 +81,7 @@ internal fun config(configName: String) {
 
 internal fun sendEvent(
     eventName: String,
-    params: JsAny,
+    params: JsAny?,
 ) {
     js(
         """
@@ -80,6 +104,7 @@ internal fun set(
 ) {
     js(
         """
+            console.log('set', parameterName, params);
         window.gtag('set', parameterName, params);
     """,
     )

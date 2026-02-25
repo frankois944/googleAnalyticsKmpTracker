@@ -10,10 +10,11 @@ import io.github.frankois944.googleAnalyticsKMPTracker.storage.PersistingStorage
 import io.github.frankois944.googleAnalyticsKMPTracker.storage.Preferences
 
 public class GATracker private constructor(
-    config: GATrackerConfig,
+    private val config: GATrackerConfig,
 ) {
     internal val eventManager: GAEvents
 
+    // <editor-fold desc="Public">
     public companion object {
         private var instance: GATracker? = null
 
@@ -69,9 +70,7 @@ public class GATracker private constructor(
         }
 
         public val consents: ConsentSelection
-            get() {
-                return getInstance().getConsent()
-            }
+            get() = getInstance().getConsent()
 
         /**
          * Track a view with optional location hierarchy.
@@ -87,20 +86,48 @@ public class GATracker private constructor(
         ) {
             getInstance().trackView(viewName, viewLocation?.joinToString("/"))
         }
-    }
 
+        /**
+         * Track an event with optional parameters.
+         *
+         * @param eventName the name of the event
+         * @param eventParams a map of event parameters
+         */
+        public fun trackEvent(
+            eventName: String,
+            eventParams: Map<String, Any> = emptyMap(),
+        ) {
+            getInstance().trackEvent(eventName, eventParams)
+        }
+
+        /**
+         * Sets a user property by adding a new property or updating an existing one.
+         *
+         * @param propertyName The name of the user property. Must be 24 characters or fewer, start with an alphabetic character, and contain only alphanumeric characters or underscores.
+         * @param value The value of the user property. Must not exceed 36 characters in length
+         */
+        public fun setUserProperty(
+            propertyName: String,
+            value: String? = null,
+        ) {
+            getInstance().setUserProperty(propertyName, value)
+        }
+    }
+    // </editor-fold>
+
+    // <editor-fold desc="Internal">
     init {
         LOG.minLevel = config.logLevel
         LOG.log(LogLevel.Debug) { "Initializing GA tracker with measurementId: ${config.measurementId}" }
-        setUserId(config.userId)
-        storeContext(config.context)
-        setIsOptedOut(config.isOptedOut)
         eventManager =
             GAEvents(
                 measurementId = config.measurementId,
                 url = config.url,
                 apiSecret = config.apiSecret,
             )
+        storeContext(config.context)
+        setIsOptedOut(config.isOptedOut)
+        setUserId(config.userId)
     }
 
     // <editor-fold desc="UserId">
@@ -112,6 +139,10 @@ public class GATracker private constructor(
     private fun setUserId(id: String?) {
         LOG.log(LogLevel.Info) { "Set User ID: $id" }
         Preferences.userId = id
+        eventManager.config(
+            config.measurementId,
+            mapOf("user_id" to id),
+        )
     }
     // </editor-fold>
 
@@ -144,10 +175,12 @@ public class GATracker private constructor(
     public fun getConsent(): ConsentSelection = Preferences.consent
     // </editor-fold>
 
+    // <editor-fold desc="Track View">
     private fun trackView(
         viewName: String,
         viewLocation: String? = null,
     ) {
+        if (isOptedOut()) return
         LOG.log(LogLevel.Debug) { "Track viewName: $viewName viewLocation: $viewLocation" }
         eventManager.sendEvent(
             "page_view",
@@ -156,8 +189,35 @@ public class GATracker private constructor(
                 viewLocation?.let { put("page_location", it) } ?: run {
                     put("page_location", viewName)
                 }
-                userId?.let { put("client_id", it) }
             },
         )
     }
+    // </editor-fold>
+
+    // <editor-fold desc="Track Event">
+    public fun trackEvent(
+        eventName: String,
+        eventParams: Map<String, Any> = emptyMap(),
+    ) {
+        if (isOptedOut()) return
+        eventManager.sendEvent(
+            eventName,
+            eventParams,
+        )
+    }
+    // </editor-fold>
+
+    // <editor-fold desc="User Properties">
+    private fun setUserProperty(
+        propertyName: String,
+        value: String? = null,
+    ) {
+        if (isOptedOut()) return
+        eventManager.set(
+            "user_properties",
+            mapOf(propertyName to value),
+        )
+    }
+    // </editor-fold>
+    // </editor-fold>
 }

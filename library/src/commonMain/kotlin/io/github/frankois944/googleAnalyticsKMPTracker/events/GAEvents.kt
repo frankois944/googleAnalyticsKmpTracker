@@ -6,6 +6,7 @@ internal expect class GAEvents(
     measurementId: String,
     url: String? = null,
     apiSecret: String? = null,
+    userId: String? = null,
 ) {
     fun sendEvent(
         eventName: String,
@@ -14,12 +15,22 @@ internal expect class GAEvents(
 
     fun config(
         configName: String,
-        params: Map<String, Any> = emptyMap(),
+        params: Map<String, Any?> = emptyMap(),
+    )
+
+    fun config(
+        configName: String,
+        value: String?,
     )
 
     fun set(
         parameterName: String,
-        params: Map<String, Any> = emptyMap(),
+        params: Map<String, Any?>? = null,
+    )
+
+    fun set(
+        parameterName: String,
+        value: String?,
     )
 
     fun consent(selection: ConsentSelection)
